@@ -422,7 +422,9 @@ export function getDB(): DB {
     loadDBFromFile();
     initializeDB();
     isInitialized = true;
-    console.log(`Database initialized. Users: ${db.users.size}, Videos: ${db.videos.size}`);
+    console.log(
+      `Database initialized. Users: ${db.users.size}, Videos: ${db.videos.size}`,
+    );
   }
   return db;
 }

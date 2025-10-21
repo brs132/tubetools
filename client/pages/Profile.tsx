@@ -125,7 +125,9 @@ export default function Profile() {
     return (
       <Layout>
         <div className="container px-4 py-6 md:py-8 flex items-center justify-center min-h-96">
-          <p className="text-red-600">Failed to load balance. Please refresh.</p>
+          <p className="text-red-600">
+            Failed to load balance. Please refresh.
+          </p>
         </div>
       </Layout>
     );

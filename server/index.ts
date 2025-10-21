@@ -3,7 +3,12 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { handleSignup, handleLogin } from "./routes/auth";
-import { handleGetVideos, handleGetVideo, handleVote, handleGetDailyVotes } from "./routes/videos";
+import {
+  handleGetVideos,
+  handleGetVideo,
+  handleVote,
+  handleGetDailyVotes,
+} from "./routes/videos";
 import { handleGetBalance, handleGetTransactions } from "./routes/balance";
 import {
   handleCreateWithdrawal,

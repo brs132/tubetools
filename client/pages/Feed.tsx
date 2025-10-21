@@ -37,7 +37,9 @@ export default function Feed() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [allVideos, setAllVideos] = useState<Video[]>([]);
   const [displayedVideos, setDisplayedVideos] = useState<EnhancedVideo[]>([]);
-  const [selectedVideo, setSelectedVideo] = useState<EnhancedVideo | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<EnhancedVideo | null>(
+    null,
+  );
   const [userBalance, setUserBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
@@ -47,10 +49,14 @@ export default function Feed() {
   const [watchTimer, setWatchTimer] = useState<NodeJS.Timeout | null>(null);
   const [isVideoFocused, setIsVideoFocused] = useState(false);
   const [dailyVotesRemaining, setDailyVotesRemaining] = useState(7);
-  const [moneyAnimations, setMoneyAnimations] = useState<MoneyAnimationData[]>([]);
+  const [moneyAnimations, setMoneyAnimations] = useState<MoneyAnimationData[]>(
+    [],
+  );
   const [totalVideosWatched, setTotalVideosWatched] = useState(0);
   const [votingStreak, setVotingStreak] = useState(user?.votingStreak || 0);
-  const [votingDaysCount, setVotingDaysCount] = useState(user?.votingDaysCount || 0);
+  const [votingDaysCount, setVotingDaysCount] = useState(
+    user?.votingDaysCount || 0,
+  );
 
   // Shuffle array
   const shuffleArray = (array: any[]) => {
@@ -87,7 +93,9 @@ export default function Feed() {
         ...video,
         rating: generateRating(),
         views: generateViews(),
-        uploadedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+        uploadedAt: new Date(
+          Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
+        ).toISOString(),
         rewardMin: min,
         rewardMax: max,
       };
@@ -124,7 +132,7 @@ export default function Feed() {
             JSON.stringify({
               ...data.user,
               votingDaysCount: data.user.votingDaysCount || 0,
-            })
+            }),
           );
         }
       }
@@ -182,7 +190,7 @@ export default function Feed() {
   const handleVote = async (
     videoId: string,
     voteType: "like" | "dislike",
-    event: React.MouseEvent
+    event: React.MouseEvent,
   ) => {
     if (dailyVotesRemaining <= 0) {
       setError("You've reached your daily vote limit. Come back tomorrow!");
@@ -271,8 +279,12 @@ export default function Feed() {
 
   if (!isAuthenticated()) return null;
 
-  const canVote = watchedSeconds >= VIDEO_MIN_WATCH_SECONDS && dailyVotesRemaining > 0;
-  const watchProgressPercent = Math.min((watchedSeconds / VIDEO_MIN_WATCH_SECONDS) * 100, 100);
+  const canVote =
+    watchedSeconds >= VIDEO_MIN_WATCH_SECONDS && dailyVotesRemaining > 0;
+  const watchProgressPercent = Math.min(
+    (watchedSeconds / VIDEO_MIN_WATCH_SECONDS) * 100,
+    100,
+  );
 
   return (
     <Layout>
@@ -378,19 +390,22 @@ export default function Feed() {
                       <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Eye className="h-4 w-4" />
-                          <span>{formatViews(selectedVideo.views || 0)} views</span>
+                          <span>
+                            {formatViews(selectedVideo.views || 0)} views
+                          </span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
                           <span>
-                            {getTimeAgo(selectedVideo.uploadedAt || new Date().toISOString())}
+                            {getTimeAgo(
+                              selectedVideo.uploadedAt ||
+                                new Date().toISOString(),
+                            )}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 text-yellow-600">
                           <Star className="h-4 w-4 fill-yellow-600" />
-                          <span>
-                            {selectedVideo.rating || 5}/10
-                          </span>
+                          <span>{selectedVideo.rating || 5}/10</span>
                         </div>
                       </div>
                     </div>
@@ -433,7 +448,9 @@ export default function Feed() {
                       <span>Like</span>
                     </button>
                     <button
-                      onClick={(e) => handleVote(selectedVideo.id, "dislike", e)}
+                      onClick={(e) =>
+                        handleVote(selectedVideo.id, "dislike", e)
+                      }
                       disabled={voting || !canVote}
                       className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >

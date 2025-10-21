@@ -8,7 +8,10 @@ export const handleSignup: RequestHandler = (req, res) => {
     const { name, email } = req.body as SignupRequest;
 
     if (!name || !email) {
-      res.status(400).set("Content-Type", "application/json").json({ error: "Name and email are required" });
+      res
+        .status(400)
+        .set("Content-Type", "application/json")
+        .json({ error: "Name and email are required" });
       return;
     }
 
@@ -16,7 +19,10 @@ export const handleSignup: RequestHandler = (req, res) => {
 
     // Check if email already exists
     if (db.emailToUserId.has(email)) {
-      res.status(400).set("Content-Type", "application/json").json({ error: "Email already registered" });
+      res
+        .status(400)
+        .set("Content-Type", "application/json")
+        .json({ error: "Email already registered" });
       return;
     }
 
@@ -53,7 +59,10 @@ export const handleSignup: RequestHandler = (req, res) => {
     res.set("Content-Type", "application/json").json(response);
   } catch (error) {
     console.error("Signup error:", error);
-    res.status(500).set("Content-Type", "application/json").json({ error: "Signup failed" });
+    res
+      .status(500)
+      .set("Content-Type", "application/json")
+      .json({ error: "Signup failed" });
   }
 };
 
@@ -62,7 +71,10 @@ export const handleLogin: RequestHandler = (req, res) => {
     const { email } = req.body as LoginRequest;
 
     if (!email) {
-      res.status(400).set("Content-Type", "application/json").json({ error: "Email is required" });
+      res
+        .status(400)
+        .set("Content-Type", "application/json")
+        .json({ error: "Email is required" });
       return;
     }
 
@@ -70,13 +82,19 @@ export const handleLogin: RequestHandler = (req, res) => {
     const userId = db.emailToUserId.get(email);
 
     if (!userId) {
-      res.status(404).set("Content-Type", "application/json").json({ error: "User not found" });
+      res
+        .status(404)
+        .set("Content-Type", "application/json")
+        .json({ error: "User not found" });
       return;
     }
 
     const user = db.users.get(userId);
     if (!user) {
-      res.status(404).set("Content-Type", "application/json").json({ error: "User not found" });
+      res
+        .status(404)
+        .set("Content-Type", "application/json")
+        .json({ error: "User not found" });
       return;
     }
 
@@ -90,6 +108,9 @@ export const handleLogin: RequestHandler = (req, res) => {
     res.set("Content-Type", "application/json").json(response);
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).set("Content-Type", "application/json").json({ error: "Login failed" });
+    res
+      .status(500)
+      .set("Content-Type", "application/json")
+      .json({ error: "Login failed" });
   }
 };

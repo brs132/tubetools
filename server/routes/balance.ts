@@ -31,7 +31,10 @@ export const handleGetBalance: RequestHandler = (req, res) => {
 
     if (!userId) {
       console.warn("No valid token in authorization header");
-      res.status(401).set("Content-Type", "application/json").json({ error: "Unauthorized" });
+      res
+        .status(401)
+        .set("Content-Type", "application/json")
+        .json({ error: "Unauthorized" });
       return;
     }
 
@@ -41,16 +44,20 @@ export const handleGetBalance: RequestHandler = (req, res) => {
     // If user not found, create a temporary demo user
     // This ensures the app works even if database was cleared
     if (!user) {
-      console.warn(`User not found for userId: ${userId}, creating temporary demo user`);
+      console.warn(
+        `User not found for userId: ${userId}, creating temporary demo user`,
+      );
 
       const now = new Date().toISOString();
-      const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+      const twoWeeksAgo = new Date(
+        Date.now() - 14 * 24 * 60 * 60 * 1000,
+      ).toISOString();
 
       user = {
         id: userId,
         name: "Demo User",
         email: "demo@example.com",
-        balance: 250.00,
+        balance: 250.0,
         createdAt: now,
         firstEarnAt: twoWeeksAgo,
         votingStreak: 5,
@@ -86,7 +93,10 @@ export const handleGetBalance: RequestHandler = (req, res) => {
     res.set("Content-Type", "application/json").json(response);
   } catch (error) {
     console.error("Balance error:", error);
-    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch balance" });
+    res
+      .status(500)
+      .set("Content-Type", "application/json")
+      .json({ error: "Failed to fetch balance" });
   }
 };
 
@@ -96,7 +106,10 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res.status(401).set("Content-Type", "application/json").json({ error: "Unauthorized" });
+      res
+        .status(401)
+        .set("Content-Type", "application/json")
+        .json({ error: "Unauthorized" });
       return;
     }
 
@@ -116,10 +129,12 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
           id: "tx-1",
           userId,
           type: "credit" as const,
-          amount: 5.50,
+          amount: 5.5,
           description: "Video vote reward - Amazing Tech Review",
           status: "completed" as const,
-          createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          createdAt: new Date(
+            now.getTime() - 2 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
         },
         {
           id: "tx-2",
@@ -128,7 +143,9 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
           amount: 8.25,
           description: "Video vote reward - Travel Vlog",
           status: "completed" as const,
-          createdAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          createdAt: new Date(
+            now.getTime() - 1 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
         },
         {
           id: "tx-3",
@@ -146,6 +163,9 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
     res.set("Content-Type", "application/json").json(transactions);
   } catch (error) {
     console.error("Transactions error:", error);
-    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch transactions" });
+    res
+      .status(500)
+      .set("Content-Type", "application/json")
+      .json({ error: "Failed to fetch transactions" });
   }
 };

@@ -37,7 +37,10 @@ export const handleGetVideos: RequestHandler = (req, res) => {
     res.set("Content-Type", "application/json").json(videos);
   } catch (error) {
     console.error("Videos error:", error);
-    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch videos" });
+    res
+      .status(500)
+      .set("Content-Type", "application/json")
+      .json({ error: "Failed to fetch videos" });
   }
 };
 
@@ -47,7 +50,10 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res.status(401).set("Content-Type", "application/json").json({ error: "Unauthorized" });
+      res
+        .status(401)
+        .set("Content-Type", "application/json")
+        .json({ error: "Unauthorized" });
       return;
     }
 
@@ -56,8 +62,9 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
     const remaining = Math.max(0, 7 - dailyVotes);
 
     // Get total votes for this user (all time)
-    const allVotes = Array.from(db.votes.values())
-      .filter((v) => v.userId === userId);
+    const allVotes = Array.from(db.votes.values()).filter(
+      (v) => v.userId === userId,
+    );
 
     // If user has no votes yet, provide demo data
     const totalVotes = allVotes.length > 0 ? allVotes.length : 23;
@@ -71,7 +78,10 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
     });
   } catch (error) {
     console.error("Daily votes error:", error);
-    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch daily votes" });
+    res
+      .status(500)
+      .set("Content-Type", "application/json")
+      .json({ error: "Failed to fetch daily votes" });
   }
 };
 
@@ -82,14 +92,20 @@ export const handleGetVideo: RequestHandler = (req, res) => {
     const video = db.videos.get(id);
 
     if (!video) {
-      res.status(404).set("Content-Type", "application/json").json({ error: "Video not found" });
+      res
+        .status(404)
+        .set("Content-Type", "application/json")
+        .json({ error: "Video not found" });
       return;
     }
 
     res.set("Content-Type", "application/json").json(video);
   } catch (error) {
     console.error("Video error:", error);
-    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch video" });
+    res
+      .status(500)
+      .set("Content-Type", "application/json")
+      .json({ error: "Failed to fetch video" });
   }
 };
 
@@ -99,7 +115,10 @@ export const handleVote: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res.status(401).set("Content-Type", "application/json").json({ error: "Unauthorized" });
+      res
+        .status(401)
+        .set("Content-Type", "application/json")
+        .json({ error: "Unauthorized" });
       return;
     }
 
@@ -107,7 +126,10 @@ export const handleVote: RequestHandler = (req, res) => {
     const { voteType } = req.body;
 
     if (!voteType || !["like", "dislike"].includes(voteType)) {
-      res.status(400).set("Content-Type", "application/json").json({ error: "Invalid vote type" });
+      res
+        .status(400)
+        .set("Content-Type", "application/json")
+        .json({ error: "Invalid vote type" });
       return;
     }
 
@@ -117,7 +139,10 @@ export const handleVote: RequestHandler = (req, res) => {
 
     // If video not found, return error
     if (!video) {
-      res.status(404).set("Content-Type", "application/json").json({ error: "Video not found" });
+      res
+        .status(404)
+        .set("Content-Type", "application/json")
+        .json({ error: "Video not found" });
       return;
     }
 
@@ -142,8 +167,12 @@ export const handleVote: RequestHandler = (req, res) => {
     const now = new Date();
 
     // Calculate hours since last reset
-    const lastReset = user.lastVoteDateReset ? new Date(user.lastVoteDateReset) : null;
-    const hoursSinceReset = lastReset ? (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60) : 24;
+    const lastReset = user.lastVoteDateReset
+      ? new Date(user.lastVoteDateReset)
+      : null;
+    const hoursSinceReset = lastReset
+      ? (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60)
+      : 24;
 
     // Check if this is the first vote ever
     const isFirstVoteEver = !user.votingDaysCount || user.votingDaysCount === 0;
@@ -237,6 +266,9 @@ export const handleVote: RequestHandler = (req, res) => {
     res.set("Content-Type", "application/json").json(response);
   } catch (error) {
     console.error("Vote error:", error);
-    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to process vote" });
+    res
+      .status(500)
+      .set("Content-Type", "application/json")
+      .json({ error: "Failed to process vote" });
   }
 };
