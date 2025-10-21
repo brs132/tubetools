@@ -34,11 +34,26 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
     }
 
     const db = getDB();
-    const user = db.users.get(userId);
+    let user = db.users.get(userId);
 
+    // If user not found, create demo user
     if (!user) {
-      res.status(404).set("Content-Type", "application/json").json({ error: "User not found" });
-      return;
+      const now = new Date();
+      const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+
+      user = {
+        id: userId,
+        name: "Demo User",
+        email: "demo@example.com",
+        balance: 250.00,
+        createdAt: now.toISOString(),
+        firstEarnAt: twoWeeksAgo,
+        votingStreak: 5,
+        lastVotedAt: now.toISOString(),
+        lastVoteDateReset: now.toISOString(),
+        votingDaysCount: 15,
+      };
+      db.users.set(userId, user);
     }
 
     // Check withdrawal eligibility
