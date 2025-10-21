@@ -4,15 +4,22 @@ import { WITHDRAWAL_COOLDOWN_DAYS } from "../constants";
 import { BalanceInfo } from "@shared/api";
 
 function getUserIdFromToken(token: string | undefined): string | null {
-  if (!token) return null;
+  if (!token) {
+    console.warn("No authorization token provided");
+    return null;
+  }
   try {
-    const decoded = Buffer.from(
-      token.replace("Bearer ", ""),
-      "base64",
-    ).toString();
+    const bearerToken = token.replace("Bearer ", "");
+    const decoded = Buffer.from(bearerToken, "base64").toString();
     const [userId] = decoded.split(":");
+    if (!userId) {
+      console.warn("Could not extract userId from token:", decoded);
+      return null;
+    }
+    console.log("Extracted userId from token:", userId);
     return userId;
-  } catch {
+  } catch (err) {
+    console.error("Error decoding token:", err);
     return null;
   }
 }
