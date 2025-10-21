@@ -18,8 +18,10 @@ export async function apiCall<T>(
     headers.Authorization = `Bearer ${token}`;
   }
 
+  let response: Response | null = null;
+
   try {
-    const response = await fetch(endpoint, {
+    response = await fetch(endpoint, {
       ...options,
       headers,
     });
@@ -31,37 +33,63 @@ export async function apiCall<T>(
       text = await response.text();
     } catch (bodyReadError) {
       // Handle "body stream already read" or other body reading errors
-      if (bodyReadError instanceof TypeError) {
-        console.error("Body stream error:", bodyReadError);
-        // If we can't read the body, check status code
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        return {} as T;
+      console.error("Body stream error:", bodyReadError);
+      // If we can't read the body, use status code alone
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
       }
-      throw bodyReadError;
+      // For successful responses where we can't read the body, return empty object
+      return {} as T;
     }
 
+    // Check response status
     if (!response.ok) {
-      console.error(`API error ${response.status}:`, text);
-      throw new Error(`API error: ${response.status}`);
+      // Try to parse error response
+      let errorMessage = `API error: ${response.status}`;
+      if (text) {
+        try {
+          const errorData = JSON.parse(text);
+          if (errorData.error) {
+            errorMessage = `${response.status}: ${errorData.error}`;
+          }
+        } catch {
+          // If error response isn't JSON, just use the text
+          if (text.length < 200) {
+            errorMessage = `${response.status}: ${text}`;
+          }
+        }
+      }
+      console.error("API error response:", errorMessage);
+      throw new Error(errorMessage);
     }
 
     if (!text) {
       return {} as T;
     }
 
+    // Parse successful response
     try {
       return JSON.parse(text) as T;
-    } catch (err) {
-      console.error("Failed to parse JSON:", text);
+    } catch (parseErr) {
+      console.error("Failed to parse JSON response:", text.substring(0, 100));
       throw new Error("Invalid response format");
     }
   } catch (err) {
-    if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
-      console.error("Network error:", err);
-      throw new Error("Network error - please check your connection");
+    // Handle network errors and other fetch-level errors
+    if (err instanceof TypeError) {
+      const errorMessage = err.message || "Unknown error";
+      console.error("Fetch error:", errorMessage);
+
+      // Provide a user-friendly message for network issues
+      if (errorMessage.includes("Failed to fetch") ||
+          errorMessage.includes("body stream already read") ||
+          errorMessage.includes("NetworkError")) {
+        throw new Error("Network error - please check your connection");
+      }
+      throw new Error(`Network error: ${errorMessage}`);
     }
+
+    // Re-throw other errors
     throw err;
   }
 }
