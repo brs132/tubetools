@@ -392,8 +392,25 @@ export function resetDB() {
     transactions: new Map(),
     withdrawals: new Map(),
     emailToUserId: new Map(),
+    dailyVoteCount: new Map(),
   };
   initializeDB();
+}
+
+export function getDailyVoteCount(userId: string): number {
+  const today = new Date().toISOString().split("T")[0];
+  const record = db.dailyVoteCount.get(`${userId}:${today}`);
+  return record ? record.count : 0;
+}
+
+export function incrementDailyVoteCount(userId: string): void {
+  const today = new Date().toISOString().split("T")[0];
+  const key = `${userId}:${today}`;
+  const current = db.dailyVoteCount.get(key);
+  db.dailyVoteCount.set(key, {
+    count: (current?.count || 0) + 1,
+    date: today,
+  });
 }
 
 export function generateId(): string {
