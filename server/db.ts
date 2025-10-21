@@ -418,9 +418,11 @@ let isInitialized = false;
 
 export function getDB(): DB {
   if (!isInitialized) {
+    console.log("Initializing database...");
     loadDBFromFile();
     initializeDB();
     isInitialized = true;
+    console.log(`Database initialized. Users: ${db.users.size}, Videos: ${db.videos.size}`);
   }
   return db;
 }
