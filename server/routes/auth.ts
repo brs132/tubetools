@@ -30,6 +30,10 @@ export const handleSignup: RequestHandler = (req, res) => {
       balance: SYSTEM_STARTING_BALANCE,
       createdAt: now,
       firstEarnAt: null,
+      votingStreak: 0,
+      lastVotedAt: null,
+      lastVoteDateReset: null,
+      votingDaysCount: 0,
     };
 
     db.users.set(userId, user);
