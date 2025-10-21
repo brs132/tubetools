@@ -291,7 +291,7 @@ export default function Feed() {
                         Streak
                       </p>
                       <p className="text-2xl font-bold text-orange-600">
-                        {user?.votingStreak || 0}
+                        {votingStreak}
                       </p>
                     </div>
                     <span className="text-xl">🔥</span>
