@@ -197,9 +197,44 @@ export default function Profile() {
                       onChange={(e) => setWithdrawMethod(e.target.value)}
                       className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="paypal">PayPal</option>
-                      <option value="bank">Bank Transfer</option>
-                      <option value="crypto">Cryptocurrency</option>
+                      <option value="">Select a payment method...</option>
+                      <optgroup label="Wallets & Payment Services">
+                        <option value="paypal">PayPal</option>
+                        <option value="stripe">Stripe</option>
+                        <option value="skrill">Skrill</option>
+                        <option value="neteller">Neteller</option>
+                        <option value="wise">Wise (TransferWise)</option>
+                      </optgroup>
+                      <optgroup label="Bank & Wire Transfers">
+                        <option value="bank-transfer">Bank Transfer</option>
+                        <option value="ach">ACH Transfer (US)</option>
+                        <option value="sepa">SEPA Transfer (EU)</option>
+                        <option value="swift">SWIFT Wire</option>
+                      </optgroup>
+                      <optgroup label="Cryptocurrencies">
+                        <option value="bitcoin">Bitcoin (BTC)</option>
+                        <option value="ethereum">Ethereum (ETH)</option>
+                        <option value="usdc">USD Coin (USDC)</option>
+                        <option value="usdt">Tether (USDT)</option>
+                        <option value="monero">Monero (XMR)</option>
+                      </optgroup>
+                      <optgroup label="Mobile Payments">
+                        <option value="apple-pay">Apple Pay</option>
+                        <option value="google-pay">Google Pay</option>
+                        <option value="samsung-pay">Samsung Pay</option>
+                      </optgroup>
+                      <optgroup label="Regional Services">
+                        <option value="alipay">Alipay (China)</option>
+                        <option value="wechat">WeChat Pay (China)</option>
+                        <option value="brl">PIX (Brazil)</option>
+                        <option value="upi">UPI (India)</option>
+                        <option value="truemoney">TrueMoney (Thailand)</option>
+                      </optgroup>
+                      <optgroup label="Other Methods">
+                        <option value="amazon-gift">Amazon Gift Card</option>
+                        <option value="prepaid-card">Prepaid Card</option>
+                        <option value="check">Check by Mail</option>
+                      </optgroup>
                     </select>
                   </div>
 
