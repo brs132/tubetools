@@ -115,10 +115,12 @@ export default function Feed() {
       if (data.user) {
         setUserBalance(data.user.balance);
         setVotingStreak(data.user.votingStreak || 0);
-        // Refetch daily votes remaining from server
-        const voteData = await apiGet<any>("/api/daily-votes");
-        setDailyVotesRemaining(voteData.remaining || 7);
       }
+
+      // Refetch daily votes remaining and total votes from server
+      const voteData = await apiGet<any>("/api/daily-votes");
+      setDailyVotesRemaining(voteData.remaining || 7);
+      setTotalVideosWatched(voteData.totalVotes || 0);
     } catch (err) {
       // Silently fail - use local state
       console.debug("Failed to load user stats:", err);
