@@ -12,6 +12,20 @@ import {
 } from "../constants";
 import { VoteResponse } from "@shared/api";
 
+function getUserIdFromToken(token: string | undefined): string | null {
+  if (!token) return null;
+  try {
+    const decoded = Buffer.from(
+      token.replace("Bearer ", ""),
+      "base64",
+    ).toString();
+    const [userId] = decoded.split(":");
+    return userId;
+  } catch {
+    return null;
+  }
+}
+
 export const handleGetVideos: RequestHandler = (req, res) => {
   try {
     const db = getDB();
@@ -22,6 +36,25 @@ export const handleGetVideos: RequestHandler = (req, res) => {
     res.json(videos);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch videos" });
+  }
+};
+
+export const handleGetDailyVotes: RequestHandler = (req, res) => {
+  try {
+    const token = req.headers.authorization;
+    const userId = getUserIdFromToken(token);
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const dailyVotes = getDailyVoteCount(userId);
+    const remaining = Math.max(0, 7 - dailyVotes);
+
+    res.json({ remaining, voted: dailyVotes });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch daily votes" });
   }
 };
 
