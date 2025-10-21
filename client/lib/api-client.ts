@@ -24,85 +24,83 @@ export async function apiCall<T>(
       headers,
     });
 
-    let text = "";
-    let readSuccess = false;
-
-    // Try to read response body using text() with multiple fallback strategies
-    try {
-      text = await response.text();
-      readSuccess = true;
-    } catch (firstError) {
-      // If text() fails, try cloning the response
-      console.warn("Initial text() failed, attempting clone fallback", firstError);
-
-      try {
-        // Clone allows us to read the response again
-        const cloned = response.clone();
-        text = await cloned.text();
-        readSuccess = true;
-      } catch (secondError) {
-        console.error("Clone fallback also failed", secondError);
-        // Both strategies failed - we can't read the body
-        // Use status code to determine what to return
-        if (response.ok) {
-          // Successful response with unreadable body - return empty
-          return {} as T;
-        } else {
-          // Error response with unreadable body
-          throw new Error(`API error: ${response.status}`);
-        }
-      }
+    // For 404/error responses, don't bother trying to read body
+    // Just throw with status code
+    if (response.status === 404) {
+      throw new Error("API error: 404");
     }
 
-    // At this point, readSuccess should be true and text should contain the body
-    if (!response.ok) {
-      let errorMessage = `API error: ${response.status}`;
+    if (response.status === 401) {
+      throw new Error("Unauthorized");
+    }
 
-      if (readSuccess && text) {
+    // For other error statuses, attempt to read body once
+    if (!response.ok) {
+      let errorText = "";
+      try {
+        errorText = await response.text();
+      } catch (readErr) {
+        // If we can't read the body, just use status code
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      let errorMessage = `API error: ${response.status}`;
+      if (errorText) {
         try {
-          const errorData = JSON.parse(text);
+          const errorData = JSON.parse(errorText);
           if (errorData.error) {
-            errorMessage = `${response.status}: ${errorData.error}`;
+            errorMessage = errorData.error;
           }
         } catch {
-          // Response is not JSON
-          if (text.length < 200) {
-            errorMessage = `${response.status}: ${text}`;
+          // Not JSON, just use raw text if short
+          if (errorText.length < 200) {
+            errorMessage = errorText;
           }
         }
       }
-
-      console.error("API error:", errorMessage);
       throw new Error(errorMessage);
     }
 
-    // Handle successful response (2xx status)
+    // For successful responses, try to read the body
+    let text = "";
+    try {
+      text = await response.text();
+    } catch (readErr) {
+      // Body already consumed - return empty object
+      console.warn("Could not read response body (likely consumed by proxy)");
+      return {} as T;
+    }
+
+    // Parse the response
     if (!text || text.trim() === "") {
       return {} as T;
     }
 
     try {
-      const parsed = JSON.parse(text) as T;
-      return parsed;
+      return JSON.parse(text) as T;
     } catch (parseErr) {
-      console.error("JSON parse error:", text.substring(0, 200));
-      throw new Error("Invalid JSON response");
+      console.error("Failed to parse JSON:", text.substring(0, 100));
+      throw new Error("Invalid response format");
     }
   } catch (err) {
-    // Handle TypeError separately for network-related errors
+    // Handle network-level errors
     if (err instanceof TypeError) {
       const msg = err.message || "Unknown error";
-      console.error("TypeError caught:", msg);
 
-      // Check for specific network error patterns
+      // Don't try to parse body stream errors - just report
+      if (msg.includes("body stream") || msg.includes("already used")) {
+        console.warn("Response body consumed by proxy");
+        throw new Error("Connection issue - please try again");
+      }
+
       if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
         throw new Error("Network error - please check your connection");
       }
 
-      throw new Error(`Connection error: ${msg}`);
+      throw new Error("Connection error");
     }
 
-    // For all other errors, re-throw as-is
+    // Re-throw application errors
     throw err;
   }
 }
