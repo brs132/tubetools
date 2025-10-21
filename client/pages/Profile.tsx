@@ -380,6 +380,17 @@ export default function Profile() {
                   </p>
                 </div>
               </div>
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800">
+                <span className="text-xl">🔥</span>
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    VOTING STREAK
+                  </p>
+                  <p className="font-bold text-orange-600 dark:text-orange-400">
+                    {balance.user.votingStreak || 0} days
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
