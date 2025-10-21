@@ -8,10 +8,13 @@ export const DAILY_CHECKIN_BONUS = 0.5;
 export const VOTE_REWARD_MIN = 0.3;
 export const VOTE_REWARD_MAX = 2.0;
 
+// Video requirements
+export const VIDEO_MIN_WATCH_SECONDS = 4;
+
 // Storage keys
-export const STORAGE_KEY_USER = "watchearn_user";
-export const STORAGE_KEY_TOKEN = "watchearn_token";
-export const STORAGE_KEY_EMAIL = "watchearn_email";
+export const STORAGE_KEY_USER = "tubetools_user";
+export const STORAGE_KEY_TOKEN = "tubetools_token";
+export const STORAGE_KEY_EMAIL = "tubetools_email";
 
 // API endpoints
 export const API_BASE = "/api";
