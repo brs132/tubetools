@@ -31,10 +31,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
 
     if (!userId) {
       console.warn("No valid token in authorization header");
-      res
-        .status(401)
-        .set("Content-Type", "application/json")
-        .json({ error: "Unauthorized" });
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
