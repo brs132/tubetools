@@ -160,7 +160,7 @@ export default function Onboarding() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary"
+            className="w-full px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
           >
             {loading
               ? "Loading..."
