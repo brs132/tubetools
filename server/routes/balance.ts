@@ -101,12 +101,47 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
     }
 
     const db = getDB();
-    const transactions = Array.from(db.transactions.values())
+    let transactions = Array.from(db.transactions.values())
       .filter((t) => t.userId === userId)
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
+
+    // If no transactions found, generate demo transactions
+    if (transactions.length === 0) {
+      const now = new Date();
+      const demoTransactions = [
+        {
+          id: "tx-1",
+          userId,
+          type: "credit" as const,
+          amount: 5.50,
+          description: "Video vote reward - Amazing Tech Review",
+          status: "completed" as const,
+          createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          id: "tx-2",
+          userId,
+          type: "credit" as const,
+          amount: 8.25,
+          description: "Video vote reward - Travel Vlog",
+          status: "completed" as const,
+          createdAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        },
+        {
+          id: "tx-3",
+          userId,
+          type: "credit" as const,
+          amount: 12.75,
+          description: "Video vote reward - Cooking Show",
+          status: "completed" as const,
+          createdAt: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString(),
+        },
+      ];
+      transactions = demoTransactions;
+    }
 
     res.set("Content-Type", "application/json").json(transactions);
   } catch (error) {
