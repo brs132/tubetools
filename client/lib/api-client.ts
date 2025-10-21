@@ -18,19 +18,30 @@ export async function apiCall<T>(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(endpoint, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
-  }
-
   try {
-    return response.json();
+    const response = await fetch(endpoint, {
+      ...options,
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    // Clone the response to safely read it
+    const contentType = response.headers.get("content-type");
+    if (contentType?.includes("application/json")) {
+      return response.json();
+    } else {
+      // For non-JSON responses, return the text
+      const text = await response.text();
+      return JSON.parse(text || "{}");
+    }
   } catch (err) {
-    throw new Error(`Failed to parse response: ${err instanceof Error ? err.message : "Unknown error"}`);
+    if (err instanceof TypeError && err.message.includes("body stream already read")) {
+      throw new Error("Server error: unable to read response");
+    }
+    throw err;
   }
 }
 
