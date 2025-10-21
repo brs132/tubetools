@@ -254,12 +254,12 @@ export default function Feed() {
             {/* Main Video Player */}
             <div className="lg:col-span-2 space-y-4">
               {/* Daily Votes & Stats */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="card-base p-4 bg-gradient-to-r from-red-600/10 to-red-600/5 border-red-200 dark:border-red-900">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-semibold text-muted-foreground">
-                        Daily Votes
+                        Votes Left
                       </p>
                       <p className="text-2xl font-bold text-red-600">
                         {dailyVotesRemaining}
@@ -272,13 +272,26 @@ export default function Feed() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-semibold text-muted-foreground">
-                        Videos Watched
+                        Watched
                       </p>
                       <p className="text-2xl font-bold text-blue-600">
                         {totalVideosWatched}
                       </p>
                     </div>
                     <Eye className="h-5 w-5 text-blue-600" />
+                  </div>
+                </div>
+                <div className="card-base p-4 bg-gradient-to-r from-orange-600/10 to-orange-600/5 border-orange-200 dark:border-orange-900">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground">
+                        Streak
+                      </p>
+                      <p className="text-2xl font-bold text-orange-600">
+                        {user?.votingStreak || 0}
+                      </p>
+                    </div>
+                    <span className="text-xl">🔥</span>
                   </div>
                 </div>
               </div>
