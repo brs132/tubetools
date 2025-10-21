@@ -99,8 +99,8 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="container py-6 md:py-8">
-        <div className="grid md:grid-cols-3 gap-6">
+      <div className="container px-4 py-6 md:py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="md:col-span-2 space-y-6">
             {/* Balance Card */}
