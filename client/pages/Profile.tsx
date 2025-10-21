@@ -132,7 +132,7 @@ export default function Profile() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-semibold">Days voting:</span>
                   <span className="font-bold text-green-600">
-                    {20 - balance.daysUntilWithdrawal} / 20 days
+                    {votingDaysCount} / 20 days
                   </span>
                 </div>
 
