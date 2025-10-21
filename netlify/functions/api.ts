@@ -4,6 +4,4 @@ import { createServer } from "../../server";
 
 const app = createServer();
 
-export const handler = serverless(app, {
-  basePath: "/api",
-});
+export const handler = serverless(app);
