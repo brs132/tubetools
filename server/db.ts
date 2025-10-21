@@ -14,6 +14,7 @@ interface DB {
   transactions: Map<string, DBTransaction>;
   withdrawals: Map<string, DBWithdrawal>;
   emailToUserId: Map<string, string>;
+  dailyVoteCount: Map<string, { count: number; date: string }>;
 }
 
 let db: DB = {
