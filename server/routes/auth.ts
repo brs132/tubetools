@@ -8,7 +8,7 @@ export const handleSignup: RequestHandler = (req, res) => {
     const { name, email } = req.body as SignupRequest;
 
     if (!name || !email) {
-      res.status(400).json({ error: "Name and email are required" });
+      res.status(400).set("Content-Type", "application/json").json({ error: "Name and email are required" });
       return;
     }
 
@@ -16,7 +16,7 @@ export const handleSignup: RequestHandler = (req, res) => {
 
     // Check if email already exists
     if (db.emailToUserId.has(email)) {
-      res.status(400).json({ error: "Email already registered" });
+      res.status(400).set("Content-Type", "application/json").json({ error: "Email already registered" });
       return;
     }
 
@@ -47,9 +47,10 @@ export const handleSignup: RequestHandler = (req, res) => {
       token,
     };
 
-    res.json(response);
+    res.set("Content-Type", "application/json").json(response);
   } catch (error) {
-    res.status(500).json({ error: "Signup failed" });
+    console.error("Signup error:", error);
+    res.status(500).set("Content-Type", "application/json").json({ error: "Signup failed" });
   }
 };
 
