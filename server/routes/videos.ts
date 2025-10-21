@@ -34,7 +34,7 @@ export const handleGetVideos: RequestHandler = (req, res) => {
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
-    res.set("Content-Type", "application/json").json(videos);
+    res.json(videos);
   } catch (error) {
     console.error("Videos error:", error);
     res
@@ -71,7 +71,7 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
     const votedToday = dailyVotes > 0 ? dailyVotes : 0;
     const remainingVotes = remaining > 0 ? remaining : 7;
 
-    res.set("Content-Type", "application/json").json({
+    res.json({
       remaining: remainingVotes,
       voted: votedToday,
       totalVotes,
@@ -99,7 +99,7 @@ export const handleGetVideo: RequestHandler = (req, res) => {
       return;
     }
 
-    res.set("Content-Type", "application/json").json(video);
+    res.json(video);
   } catch (error) {
     console.error("Video error:", error);
     res
@@ -190,7 +190,7 @@ export const handleVote: RequestHandler = (req, res) => {
     // Check daily vote limit (1-7 votes per day)
     const dailyVotes = getDailyVoteCount(userId);
     if (dailyVotes >= 7) {
-      res.status(400).set("Content-Type", "application/json").json({
+      res.status(400).json({
         error: "You've reached your daily vote limit (7 votes)",
         dailyVotesRemaining: 0,
       });
@@ -263,7 +263,7 @@ export const handleVote: RequestHandler = (req, res) => {
     // Save database after modifications
     saveDBToFile();
 
-    res.set("Content-Type", "application/json").json(response);
+    res.json(response);
   } catch (error) {
     console.error("Vote error:", error);
     res

@@ -153,7 +153,7 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
     // Save database after modifications
     saveDBToFile();
 
-    res.set("Content-Type", "application/json").json(withdrawal);
+    res.json(withdrawal);
   } catch (error) {
     console.error("Withdrawal error:", error);
     res
@@ -184,7 +184,7 @@ export const handleGetWithdrawals: RequestHandler = (req, res) => {
           new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime(),
       );
 
-    res.set("Content-Type", "application/json").json(withdrawals);
+    res.json(withdrawals);
   } catch (error) {
     console.error("Withdrawals error:", error);
     res
