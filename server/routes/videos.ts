@@ -9,7 +9,6 @@ import {
 import {
   getRandomReward,
   roundToTwoDecimals,
-  WITHDRAWAL_COOLDOWN_DAYS,
 } from "../constants";
 import { VoteResponse } from "@shared/api";
 
@@ -37,10 +36,7 @@ export const handleGetVideos: RequestHandler = (req, res) => {
     res.json(videos);
   } catch (error) {
     console.error("Videos error:", error);
-    res
-      .status(500)
-      .set("Content-Type", "application/json")
-      .json({ error: "Failed to fetch videos" });
+    res.status(500).json({ error: "Failed to fetch videos" });
   }
 };
 
@@ -50,10 +46,7 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res
-        .status(401)
-        .set("Content-Type", "application/json")
-        .json({ error: "Unauthorized" });
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
@@ -78,10 +71,7 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
     });
   } catch (error) {
     console.error("Daily votes error:", error);
-    res
-      .status(500)
-      .set("Content-Type", "application/json")
-      .json({ error: "Failed to fetch daily votes" });
+    res.status(500).json({ error: "Failed to fetch daily votes" });
   }
 };
 
@@ -92,20 +82,14 @@ export const handleGetVideo: RequestHandler = (req, res) => {
     const video = db.videos.get(id);
 
     if (!video) {
-      res
-        .status(404)
-        .set("Content-Type", "application/json")
-        .json({ error: "Video not found" });
+      res.status(404).json({ error: "Video not found" });
       return;
     }
 
     res.json(video);
   } catch (error) {
     console.error("Video error:", error);
-    res
-      .status(500)
-      .set("Content-Type", "application/json")
-      .json({ error: "Failed to fetch video" });
+    res.status(500).json({ error: "Failed to fetch video" });
   }
 };
 
@@ -115,10 +99,7 @@ export const handleVote: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res
-        .status(401)
-        .set("Content-Type", "application/json")
-        .json({ error: "Unauthorized" });
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
@@ -126,10 +107,7 @@ export const handleVote: RequestHandler = (req, res) => {
     const { voteType } = req.body;
 
     if (!voteType || !["like", "dislike"].includes(voteType)) {
-      res
-        .status(400)
-        .set("Content-Type", "application/json")
-        .json({ error: "Invalid vote type" });
+      res.status(400).json({ error: "Invalid vote type" });
       return;
     }
 
@@ -139,10 +117,7 @@ export const handleVote: RequestHandler = (req, res) => {
 
     // If video not found, return error
     if (!video) {
-      res
-        .status(404)
-        .set("Content-Type", "application/json")
-        .json({ error: "Video not found" });
+      res.status(404).json({ error: "Video not found" });
       return;
     }
 
@@ -251,7 +226,7 @@ export const handleVote: RequestHandler = (req, res) => {
 
     db.transactions.set(transactionId, transaction);
 
-    const response: any = {
+    const response: VoteResponse = {
       vote,
       newBalance,
       dailyVotesRemaining,
@@ -266,9 +241,6 @@ export const handleVote: RequestHandler = (req, res) => {
     res.json(response);
   } catch (error) {
     console.error("Vote error:", error);
-    res
-      .status(500)
-      .set("Content-Type", "application/json")
-      .json({ error: "Failed to process vote" });
+    res.status(500).json({ error: "Failed to process vote" });
   }
 };
