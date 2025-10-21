@@ -99,7 +99,7 @@ export const handleVote: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).set("Content-Type", "application/json").json({ error: "Unauthorized" });
       return;
     }
 
