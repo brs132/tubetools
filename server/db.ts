@@ -1,4 +1,6 @@
 import { UserData, Video, Vote, Transaction, Withdrawal } from "@shared/api";
+import * as fs from "fs";
+import * as path from "path";
 
 // In-memory database (for development - would be replaced with real DB)
 export interface DBUser extends UserData {}
@@ -30,6 +32,60 @@ let db: DB = {
   emailToUserId: new Map(),
   dailyVoteCount: new Map(),
 };
+
+const DB_FILE = path.join(process.cwd(), ".data", "db.json");
+
+function ensureDataDir() {
+  const dir = path.dirname(DB_FILE);
+  if (!fs.existsSync(dir)) {
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+    } catch (err) {
+      // Ignore if can't create directory (e.g., read-only filesystem)
+    }
+  }
+}
+
+function loadDBFromFile() {
+  try {
+    ensureDataDir();
+    if (fs.existsSync(DB_FILE)) {
+      const data = fs.readFileSync(DB_FILE, "utf-8");
+      const parsed = JSON.parse(data);
+
+      // Restore Maps from JSON
+      db.users = new Map(parsed.users || []);
+      db.votes = new Map(parsed.votes || []);
+      db.transactions = new Map(parsed.transactions || []);
+      db.withdrawals = new Map(parsed.withdrawals || []);
+      db.emailToUserId = new Map(parsed.emailToUserId || []);
+      db.dailyVoteCount = new Map(parsed.dailyVoteCount || []);
+      db.videos = new Map(parsed.videos || []);
+    }
+  } catch (err) {
+    // If we can't load from file, just use empty DB
+    console.debug("Could not load DB from file, using fresh DB");
+  }
+}
+
+function saveDBToFile() {
+  try {
+    ensureDataDir();
+    const data = {
+      users: Array.from(db.users.entries()),
+      votes: Array.from(db.votes.entries()),
+      transactions: Array.from(db.transactions.entries()),
+      withdrawals: Array.from(db.withdrawals.entries()),
+      emailToUserId: Array.from(db.emailToUserId.entries()),
+      dailyVoteCount: Array.from(db.dailyVoteCount.entries()),
+      videos: Array.from(db.videos.entries()),
+    };
+    fs.writeFileSync(DB_FILE, JSON.stringify(data), "utf-8");
+  } catch (err) {
+    // Ignore write errors (e.g., read-only filesystem on serverless)
+    console.debug("Could not save DB to file");
+  }
+}
 
 // Generate random reward (0.30 to 27.00)
 function generateReward(): { min: number; max: number } {
