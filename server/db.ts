@@ -24,6 +24,7 @@ let db: DB = {
   transactions: new Map(),
   withdrawals: new Map(),
   emailToUserId: new Map(),
+  dailyVoteCount: new Map(),
 };
 
 // Initialize with sample data
