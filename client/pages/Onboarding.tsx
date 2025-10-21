@@ -34,15 +34,25 @@ export default function Onboarding() {
 
     try {
       const payload: SignupRequest = { name, email };
+      console.log("Sending signup request with payload:", payload);
+
       const response = await apiPost<AuthResponse>("/api/auth/signup", payload);
+      console.log("Signup response received:", response);
+
+      if (!response || !response.token || !response.user) {
+        throw new Error("Invalid signup response: missing token or user");
+      }
 
       setUser(response.user);
       setAuthToken(response.token);
       setRememberedEmail(email);
 
+      console.log("Auth state saved, navigating to feed");
       navigate("/feed");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Signup failed");
+      const errorMsg = err instanceof Error ? err.message : "Signup failed";
+      console.error("Signup error:", errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
