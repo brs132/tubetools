@@ -42,6 +42,8 @@ function generateReward(): { min: number; max: number } {
 function initializeDB() {
   if (db.videos.size > 0) return; // Already initialized
 
+  const getVideoReward = () => generateReward();
+
   const sampleVideos: DBVideo[] = [
     {
       id: "W5PRZuaQ3VM",
@@ -49,8 +51,7 @@ function initializeDB() {
       description: "YouTube Video",
       url: "https://www.youtube.com/embed/W5PRZuaQ3VM",
       thumbnail: "https://img.youtube.com/vi/W5PRZuaQ3VM/maxresdefault.jpg",
-      rewardMin: 0.3,
-      rewardMax: 2.0,
+      ...getVideoReward(),
       createdAt: new Date().toISOString(),
     },
     {
@@ -59,8 +60,7 @@ function initializeDB() {
       description: "YouTube Video",
       url: "https://www.youtube.com/embed/keOaQm6RpBg",
       thumbnail: "https://img.youtube.com/vi/keOaQm6RpBg/maxresdefault.jpg",
-      rewardMin: 0.3,
-      rewardMax: 2.0,
+      ...getVideoReward(),
       createdAt: new Date().toISOString(),
     },
     {
