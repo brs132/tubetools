@@ -36,8 +36,8 @@ export default function Profile() {
     loadBalance();
     loadTransactions();
 
-    // Refetch balance every 3 seconds to stay in sync with Feed
-    const interval = setInterval(loadBalance, 3000);
+    // Refetch balance every 10 seconds to stay in sync with Feed
+    const interval = setInterval(loadBalance, 10000);
     return () => clearInterval(interval);
   }, [navigate]);
 
