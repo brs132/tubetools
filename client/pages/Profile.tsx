@@ -135,7 +135,7 @@ export default function Profile() {
                 {/* Progress Bar */}
                 <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                   <div
-                    className="gradient-primary h-full rounded-full transition-all duration-500"
+                    className="bg-red-600 h-full rounded-full transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
