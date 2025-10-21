@@ -6,10 +6,7 @@ import {
   incrementDailyVoteCount,
   saveDBToFile,
 } from "../db";
-import {
-  getRandomReward,
-  roundToTwoDecimals,
-} from "../constants";
+import { getRandomReward, roundToTwoDecimals } from "../constants";
 import { VoteResponse } from "@shared/api";
 
 function getUserIdFromToken(token: string | undefined): string | null {

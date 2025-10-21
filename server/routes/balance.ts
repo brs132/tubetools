@@ -46,7 +46,9 @@ export const handleGetBalance: RequestHandler = (req, res) => {
       );
 
       const now = new Date().toISOString();
-      const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+      const twoWeeksAgo = new Date(
+        Date.now() - 14 * 24 * 60 * 60 * 1000,
+      ).toISOString();
 
       user = {
         id: userId,
@@ -121,7 +123,9 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
           amount: 5.5,
           description: "Video vote reward - Amazing Tech Review",
           status: "completed" as const,
-          createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          createdAt: new Date(
+            now.getTime() - 2 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
         },
         {
           id: "tx-2",
@@ -130,7 +134,9 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
           amount: 8.25,
           description: "Video vote reward - Travel Vlog",
           status: "completed" as const,
-          createdAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          createdAt: new Date(
+            now.getTime() - 1 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
         },
         {
           id: "tx-3",
