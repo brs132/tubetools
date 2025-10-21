@@ -6,7 +6,10 @@ import { BalanceInfo } from "@shared/api";
 function getUserIdFromToken(token: string | undefined): string | null {
   if (!token) return null;
   try {
-    const decoded = Buffer.from(token.replace("Bearer ", ""), "base64").toString();
+    const decoded = Buffer.from(
+      token.replace("Bearer ", ""),
+      "base64",
+    ).toString();
     const [userId] = decoded.split(":");
     return userId;
   } catch {
@@ -38,7 +41,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
     if (user.firstEarnAt) {
       const firstEarnDate = new Date(user.firstEarnAt);
       const daysPassed = Math.floor(
-        (Date.now() - firstEarnDate.getTime()) / (1000 * 60 * 60 * 24)
+        (Date.now() - firstEarnDate.getTime()) / (1000 * 60 * 60 * 24),
       );
       daysUntilWithdrawal = Math.max(0, WITHDRAWAL_COOLDOWN_DAYS - daysPassed);
       withdrawalEligible = daysUntilWithdrawal === 0;
@@ -46,7 +49,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
 
     // Get pending withdrawal if any
     const pendingWithdrawal = Array.from(db.withdrawals.values()).find(
-      (w) => w.userId === userId && w.status === "pending"
+      (w) => w.userId === userId && w.status === "pending",
     );
 
     const response: BalanceInfo = {
@@ -76,7 +79,8 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
     const transactions = Array.from(db.transactions.values())
       .filter((t) => t.userId === userId)
       .sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
     res.json(transactions);

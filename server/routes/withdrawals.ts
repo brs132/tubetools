@@ -5,7 +5,10 @@ import { WITHDRAWAL_COOLDOWN_DAYS, roundToTwoDecimals } from "../constants";
 function getUserIdFromToken(token: string | undefined): string | null {
   if (!token) return null;
   try {
-    const decoded = Buffer.from(token.replace("Bearer ", ""), "base64").toString();
+    const decoded = Buffer.from(
+      token.replace("Bearer ", ""),
+      "base64",
+    ).toString();
     const [userId] = decoded.split(":");
     return userId;
   } catch {
@@ -46,7 +49,7 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
 
     const firstEarnDate = new Date(user.firstEarnAt);
     const daysPassed = Math.floor(
-      (Date.now() - firstEarnDate.getTime()) / (1000 * 60 * 60 * 24)
+      (Date.now() - firstEarnDate.getTime()) / (1000 * 60 * 60 * 24),
     );
 
     if (daysPassed < WITHDRAWAL_COOLDOWN_DAYS) {
@@ -59,7 +62,7 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
 
     // Check if user has a pending withdrawal
     const pendingWithdrawal = Array.from(db.withdrawals.values()).find(
-      (w) => w.userId === userId && w.status === "pending"
+      (w) => w.userId === userId && w.status === "pending",
     );
 
     if (pendingWithdrawal) {
@@ -130,7 +133,8 @@ export const handleGetWithdrawals: RequestHandler = (req, res) => {
     const withdrawals = Array.from(db.withdrawals.values())
       .filter((w) => w.userId === userId)
       .sort(
-        (a, b) => new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime()
+        (a, b) =>
+          new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime(),
       );
 
     res.json(withdrawals);

@@ -28,9 +28,7 @@ export default function Layout({ children, hideNav = false }: LayoutProps) {
               <div className="bg-red-600 rounded-lg p-2">
                 <Play className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-foreground">
-                TubeTools
-              </h1>
+              <h1 className="text-xl font-bold text-foreground">TubeTools</h1>
             </div>
 
             {/* Nav Links */}
@@ -55,7 +53,9 @@ export default function Layout({ children, hideNav = false }: LayoutProps) {
             <div className="flex items-center gap-4">
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-semibold">{user.name}</p>
-                <p className="text-xs text-muted-foreground">${user.balance.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">
+                  ${user.balance.toFixed(2)}
+                </p>
               </div>
               <button
                 onClick={handleLogout}

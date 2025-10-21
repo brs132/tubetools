@@ -6,7 +6,7 @@ interface FetchOptions extends RequestInit {
 
 export async function apiCall<T>(
   endpoint: string,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ): Promise<T> {
   const token = getAuthToken();
   const headers: Record<string, string> = {
@@ -35,10 +35,7 @@ export function apiGet<T>(endpoint: string): Promise<T> {
   return apiCall<T>(endpoint, { method: "GET" });
 }
 
-export function apiPost<T>(
-  endpoint: string,
-  data: unknown
-): Promise<T> {
+export function apiPost<T>(endpoint: string, data: unknown): Promise<T> {
   return apiCall<T>(endpoint, {
     method: "POST",
     body: JSON.stringify(data),

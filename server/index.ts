@@ -5,7 +5,10 @@ import { handleDemo } from "./routes/demo";
 import { handleSignup, handleLogin } from "./routes/auth";
 import { handleGetVideos, handleGetVideo, handleVote } from "./routes/videos";
 import { handleGetBalance, handleGetTransactions } from "./routes/balance";
-import { handleCreateWithdrawal, handleGetWithdrawals } from "./routes/withdrawals";
+import {
+  handleCreateWithdrawal,
+  handleGetWithdrawals,
+} from "./routes/withdrawals";
 
 export function createServer() {
   const app = express();

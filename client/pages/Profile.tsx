@@ -73,7 +73,9 @@ export default function Profile() {
         method: withdrawMethod,
       });
 
-      setSuccessMessage("Withdrawal request submitted! We'll review it and process it soon.");
+      setSuccessMessage(
+        "Withdrawal request submitted! We'll review it and process it soon.",
+      );
       setWithdrawAmount("");
       setShowWithdrawForm(false);
 
@@ -82,7 +84,9 @@ export default function Profile() {
         loadTransactions();
       }, 1000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to process withdrawal");
+      setError(
+        err instanceof Error ? err.message : "Failed to process withdrawal",
+      );
     } finally {
       setWithdrawing(false);
     }
@@ -91,8 +95,7 @@ export default function Profile() {
   if (!isAuthenticated() || !balance) return null;
 
   const user = getUser();
-  const progressPercent =
-    ((20 - balance.daysUntilWithdrawal) / 20) * 100;
+  const progressPercent = ((20 - balance.daysUntilWithdrawal) / 20) * 100;
 
   return (
     <Layout>
@@ -113,9 +116,7 @@ export default function Profile() {
                 </div>
                 <Wallet className="h-8 w-8 opacity-80" />
               </div>
-              <p className="text-sm opacity-80">
-                Starting balance was $213.19
-              </p>
+              <p className="text-sm opacity-80">Starting balance was $213.19</p>
             </div>
 
             {/* Withdrawal Eligibility */}
@@ -124,9 +125,7 @@ export default function Profile() {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold">
-                    Days until eligible:
-                  </span>
+                  <span className="font-semibold">Days until eligible:</span>
                   <span className="font-bold text-primary">
                     {balance.daysUntilWithdrawal} / 20 days
                   </span>
@@ -153,14 +152,20 @@ export default function Profile() {
               {!showWithdrawForm ? (
                 <button
                   onClick={() => setShowWithdrawForm(true)}
-                  disabled={!balance.withdrawalEligible || balance.pendingWithdrawal !== null}
+                  disabled={
+                    !balance.withdrawalEligible ||
+                    balance.pendingWithdrawal !== null
+                  }
                   className="w-full px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <Send className="h-4 w-4" />
                   <span>Request Withdrawal</span>
                 </button>
               ) : (
-                <form onSubmit={handleWithdraw} className="space-y-3 border-t border-border pt-4">
+                <form
+                  onSubmit={handleWithdraw}
+                  className="space-y-3 border-t border-border pt-4"
+                >
                   <div>
                     <label className="block text-sm font-semibold mb-2">
                       Amount (USD)
@@ -226,7 +231,8 @@ export default function Profile() {
                   <Clock className="h-4 w-4 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold">
-                      Withdrawal pending: ${balance.pendingWithdrawal.amount.toFixed(2)}
+                      Withdrawal pending: $
+                      {balance.pendingWithdrawal.amount.toFixed(2)}
                     </p>
                     <p className="text-xs opacity-80">
                       Your request is under review
@@ -261,7 +267,9 @@ export default function Profile() {
                       className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors"
                     >
                       <div className="flex-1">
-                        <p className="text-sm font-semibold">{tx.description}</p>
+                        <p className="text-sm font-semibold">
+                          {tx.description}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(tx.createdAt).toLocaleDateString()}
                         </p>
@@ -269,12 +277,14 @@ export default function Profile() {
                       <div className="text-right">
                         <p
                           className={`text-sm font-bold ${
-                            tx.type === "credit" || tx.type === "withdrawal_reversal"
+                            tx.type === "credit" ||
+                            tx.type === "withdrawal_reversal"
                               ? "text-accent"
                               : "text-foreground"
                           }`}
                         >
-                          {tx.type === "credit" || tx.type === "withdrawal_reversal"
+                          {tx.type === "credit" ||
+                          tx.type === "withdrawal_reversal"
                             ? "+"
                             : "-"}
                           ${tx.amount.toFixed(2)}

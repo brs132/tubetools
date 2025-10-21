@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { setUser, setAuthToken, setRememberedEmail, getRememberedEmail } from "@/lib/auth";
+import {
+  setUser,
+  setAuthToken,
+  setRememberedEmail,
+  getRememberedEmail,
+} from "@/lib/auth";
 import { apiPost } from "@/lib/api-client";
 import { AuthResponse, SignupRequest, LoginRequest } from "@shared/api";
 import { Play, CheckCircle2 } from "lucide-react";
@@ -74,10 +79,10 @@ export default function Onboarding() {
               <Play className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                TubeTools
-              </h1>
-              <p className="text-xs text-muted-foreground mt-1">Watch. Vote. Earn.</p>
+              <h1 className="text-3xl font-bold text-foreground">TubeTools</h1>
+              <p className="text-xs text-muted-foreground mt-1">
+                Watch. Vote. Earn.
+              </p>
             </div>
           </div>
         </div>
@@ -89,21 +94,27 @@ export default function Onboarding() {
               <CheckCircle2 className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-sm">Watch quality videos</p>
-                <p className="text-xs text-muted-foreground">Curated content inside the app</p>
+                <p className="text-xs text-muted-foreground">
+                  Curated content inside the app
+                </p>
               </div>
             </div>
             <div className="flex gap-3">
               <CheckCircle2 className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-sm">Vote and earn rewards</p>
-                <p className="text-xs text-muted-foreground">$0.30 - $2.00 per vote</p>
+                <p className="text-xs text-muted-foreground">
+                  $0.30 - $2.00 per vote
+                </p>
               </div>
             </div>
             <div className="flex gap-3">
               <CheckCircle2 className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-sm">Withdraw after 20 days</p>
-                <p className="text-xs text-muted-foreground">Start with $213.19 balance</p>
+                <p className="text-xs text-muted-foreground">
+                  Start with $213.19 balance
+                </p>
               </div>
             </div>
           </div>
@@ -122,7 +133,9 @@ export default function Onboarding() {
 
           {mode === "signup" && (
             <div>
-              <label className="block text-sm font-semibold mb-2">Full Name</label>
+              <label className="block text-sm font-semibold mb-2">
+                Full Name
+              </label>
               <input
                 type="text"
                 value={name}
@@ -174,9 +187,7 @@ export default function Onboarding() {
               <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="px-2 bg-card text-muted-foreground">
-                or
-              </span>
+              <span className="px-2 bg-card text-muted-foreground">or</span>
             </div>
           </div>
 

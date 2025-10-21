@@ -1,13 +1,23 @@
 import { RequestHandler } from "express";
-import { getDB, generateId, getDailyVoteCount, incrementDailyVoteCount } from "../db";
-import { getRandomReward, roundToTwoDecimals, WITHDRAWAL_COOLDOWN_DAYS } from "../constants";
+import {
+  getDB,
+  generateId,
+  getDailyVoteCount,
+  incrementDailyVoteCount,
+} from "../db";
+import {
+  getRandomReward,
+  roundToTwoDecimals,
+  WITHDRAWAL_COOLDOWN_DAYS,
+} from "../constants";
 import { VoteResponse } from "@shared/api";
 
 export const handleGetVideos: RequestHandler = (req, res) => {
   try {
     const db = getDB();
     const videos = Array.from(db.videos.values()).sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
     res.json(videos);
   } catch (error) {
@@ -35,7 +45,10 @@ export const handleGetVideo: RequestHandler = (req, res) => {
 function getUserIdFromToken(token: string | undefined): string | null {
   if (!token) return null;
   try {
-    const decoded = Buffer.from(token.replace("Bearer ", ""), "base64").toString();
+    const decoded = Buffer.from(
+      token.replace("Bearer ", ""),
+      "base64",
+    ).toString();
     const [userId] = decoded.split(":");
     return userId;
   } catch {
@@ -82,7 +95,7 @@ export const handleVote: RequestHandler = (req, res) => {
 
     // Check if user already voted on this video
     const existingVote = Array.from(db.votes.values()).find(
-      (v) => v.userId === userId && v.videoId === id
+      (v) => v.userId === userId && v.videoId === id,
     );
 
     if (existingVote) {
@@ -110,7 +123,7 @@ export const handleVote: RequestHandler = (req, res) => {
 
     // Increment daily vote count
     incrementDailyVoteCount(userId);
-    const dailyVotesRemaining = 7 - (getDailyVoteCount(userId));
+    const dailyVotesRemaining = 7 - getDailyVoteCount(userId);
 
     // Update user balance and set first earn date if needed
     const newBalance = roundToTwoDecimals(user.balance + reward);
