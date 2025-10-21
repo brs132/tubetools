@@ -365,44 +365,36 @@ export default function Feed() {
                   </div>
 
                   {/* Vote Buttons */}
-                  {!votedVideos.has(selectedVideo.id) ? (
-                    <>
-                      {!canVote && dailyVotesRemaining > 0 && (
-                        <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 text-sm">
-                          Watch 4 seconds before voting
-                        </div>
-                      )}
-
-                      {dailyVotesRemaining <= 0 && (
-                        <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 text-yellow-900 dark:text-yellow-200 text-sm">
-                          You've reached your daily vote limit. Come back tomorrow!
-                        </div>
-                      )}
-
-                      <div className="flex gap-3">
-                        <button
-                          onClick={(e) => handleVote(selectedVideo.id, "like", e)}
-                          disabled={voting || !canVote}
-                          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <ThumbsUp className="h-5 w-5" />
-                          <span>Like</span>
-                        </button>
-                        <button
-                          onClick={(e) => handleVote(selectedVideo.id, "dislike", e)}
-                          disabled={voting || !canVote}
-                          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <ThumbsDown className="h-5 w-5" />
-                          <span>Dislike</span>
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-green-900 dark:text-green-200 text-sm font-semibold text-center">
-                      ✓ You've voted on this video
+                  {!canVote && dailyVotesRemaining > 0 && (
+                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 text-sm">
+                      Watch 4 seconds before voting
                     </div>
                   )}
+
+                  {dailyVotesRemaining <= 0 && (
+                    <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 text-yellow-900 dark:text-yellow-200 text-sm">
+                      You've reached your daily vote limit. Come back tomorrow!
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={(e) => handleVote(selectedVideo.id, "like", e)}
+                      disabled={voting || !canVote}
+                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ThumbsUp className="h-5 w-5" />
+                      <span>Like</span>
+                    </button>
+                    <button
+                      onClick={(e) => handleVote(selectedVideo.id, "dislike", e)}
+                      disabled={voting || !canVote}
+                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ThumbsDown className="h-5 w-5" />
+                      <span>Dislike</span>
+                    </button>
+                  </div>
 
                   {error && (
                     <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-900 dark:text-red-200 text-sm">
