@@ -111,6 +111,19 @@ export const handleVote: RequestHandler = (req, res) => {
       return;
     }
 
+    const now = new Date();
+    const lastReset = user.lastVoteDateReset ? new Date(user.lastVoteDateReset) : null;
+    const hoursSinceReset = lastReset ? (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60) : 24;
+
+    // Reset daily votes if 24 hours have passed
+    if (hoursSinceReset >= 24) {
+      // Clear daily vote count and increment voting days
+      const today = new Date().toISOString().split("T")[0];
+      db.dailyVoteCount.delete(`${userId}:${today}`);
+      user.lastVoteDateReset = now.toISOString();
+      user.votingDaysCount = (user.votingDaysCount || 0) + 1;
+    }
+
     // Check daily vote limit (1-7 votes per day)
     const dailyVotes = getDailyVoteCount(userId);
     if (dailyVotes >= 7) {
@@ -121,12 +134,23 @@ export const handleVote: RequestHandler = (req, res) => {
       return;
     }
 
+    // If this is the first vote ever, initialize voting days count
+    if (!user.votingDaysCount || user.votingDaysCount === 0) {
+      user.votingDaysCount = 1;
+      user.lastVoteDateReset = now.toISOString();
+    }
+
+    // Set firstEarnAt if not set
+    if (!user.firstEarnAt) {
+      user.firstEarnAt = now.toISOString();
+    }
+
     // Generate random reward
     const reward = roundToTwoDecimals(getRandomReward());
 
     // Create vote record
     const voteId = generateId();
-    const now = new Date().toISOString();
+    const nowISO = now.toISOString();
 
     const vote = {
       id: voteId,
@@ -134,7 +158,7 @@ export const handleVote: RequestHandler = (req, res) => {
       videoId: id,
       voteType: voteType as "like" | "dislike",
       rewardAmount: reward,
-      createdAt: now,
+      createdAt: nowISO,
     };
 
     db.votes.set(voteId, vote);
@@ -142,6 +166,7 @@ export const handleVote: RequestHandler = (req, res) => {
     // Increment daily vote count
     incrementDailyVoteCount(userId);
     const dailyVotesRemaining = 7 - getDailyVoteCount(userId);
+    user.lastVotedAt = nowISO;
 
     // Update voting streak
     const lastVoted = user.lastVotedAt ? new Date(user.lastVotedAt) : null;
