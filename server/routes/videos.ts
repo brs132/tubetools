@@ -204,6 +204,9 @@ export const handleVote: RequestHandler = (req, res) => {
       votingDaysCount: user.votingDaysCount || 0,
     };
 
+    // Save database after modifications
+    saveDBToFile();
+
     res.json(response);
   } catch (error) {
     console.error("Vote error:", error);
