@@ -112,16 +112,24 @@ export const handleVote: RequestHandler = (req, res) => {
     }
 
     const now = new Date();
-    const lastReset = user.lastVoteDateReset ? new Date(user.lastVoteDateReset) : null;
-    const hoursSinceReset = lastReset ? (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60) : 24;
 
-    // Reset daily votes if 24 hours have passed
-    if (hoursSinceReset >= 24) {
-      // Clear daily vote count and increment voting days
-      const today = new Date().toISOString().split("T")[0];
-      db.dailyVoteCount.delete(`${userId}:${today}`);
+    // Check if this is the first vote ever
+    const isFirstVoteEver = !user.votingDaysCount || user.votingDaysCount === 0;
+
+    if (isFirstVoteEver) {
+      // Initialize on first vote
+      user.votingDaysCount = 1;
       user.lastVoteDateReset = now.toISOString();
-      user.votingDaysCount = (user.votingDaysCount || 0) + 1;
+    } else {
+      // Check if 24 hours have passed since last reset
+      const lastReset = user.lastVoteDateReset ? new Date(user.lastVoteDateReset) : null;
+      const hoursSinceReset = lastReset ? (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60) : 0;
+
+      if (hoursSinceReset >= 24) {
+        // Reset daily votes and increment voting days
+        user.lastVoteDateReset = now.toISOString();
+        user.votingDaysCount = (user.votingDaysCount || 0) + 1;
+      }
     }
 
     // Check daily vote limit (1-7 votes per day)
@@ -132,12 +140,6 @@ export const handleVote: RequestHandler = (req, res) => {
         dailyVotesRemaining: 0,
       });
       return;
-    }
-
-    // If this is the first vote ever, initialize voting days count
-    if (!user.votingDaysCount || user.votingDaysCount === 0) {
-      user.votingDaysCount = 1;
-      user.lastVoteDateReset = now.toISOString();
     }
 
     // Set firstEarnAt if not set
