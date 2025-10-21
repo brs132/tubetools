@@ -68,7 +68,7 @@ function loadDBFromFile() {
   }
 }
 
-function saveDBToFile() {
+export function saveDBToFile() {
   try {
     ensureDataDir();
     const data = {
