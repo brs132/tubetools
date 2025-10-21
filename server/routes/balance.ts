@@ -46,9 +46,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
       );
 
       const now = new Date().toISOString();
-      const twoWeeksAgo = new Date(
-        Date.now() - 14 * 24 * 60 * 60 * 1000,
-      ).toISOString();
+      const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
 
       user = {
         id: userId,
@@ -87,13 +85,10 @@ export const handleGetBalance: RequestHandler = (req, res) => {
       pendingWithdrawal: pendingWithdrawal || null,
     };
 
-    res.set("Content-Type", "application/json").json(response);
+    res.json(response);
   } catch (error) {
     console.error("Balance error:", error);
-    res
-      .status(500)
-      .set("Content-Type", "application/json")
-      .json({ error: "Failed to fetch balance" });
+    res.status(500).json({ error: "Failed to fetch balance" });
   }
 };
 
@@ -103,10 +98,7 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res
-        .status(401)
-        .set("Content-Type", "application/json")
-        .json({ error: "Unauthorized" });
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
@@ -129,9 +121,7 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
           amount: 5.5,
           description: "Video vote reward - Amazing Tech Review",
           status: "completed" as const,
-          createdAt: new Date(
-            now.getTime() - 2 * 24 * 60 * 60 * 1000,
-          ).toISOString(),
+          createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         },
         {
           id: "tx-2",
@@ -140,9 +130,7 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
           amount: 8.25,
           description: "Video vote reward - Travel Vlog",
           status: "completed" as const,
-          createdAt: new Date(
-            now.getTime() - 1 * 24 * 60 * 60 * 1000,
-          ).toISOString(),
+          createdAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
         },
         {
           id: "tx-3",
@@ -157,12 +145,9 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
       transactions = demoTransactions;
     }
 
-    res.set("Content-Type", "application/json").json(transactions);
+    res.json(transactions);
   } catch (error) {
     console.error("Transactions error:", error);
-    res
-      .status(500)
-      .set("Content-Type", "application/json")
-      .json({ error: "Failed to fetch transactions" });
+    res.status(500).json({ error: "Failed to fetch transactions" });
   }
 };
