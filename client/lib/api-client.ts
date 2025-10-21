@@ -24,22 +24,30 @@ export async function apiCall<T>(
       headers,
     });
 
+    // Always handle response body safely
+    let body: unknown;
+    const contentType = response.headers.get("content-type");
+
+    try {
+      if (contentType?.includes("application/json")) {
+        body = await response.clone().json();
+      } else {
+        const text = await response.clone().text();
+        body = text ? JSON.parse(text) : {};
+      }
+    } catch {
+      // If we can't parse the body, just get the raw text
+      body = await response.text();
+    }
+
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
     }
 
-    // Clone the response to safely read it
-    const contentType = response.headers.get("content-type");
-    if (contentType?.includes("application/json")) {
-      return response.json();
-    } else {
-      // For non-JSON responses, return the text
-      const text = await response.text();
-      return JSON.parse(text || "{}");
-    }
+    return body as T;
   } catch (err) {
-    if (err instanceof TypeError && err.message.includes("body stream already read")) {
-      throw new Error("Server error: unable to read response");
+    if (err instanceof TypeError && err.message.includes("body stream")) {
+      throw new Error("Server connection error");
     }
     throw err;
   }
