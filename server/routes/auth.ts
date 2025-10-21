@@ -1,16 +1,7 @@
 import { RequestHandler } from "express";
 import { SignupRequest, LoginRequest, AuthResponse } from "@shared/api";
-import { getDB, generateId } from "../db";
+import { getDB, generateId, saveDBToFile } from "../db";
 import { SYSTEM_STARTING_BALANCE } from "../constants";
-
-// Import saveDBToFile from db module
-let saveDBToFile: () => void;
-try {
-  const dbModule = require("../db");
-  saveDBToFile = dbModule.saveDBToFile || (() => {});
-} catch {
-  saveDBToFile = () => {};
-}
 
 export const handleSignup: RequestHandler = (req, res) => {
   try {
