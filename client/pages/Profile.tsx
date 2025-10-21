@@ -154,7 +154,7 @@ export default function Profile() {
                 <button
                   onClick={() => setShowWithdrawForm(true)}
                   disabled={!balance.withdrawalEligible || balance.pendingWithdrawal !== null}
-                  className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <Send className="h-4 w-4" />
                   <span>Request Withdrawal</span>
