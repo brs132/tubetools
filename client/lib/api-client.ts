@@ -24,11 +24,14 @@ export async function apiCall<T>(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error || `API error: ${response.status}`);
+    throw new Error(`API error: ${response.status}`);
   }
 
-  return response.json();
+  try {
+    return response.json();
+  } catch (err) {
+    throw new Error(`Failed to parse response: ${err instanceof Error ? err.message : "Unknown error"}`);
+  }
 }
 
 export function apiGet<T>(endpoint: string): Promise<T> {
