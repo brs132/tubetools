@@ -69,14 +69,20 @@ export default function Feed() {
     return Math.floor(Math.random() * 1000000) + 10000;
   };
 
+  // Generate random reward (0.30 to 27.00)
+  const generateReward = (): number => {
+    return Math.random() * (27.0 - 0.3) + 0.3;
+  };
+
   // Generate enhanced videos with infinite scroll capability
   const generateEnhancedVideos = (videos: Video[]): EnhancedVideo[] => {
-    return videos.map((video, index) => ({
+    return videos.map((video) => ({
       ...video,
       rating: generateRating(),
       views: generateViews(),
       uploadedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      sessionId: `${index}-${Date.now()}`,
+      rewardMin: generateReward(),
+      rewardMax: generateReward(),
     }));
   };
 
