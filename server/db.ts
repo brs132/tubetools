@@ -414,8 +414,14 @@ function initializeDB() {
   });
 }
 
+let isInitialized = false;
+
 export function getDB(): DB {
-  initializeDB();
+  if (!isInitialized) {
+    loadDBFromFile();
+    initializeDB();
+    isInitialized = true;
+  }
   return db;
 }
 
