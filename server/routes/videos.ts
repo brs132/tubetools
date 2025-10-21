@@ -75,20 +75,6 @@ export const handleGetVideo: RequestHandler = (req, res) => {
   }
 };
 
-function getUserIdFromToken(token: string | undefined): string | null {
-  if (!token) return null;
-  try {
-    const decoded = Buffer.from(
-      token.replace("Bearer ", ""),
-      "base64",
-    ).toString();
-    const [userId] = decoded.split(":");
-    return userId;
-  } catch {
-    return null;
-  }
-}
-
 export const handleVote: RequestHandler = (req, res) => {
   try {
     const token = req.headers.authorization;
