@@ -49,10 +49,19 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
       return;
     }
 
+    const db = getDB();
     const dailyVotes = getDailyVoteCount(userId);
     const remaining = Math.max(0, 7 - dailyVotes);
 
-    res.json({ remaining, voted: dailyVotes });
+    // Get total votes for this user (all time)
+    const allVotes = Array.from(db.votes.values())
+      .filter((v) => v.userId === userId);
+
+    res.json({
+      remaining,
+      voted: dailyVotes,
+      totalVotes: allVotes.length,
+    });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch daily votes" });
   }
