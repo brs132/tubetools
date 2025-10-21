@@ -25,11 +25,11 @@ export default function Layout({ children, hideNav = false }: LayoutProps) {
           <div className="container flex h-16 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="gradient-primary rounded-lg p-2">
-                <Play className="h-5 w-5 text-primary-foreground" />
+              <div className="bg-red-600 rounded-lg p-2">
+                <Play className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                WatchEarn
+              <h1 className="text-xl font-bold text-foreground">
+                TubeTools
               </h1>
             </div>
 
