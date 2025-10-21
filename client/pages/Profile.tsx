@@ -44,7 +44,9 @@ export default function Profile() {
     try {
       const data = await apiGet<BalanceInfo>("/api/balance");
       setBalance(data);
+      setError("");
     } catch (err) {
+      console.error("Balance error:", err);
       setError(err instanceof Error ? err.message : "Failed to load balance");
     }
   };
@@ -53,6 +55,8 @@ export default function Profile() {
     try {
       const data = await apiGet<Transaction[]>("/api/transactions");
       setTransactions(data);
+    } catch (err) {
+      console.error("Transactions error:", err);
     } finally {
       setLoading(false);
     }
