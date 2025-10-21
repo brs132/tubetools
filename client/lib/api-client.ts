@@ -18,34 +18,43 @@ export async function apiCall<T>(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  let response: Response | null = null;
-
   try {
-    response = await fetch(endpoint, {
+    const response = await fetch(endpoint, {
       ...options,
       headers,
     });
 
     let text = "";
 
-    // Try to read response body with fallback handling
+    // Try to read response body, with multiple fallback strategies
     try {
+      // First attempt: use text()
       text = await response.text();
-    } catch (bodyReadError) {
-      // Handle "body stream already read" or other body reading errors
-      console.error("Body stream error:", bodyReadError);
-      // If we can't read the body, use status code alone
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+    } catch (firstError) {
+      // If text() fails, the body might already be consumed
+      // Try to clone and read from the clone
+      try {
+        const clonedResponse = response.clone();
+        text = await clonedResponse.text();
+      } catch (secondError) {
+        // If cloning also fails, we can't read the body
+        console.error("Unable to read response body:", firstError);
+
+        // For error responses, throw with status code
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        // For successful responses, return empty object
+        return {} as T;
       }
-      // For successful responses where we can't read the body, return empty object
-      return {} as T;
     }
 
     // Check response status
     if (!response.ok) {
-      // Try to parse error response
       let errorMessage = `API error: ${response.status}`;
+
+      // Try to extract error details from response body
       if (text) {
         try {
           const errorData = JSON.parse(text);
@@ -53,21 +62,22 @@ export async function apiCall<T>(
             errorMessage = `${response.status}: ${errorData.error}`;
           }
         } catch {
-          // If error response isn't JSON, just use the text
+          // If we can't parse, use raw text if short enough
           if (text.length < 200) {
             errorMessage = `${response.status}: ${text}`;
           }
         }
       }
+
       console.error("API error response:", errorMessage);
       throw new Error(errorMessage);
     }
 
+    // For successful responses
     if (!text) {
       return {} as T;
     }
 
-    // Parse successful response
     try {
       return JSON.parse(text) as T;
     } catch (parseErr) {
@@ -80,12 +90,11 @@ export async function apiCall<T>(
       const errorMessage = err.message || "Unknown error";
       console.error("Fetch error:", errorMessage);
 
-      // Provide a user-friendly message for network issues
       if (errorMessage.includes("Failed to fetch") ||
-          errorMessage.includes("body stream already read") ||
           errorMessage.includes("NetworkError")) {
         throw new Error("Network error - please check your connection");
       }
+
       throw new Error(`Network error: ${errorMessage}`);
     }
 
