@@ -18,38 +18,26 @@ export async function apiCall<T>(
     headers.Authorization = `Bearer ${token}`;
   }
 
+  const response = await fetch(endpoint, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    console.error(`API error ${response.status}:`, text);
+    throw new Error(`API error: ${response.status}`);
+  }
+
   try {
-    const response = await fetch(endpoint, {
-      ...options,
-      headers,
-    });
-
-    // Always handle response body safely
-    let body: unknown;
-    const contentType = response.headers.get("content-type");
-
-    try {
-      if (contentType?.includes("application/json")) {
-        body = await response.clone().json();
-      } else {
-        const text = await response.clone().text();
-        body = text ? JSON.parse(text) : {};
-      }
-    } catch {
-      // If we can't parse the body, just get the raw text
-      body = await response.text();
+    const text = await response.text();
+    if (!text) {
+      return {} as T;
     }
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    return body as T;
+    return JSON.parse(text) as T;
   } catch (err) {
-    if (err instanceof TypeError && err.message.includes("body stream")) {
-      throw new Error("Server connection error");
-    }
-    throw err;
+    console.error("Failed to parse response:", err);
+    throw new Error("Invalid response from server");
   }
 }
 
