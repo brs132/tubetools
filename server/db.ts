@@ -2,7 +2,11 @@ import { UserData, Video, Vote, Transaction, Withdrawal } from "@shared/api";
 
 // In-memory database (for development - would be replaced with real DB)
 export interface DBUser extends UserData {}
-export interface DBVideo extends Video {}
+export interface DBVideo extends Video {
+  rating?: number;
+  views?: number;
+  uploadedAt?: string;
+}
 export interface DBVote extends Vote {}
 export interface DBTransaction extends Transaction {}
 export interface DBWithdrawal extends Withdrawal {}
