@@ -18,26 +18,36 @@ export async function apiCall<T>(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(endpoint, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    console.error(`API error ${response.status}:`, text);
-    throw new Error(`API error: ${response.status}`);
-  }
-
   try {
+    const response = await fetch(endpoint, {
+      ...options,
+      headers,
+    });
+
+    // Read body only once
     const text = await response.text();
+
+    if (!response.ok) {
+      console.error(`API error ${response.status}:`, text);
+      throw new Error(`API error: ${response.status}`);
+    }
+
     if (!text) {
       return {} as T;
     }
-    return JSON.parse(text) as T;
+
+    try {
+      return JSON.parse(text) as T;
+    } catch (err) {
+      console.error("Failed to parse JSON:", text);
+      throw new Error("Invalid response format");
+    }
   } catch (err) {
-    console.error("Failed to parse response:", err);
-    throw new Error("Invalid response from server");
+    if (err instanceof TypeError) {
+      console.error("Network error:", err);
+      throw new Error("Network error - please check your connection");
+    }
+    throw err;
   }
 }
 
