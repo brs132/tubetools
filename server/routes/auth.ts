@@ -82,10 +82,7 @@ export const handleLogin: RequestHandler = (req, res) => {
     const { email } = req.body as LoginRequest;
 
     if (!email) {
-      res
-        .status(400)
-        .set("Content-Type", "application/json")
-        .json({ error: "Email is required" });
+      res.status(400).json({ error: "Email is required" });
       return;
     }
 
@@ -93,19 +90,13 @@ export const handleLogin: RequestHandler = (req, res) => {
     const userId = db.emailToUserId.get(email);
 
     if (!userId) {
-      res
-        .status(404)
-        .set("Content-Type", "application/json")
-        .json({ error: "User not found" });
+      res.status(404).json({ error: "User not found" });
       return;
     }
 
     const user = db.users.get(userId);
     if (!user) {
-      res
-        .status(404)
-        .set("Content-Type", "application/json")
-        .json({ error: "User not found" });
+      res.status(404).json({ error: "User not found" });
       return;
     }
 
@@ -116,12 +107,9 @@ export const handleLogin: RequestHandler = (req, res) => {
       token,
     };
 
-    res.set("Content-Type", "application/json").json(response);
+    res.json(response);
   } catch (error) {
     console.error("Login error:", error);
-    res
-      .status(500)
-      .set("Content-Type", "application/json")
-      .json({ error: "Login failed" });
+    res.status(500).json({ error: "Login failed" });
   }
 };
