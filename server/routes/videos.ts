@@ -4,6 +4,7 @@ import {
   generateId,
   getDailyVoteCount,
   incrementDailyVoteCount,
+  saveDBToFile,
 } from "../db";
 import {
   getRandomReward,
