@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { getDB, generateId } from "../db";
+import { getDB, generateId, getDailyVoteCount, incrementDailyVoteCount } from "../db";
 import { getRandomReward, roundToTwoDecimals, WITHDRAWAL_COOLDOWN_DAYS } from "../constants";
 import { VoteResponse } from "@shared/api";
 
