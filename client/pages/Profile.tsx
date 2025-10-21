@@ -104,7 +104,7 @@ export default function Profile() {
           {/* Main Content */}
           <div className="col-span-1 md:col-span-2 space-y-6">
             {/* Balance Card */}
-            <div className="card-base bg-red-600 p-6 text-white">
+            <div className="card-base bg-green-600 p-6 text-white">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <p className="text-sm font-semibold opacity-90 mb-1">
@@ -125,16 +125,16 @@ export default function Profile() {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold">Days until eligible:</span>
-                  <span className="font-bold text-primary">
-                    {balance.daysUntilWithdrawal} / 20 days
+                  <span className="font-semibold">Days voting:</span>
+                  <span className="font-bold text-green-600">
+                    {20 - balance.daysUntilWithdrawal} / 20 days
                   </span>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                   <div
-                    className="bg-red-600 h-full rounded-full transition-all duration-500"
+                    className="bg-green-600 h-full rounded-full transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>

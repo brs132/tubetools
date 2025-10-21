@@ -102,10 +102,28 @@ export default function Feed() {
     const user = getUser();
     if (user) {
       setUserBalance(user.balance);
+      setVotingStreak(user.votingStreak || 0);
     }
 
     loadVideos();
+    loadUserStats();
   }, [navigate]);
+
+  const loadUserStats = async () => {
+    try {
+      const data = await apiGet<any>("/api/balance");
+      if (data.user) {
+        setUserBalance(data.user.balance);
+        setVotingStreak(data.user.votingStreak || 0);
+        // Refetch daily votes remaining from server
+        const voteData = await apiGet<any>("/api/daily-votes");
+        setDailyVotesRemaining(voteData.remaining || 7);
+      }
+    } catch (err) {
+      // Silently fail - use local state
+      console.debug("Failed to load user stats:", err);
+    }
+  };
 
   useEffect(() => {
     // Track video watch time when video is in focus

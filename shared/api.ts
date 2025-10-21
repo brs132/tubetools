@@ -85,4 +85,8 @@ export interface BalanceInfo {
 export interface VoteResponse {
   vote: Vote;
   newBalance: number;
+  dailyVotesRemaining?: number;
+  rewardAmount?: number;
+  votingStreak?: number;
+  totalVideosWatched?: number;
 }
