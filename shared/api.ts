@@ -28,6 +28,8 @@ export interface UserData {
   firstEarnAt: string | null;
   votingStreak?: number;
   lastVotedAt?: string;
+  lastVoteDateReset?: string;
+  votingDaysCount?: number;
 }
 
 // Videos
