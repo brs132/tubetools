@@ -108,6 +108,10 @@ export const handleVote: RequestHandler = (req, res) => {
 
     db.votes.set(voteId, vote);
 
+    // Increment daily vote count
+    incrementDailyVoteCount(userId);
+    const dailyVotesRemaining = 7 - (getDailyVoteCount(userId));
+
     // Update user balance and set first earn date if needed
     const newBalance = roundToTwoDecimals(user.balance + reward);
     user.balance = newBalance;
@@ -129,9 +133,11 @@ export const handleVote: RequestHandler = (req, res) => {
 
     db.transactions.set(transactionId, transaction);
 
-    const response: VoteResponse = {
+    const response: any = {
       vote,
       newBalance,
+      dailyVotesRemaining,
+      rewardAmount: reward,
     };
 
     res.json(response);
