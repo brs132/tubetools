@@ -173,12 +173,12 @@ export default function Feed() {
     event: React.MouseEvent
   ) => {
     if (dailyVotesRemaining <= 0) {
-      setError("You've reached your daily vote limit (7 votes)");
+      setError("You've reached your daily vote limit. Come back tomorrow!");
       return;
     }
 
     if (watchedSeconds < VIDEO_MIN_WATCH_SECONDS) {
-      setError(`Please watch at least ${VIDEO_MIN_WATCH_SECONDS} seconds before voting`);
+      // Silently ignore - don't show error for watch time
       return;
     }
 
@@ -221,11 +221,14 @@ export default function Feed() {
         }
       }, 800);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to vote";
+      const errorMsg = err instanceof Error ? err.message : "";
       if (errorMsg.includes("daily vote limit")) {
         setDailyVotesRemaining(0);
+        setError("You've reached your daily vote limit. Come back tomorrow!");
+      } else {
+        // Silently fail for other errors
+        console.error("Vote error:", err);
       }
-      setError(errorMsg);
     } finally {
       setVoting(false);
     }
@@ -401,12 +404,6 @@ export default function Feed() {
                   </div>
 
                   {/* Vote Buttons */}
-                  {!canVote && dailyVotesRemaining > 0 && (
-                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 text-sm">
-                      Watch 4 seconds before voting
-                    </div>
-                  )}
-
                   {dailyVotesRemaining <= 0 && (
                     <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 text-yellow-900 dark:text-yellow-200 text-sm">
                       You've reached your daily vote limit. Come back tomorrow!

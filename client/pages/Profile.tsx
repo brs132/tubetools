@@ -94,6 +94,8 @@ export default function Profile() {
 
   if (!isAuthenticated() || !balance) return null;
 
+  if (!isAuthenticated() || !balance) return null;
+
   const user = getUser();
   const progressPercent = ((20 - balance.daysUntilWithdrawal) / 20) * 100;
 
