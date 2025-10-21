@@ -40,6 +40,9 @@ export const handleSignup: RequestHandler = (req, res) => {
     db.emailToUserId.set(email, userId);
     saveDBToFile();
 
+    console.log(`User created: ${userId} (${email})`);
+    console.log(`Total users in DB: ${db.users.size}`);
+
     const token = Buffer.from(`${userId}:${email}`).toString("base64");
 
     const response: AuthResponse = {
