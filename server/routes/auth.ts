@@ -66,7 +66,7 @@ export const handleSignup: RequestHandler = (req, res) => {
     };
 
     console.log("Sending signup response for user:", userId);
-    res.status(200).set("Content-Type", "application/json").json(response);
+    res.json(response);
   } catch (error) {
     console.error("Signup error details:", error);
     console.error("Error stack:", (error as Error).stack);
