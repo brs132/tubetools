@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { getDB, generateId } from "../db";
+import { getDB, generateId, saveDBToFile } from "../db";
 import { WITHDRAWAL_COOLDOWN_DAYS, roundToTwoDecimals } from "../constants";
 
 function getUserIdFromToken(token: string | undefined): string | null {
