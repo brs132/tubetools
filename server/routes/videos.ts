@@ -93,16 +93,6 @@ export const handleVote: RequestHandler = (req, res) => {
       return;
     }
 
-    // Check if user already voted on this video
-    const existingVote = Array.from(db.votes.values()).find(
-      (v) => v.userId === userId && v.videoId === id,
-    );
-
-    if (existingVote) {
-      res.status(400).json({ error: "You have already voted on this video" });
-      return;
-    }
-
     // Generate random reward
     const reward = roundToTwoDecimals(getRandomReward());
 
