@@ -49,6 +49,7 @@ export default function Feed() {
   const [dailyVotesRemaining, setDailyVotesRemaining] = useState(7);
   const [moneyAnimations, setMoneyAnimations] = useState<MoneyAnimationData[]>([]);
   const [totalVideosWatched, setTotalVideosWatched] = useState(0);
+  const [votingStreak, setVotingStreak] = useState(user?.votingStreak || 0);
 
   // Shuffle array
   const shuffleArray = (array: any[]) => {
