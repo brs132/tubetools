@@ -5,9 +5,12 @@ import { SYSTEM_STARTING_BALANCE } from "../constants";
 
 export const handleSignup: RequestHandler = (req, res) => {
   try {
+    console.log("Signup request received:", req.body);
+
     const { name, email } = req.body as SignupRequest;
 
     if (!name || !email) {
+      console.warn("Missing name or email in signup");
       res
         .status(400)
         .set("Content-Type", "application/json")
@@ -19,6 +22,7 @@ export const handleSignup: RequestHandler = (req, res) => {
 
     // Check if email already exists
     if (db.emailToUserId.has(email)) {
+      console.warn(`Email already registered: ${email}`);
       res
         .status(400)
         .set("Content-Type", "application/json")
@@ -29,7 +33,7 @@ export const handleSignup: RequestHandler = (req, res) => {
     // Create new user
     const userId = generateId();
     const now = new Date().toISOString();
-    const user = {
+    const user: any = {
       id: userId,
       name,
       email,
@@ -44,7 +48,12 @@ export const handleSignup: RequestHandler = (req, res) => {
 
     db.users.set(userId, user);
     db.emailToUserId.set(email, userId);
-    saveDBToFile();
+
+    try {
+      saveDBToFile();
+    } catch (saveErr) {
+      console.warn("Could not save DB to file (non-fatal):", saveErr);
+    }
 
     console.log(`User created: ${userId} (${email})`);
     console.log(`Total users in DB: ${db.users.size}`);
@@ -56,9 +65,11 @@ export const handleSignup: RequestHandler = (req, res) => {
       token,
     };
 
-    res.set("Content-Type", "application/json").json(response);
+    console.log("Sending signup response for user:", userId);
+    res.status(200).set("Content-Type", "application/json").json(response);
   } catch (error) {
-    console.error("Signup error:", error);
+    console.error("Signup error details:", error);
+    console.error("Error stack:", (error as Error).stack);
     res
       .status(500)
       .set("Content-Type", "application/json")
