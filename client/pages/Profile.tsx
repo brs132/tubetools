@@ -34,6 +34,10 @@ export default function Profile() {
 
     loadBalance();
     loadTransactions();
+
+    // Refetch balance every 3 seconds to stay in sync with Feed
+    const interval = setInterval(loadBalance, 3000);
+    return () => clearInterval(interval);
   }, [navigate]);
 
   const loadBalance = async () => {
@@ -94,10 +98,9 @@ export default function Profile() {
 
   if (!isAuthenticated() || !balance) return null;
 
-  if (!isAuthenticated() || !balance) return null;
-
   const user = getUser();
-  const progressPercent = ((20 - balance.daysUntilWithdrawal) / 20) * 100;
+  const votingDaysCount = balance.user.votingDaysCount || 0;
+  const progressPercent = (votingDaysCount / 20) * 100;
 
   return (
     <Layout>
