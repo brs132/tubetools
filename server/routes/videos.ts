@@ -168,25 +168,17 @@ export const handleVote: RequestHandler = (req, res) => {
     const dailyVotesRemaining = 7 - getDailyVoteCount(userId);
     user.lastVotedAt = nowISO;
 
-    // Update voting streak
-    const lastVoted = user.lastVotedAt ? new Date(user.lastVotedAt) : null;
-    const today = new Date(now);
-    const isNewDay = !lastVoted || (today.getTime() - lastVoted.getTime()) > 24 * 60 * 60 * 1000;
-
+    // Update voting streak (based on voting days, not calendar days)
     if (!user.votingStreak) {
       user.votingStreak = 1;
-    } else if (isNewDay) {
+    } else if (hoursSinceReset >= 24) {
+      // New voting period, increment streak
       user.votingStreak = (user.votingStreak || 0) + 1;
     }
 
-    user.lastVotedAt = now;
-
-    // Update user balance and set first earn date if needed
+    // Update user balance
     const newBalance = roundToTwoDecimals(user.balance + reward);
     user.balance = newBalance;
-    if (!user.firstEarnAt) {
-      user.firstEarnAt = now;
-    }
 
     // Create transaction record
     const transactionId = generateId();
@@ -197,7 +189,7 @@ export const handleVote: RequestHandler = (req, res) => {
       amount: reward,
       description: `Video vote reward - ${video.title}`,
       status: "completed" as const,
-      createdAt: now,
+      createdAt: nowISO,
     };
 
     db.transactions.set(transactionId, transaction);
@@ -208,6 +200,7 @@ export const handleVote: RequestHandler = (req, res) => {
       dailyVotesRemaining,
       rewardAmount: reward,
       votingStreak: user.votingStreak || 0,
+      votingDaysCount: user.votingDaysCount || 0,
     };
 
     res.json(response);
