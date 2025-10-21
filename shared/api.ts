@@ -26,6 +26,8 @@ export interface UserData {
   balance: number;
   createdAt: string;
   firstEarnAt: string | null;
+  votingStreak?: number;
+  lastVotedAt?: string;
 }
 
 // Videos
