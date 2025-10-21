@@ -42,6 +42,9 @@ export default function Profile() {
   }, [navigate]);
 
   const loadBalance = async () => {
+    if (isLoadingBalance) return;
+
+    setIsLoadingBalance(true);
     try {
       const data = await apiGet<BalanceInfo>("/api/balance");
       setBalance(data);
@@ -49,6 +52,8 @@ export default function Profile() {
     } catch (err) {
       console.error("Balance error:", err);
       setError(err instanceof Error ? err.message : "Failed to load balance");
+    } finally {
+      setIsLoadingBalance(false);
     }
   };
 
