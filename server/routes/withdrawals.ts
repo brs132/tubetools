@@ -112,6 +112,9 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
 
     db.transactions.set(transactionId, transaction);
 
+    // Save database after modifications
+    saveDBToFile();
+
     res.json(withdrawal);
   } catch (error) {
     console.error("Withdrawal error:", error);
