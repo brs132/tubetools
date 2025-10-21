@@ -393,7 +393,7 @@ export default function Feed() {
                         <p className="text-xs font-semibold text-muted-foreground mb-1">
                           YOUR BALANCE
                         </p>
-                        <p className="text-lg font-bold text-red-600">
+                        <p className="text-lg font-bold text-green-600">
                           ${userBalance.toFixed(2)}
                         </p>
                       </div>
