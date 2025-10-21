@@ -31,6 +31,13 @@ let db: DB = {
   dailyVoteCount: new Map(),
 };
 
+// Generate random reward (0.30 to 27.00)
+function generateReward(): { min: number; max: number } {
+  const min = Math.round((Math.random() * (27.0 - 0.3) + 0.3) * 100) / 100;
+  const max = Math.round((min + Math.random() * (27.0 - min)) * 100) / 100;
+  return { min, max };
+}
+
 // Initialize with sample data
 function initializeDB() {
   if (db.videos.size > 0) return; // Already initialized
