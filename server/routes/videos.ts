@@ -70,6 +70,16 @@ export const handleVote: RequestHandler = (req, res) => {
       return;
     }
 
+    // Check daily vote limit (1-7 votes per day)
+    const dailyVotes = getDailyVoteCount(userId);
+    if (dailyVotes >= 7) {
+      res.status(400).json({
+        error: "You've reached your daily vote limit (7 votes)",
+        dailyVotesRemaining: 0,
+      });
+      return;
+    }
+
     // Check if user already voted on this video
     const existingVote = Array.from(db.votes.values()).find(
       (v) => v.userId === userId && v.videoId === id
