@@ -150,11 +150,6 @@ export default function Feed() {
     voteType: "like" | "dislike",
     event: React.MouseEvent
   ) => {
-    if (votedVideos.has(videoId)) {
-      setError("You've already voted on this video");
-      return;
-    }
-
     if (dailyVotesRemaining <= 0) {
       setError("You've reached your daily vote limit (7 votes)");
       return;
