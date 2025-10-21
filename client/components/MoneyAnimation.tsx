@@ -8,32 +8,51 @@ interface MoneyAnimationProps {
   onComplete: () => void;
 }
 
-// Money "cha-ching" sound as data URL (simple sine wave)
+// Money "cha-ching" sound
+let audioContextInstance: AudioContext | null = null;
+
+const getAudioContext = (): AudioContext | null => {
+  if (audioContextInstance) return audioContextInstance;
+  try {
+    audioContextInstance = new (window.AudioContext ||
+      (window as any).webkitAudioContext)();
+    return audioContextInstance;
+  } catch (e) {
+    console.log("Audio context not supported");
+    return null;
+  }
+};
+
 const MONEY_SOUND = () => {
-  const audioContext = new (window.AudioContext ||
-    (window as any).webkitAudioContext)();
-  const now = audioContext.currentTime;
+  const audioContext = getAudioContext();
+  if (!audioContext) return;
 
-  // Create oscillator for "cha-ching" effect
-  const osc1 = audioContext.createOscillator();
-  const osc2 = audioContext.createOscillator();
-  const gain = audioContext.createGain();
+  try {
+    const now = audioContext.currentTime;
 
-  osc1.frequency.value = 800;
-  osc2.frequency.value = 600;
+    // Create oscillator for "cha-ching" effect
+    const osc1 = audioContext.createOscillator();
+    const osc2 = audioContext.createOscillator();
+    const gain = audioContext.createGain();
 
-  gain.gain.setValueAtTime(0.3, now);
-  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    osc1.frequency.value = 800;
+    osc2.frequency.value = 600;
 
-  osc1.connect(gain);
-  osc2.connect(gain);
-  gain.connect(audioContext.destination);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
 
-  osc1.start(now);
-  osc2.start(now);
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(audioContext.destination);
 
-  osc1.stop(now + 0.2);
-  osc2.stop(now + 0.2);
+    osc1.start(now);
+    osc2.start(now);
+
+    osc1.stop(now + 0.2);
+    osc2.stop(now + 0.2);
+  } catch (e) {
+    console.log("Error playing sound:", e);
+  }
 };
 
 export default function MoneyAnimation({
