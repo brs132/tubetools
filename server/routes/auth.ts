@@ -20,10 +20,7 @@ export const handleSignup: RequestHandler = (req, res) => {
     // Check if email already exists
     if (db.emailToUserId.has(email)) {
       console.warn(`Email already registered: ${email}`);
-      res
-        .status(400)
-        .set("Content-Type", "application/json")
-        .json({ error: "Email already registered" });
+      res.status(400).json({ error: "Email already registered" });
       return;
     }
 
