@@ -154,6 +154,7 @@ export const handleVote: RequestHandler = (req, res) => {
       newBalance,
       dailyVotesRemaining,
       rewardAmount: reward,
+      votingStreak: user.votingStreak || 0,
     };
 
     res.json(response);
