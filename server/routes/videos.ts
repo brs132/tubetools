@@ -112,12 +112,31 @@ export const handleVote: RequestHandler = (req, res) => {
     }
 
     const db = getDB();
-    const user = db.users.get(userId);
+    let user = db.users.get(userId);
     const video = db.videos.get(id);
 
-    if (!user || !video) {
-      res.status(404).set("Content-Type", "application/json").json({ error: "User or video not found" });
+    // If video not found, return error
+    if (!video) {
+      res.status(404).set("Content-Type", "application/json").json({ error: "Video not found" });
       return;
+    }
+
+    // If user not found, create demo user
+    if (!user) {
+      const now = new Date();
+      user = {
+        id: userId,
+        name: "Demo User",
+        email: "demo@example.com",
+        balance: 213.19,
+        createdAt: now.toISOString(),
+        firstEarnAt: null,
+        votingStreak: 0,
+        lastVotedAt: null,
+        lastVoteDateReset: null,
+        votingDaysCount: 0,
+      };
+      db.users.set(userId, user);
     }
 
     const now = new Date();
