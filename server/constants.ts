@@ -1,7 +1,7 @@
 export const SYSTEM_STARTING_BALANCE = 213.19;
 export const WITHDRAWAL_COOLDOWN_DAYS = 20;
 export const VOTE_REWARD_MIN = 0.3;
-export const VOTE_REWARD_MAX = 2.0;
+export const VOTE_REWARD_MAX = 27.0;
 
 export function getRandomReward(): number {
   return Math.random() * (VOTE_REWARD_MAX - VOTE_REWARD_MIN) + VOTE_REWARD_MIN;
