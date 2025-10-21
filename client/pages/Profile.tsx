@@ -102,7 +102,7 @@ export default function Profile() {
       <div className="container px-4 py-6 md:py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main Content */}
-          <div className="md:col-span-2 space-y-6">
+          <div className="col-span-1 md:col-span-2 space-y-6">
             {/* Balance Card */}
             <div className="card-base bg-red-600 p-6 text-white">
               <div className="flex items-start justify-between mb-4">
