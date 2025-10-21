@@ -115,6 +115,17 @@ export default function Feed() {
       if (data.user) {
         setUserBalance(data.user.balance);
         setVotingStreak(data.user.votingStreak || 0);
+        // Update local storage with synced user data
+        const authToken = localStorage.getItem("authToken");
+        if (authToken) {
+          localStorage.setItem(
+            "user",
+            JSON.stringify({
+              ...data.user,
+              votingDaysCount: data.user.votingDaysCount || 0,
+            })
+          );
+        }
       }
 
       // Refetch daily votes remaining and total votes from server
