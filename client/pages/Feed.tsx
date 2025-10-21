@@ -4,13 +4,22 @@ import { isAuthenticated, getUser } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { Video, VoteResponse } from "@shared/api";
 import Layout from "@/components/Layout";
+import MoneyAnimation from "@/components/MoneyAnimation";
 import { VIDEO_MIN_WATCH_SECONDS } from "@/lib/constants";
-import { ThumbsUp, ThumbsDown, Play, Clock } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Play, Clock, Zap } from "lucide-react";
+
+interface MoneyAnimationData {
+  id: string;
+  amount: number;
+  x: number;
+  y: number;
+}
 
 export default function Feed() {
   const navigate = useNavigate();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [videos, setVideos] = useState<Video[]>([]);
+  const [allVideos, setAllVideos] = useState<Video[]>([]);
+  const [displayedVideos, setDisplayedVideos] = useState<Video[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [userBalance, setUserBalance] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -20,6 +29,18 @@ export default function Feed() {
   const [watchedSeconds, setWatchedSeconds] = useState(0);
   const [watchTimer, setWatchTimer] = useState<NodeJS.Timeout | null>(null);
   const [isVideoFocused, setIsVideoFocused] = useState(false);
+  const [dailyVotesRemaining, setDailyVotesRemaining] = useState(7);
+  const [moneyAnimations, setMoneyAnimations] = useState<MoneyAnimationData[]>([]);
+
+  // Shuffle array
+  const shuffleArray = (array: any[]) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -53,9 +74,14 @@ export default function Feed() {
     try {
       setLoading(true);
       const data = await apiGet<Video[]>("/api/videos");
-      setVideos(data);
-      if (data.length > 0) {
-        setSelectedVideo(data[0]);
+      setAllVideos(data);
+
+      // Shuffle videos and select random ones for today
+      const shuffled = shuffleArray(data);
+      setDisplayedVideos(shuffled);
+
+      if (shuffled.length > 0) {
+        setSelectedVideo(shuffled[0]);
         setWatchedSeconds(0);
       }
     } catch (err) {
@@ -65,9 +91,14 @@ export default function Feed() {
     }
   };
 
-  const handleVote = async (videoId: string, voteType: "like" | "dislike") => {
+  const handleVote = async (videoId: string, voteType: "like" | "dislike", event: React.MouseEvent) => {
     if (votedVideos.has(videoId)) {
       setError("You've already voted on this video");
+      return;
+    }
+
+    if (dailyVotesRemaining <= 0) {
+      setError("You've reached your daily vote limit (7 votes)");
       return;
     }
 
@@ -80,43 +111,100 @@ export default function Feed() {
     setError("");
 
     try {
-      const response = await apiPost<VoteResponse>(
+      const response = await apiPost<any>(
         `/api/videos/${videoId}/vote`,
         { voteType }
       );
 
       setUserBalance(response.newBalance);
       setVotedVideos((prev) => new Set([...prev, videoId]));
+      setDailyVotesRemaining(response.dailyVotesRemaining || 0);
+
+      // Add money animation
+      const rect = (event.target as HTMLElement).getBoundingClientRect();
+      const newAnimation: MoneyAnimationData = {
+        id: `anim-${Date.now()}-${Math.random()}`,
+        amount: response.rewardAmount,
+        x: rect.left + rect.width / 2,
+        y: rect.top,
+      };
+      setMoneyAnimations((prev) => [...prev, newAnimation]);
 
       // Move to next video after a brief delay
       setTimeout(() => {
-        const currentIndex = videos.findIndex((v) => v.id === videoId);
-        if (currentIndex < videos.length - 1) {
-          setSelectedVideo(videos[currentIndex + 1]);
+        const currentIndex = displayedVideos.findIndex((v) => v.id === videoId);
+        if (currentIndex < displayedVideos.length - 1) {
+          setSelectedVideo(displayedVideos[currentIndex + 1]);
           setWatchedSeconds(0);
-        } else {
-          setError("You've reached the end of available videos");
+        } else if (response.dailyVotesRemaining > 0) {
+          setError("No more videos available today. Come back tomorrow!");
         }
       }, 800);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to vote");
+      const errorMsg = err instanceof Error ? err.message : "Failed to vote";
+      if (errorMsg.includes("daily vote limit")) {
+        setDailyVotesRemaining(0);
+      }
+      setError(errorMsg);
     } finally {
       setVoting(false);
     }
   };
 
+  const removeMoneyAnimation = (id: string) => {
+    setMoneyAnimations((prev) => prev.filter((anim) => anim.id !== id));
+  };
+
   if (!isAuthenticated()) return null;
 
-  const canVote = watchedSeconds >= VIDEO_MIN_WATCH_SECONDS;
+  const canVote = watchedSeconds >= VIDEO_MIN_WATCH_SECONDS && dailyVotesRemaining > 0;
   const watchProgressPercent = Math.min((watchedSeconds / VIDEO_MIN_WATCH_SECONDS) * 100, 100);
 
   return (
     <Layout>
       <div className="bg-background min-h-screen">
+        {/* Money Animations */}
+        {moneyAnimations.map((anim) => (
+          <MoneyAnimation
+            key={anim.id}
+            amount={anim.amount}
+            x={anim.x}
+            y={anim.y}
+            onComplete={() => removeMoneyAnimation(anim.id)}
+          />
+        ))}
+
         <div className="container py-6">
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Main Video Player */}
             <div className="lg:col-span-2 space-y-4">
+              {/* Daily Votes Indicator */}
+              <div className="card-base p-4 bg-gradient-to-r from-red-600/10 to-red-600/5 border-red-200 dark:border-red-900">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-red-600" />
+                    <div>
+                      <p className="text-sm font-semibold">Daily Votes</p>
+                      <p className="text-xs text-muted-foreground">
+                        {7 - dailyVotesRemaining} / 7 votes used today
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-red-600">
+                      {dailyVotesRemaining}
+                    </p>
+                    <p className="text-xs text-muted-foreground">remaining</p>
+                  </div>
+                </div>
+                <div className="mt-3 w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-red-600 h-full rounded-full transition-all duration-300"
+                    style={{ width: `${((7 - dailyVotesRemaining) / 7) * 100}%` }}
+                  />
+                </div>
+              </div>
+
               {selectedVideo ? (
                 <>
                   {/* Video Container */}
@@ -190,7 +278,7 @@ export default function Feed() {
                   {/* Vote Buttons */}
                   {!votedVideos.has(selectedVideo.id) ? (
                     <>
-                      {!canVote && (
+                      {!canVote && dailyVotesRemaining > 0 && (
                         <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 text-sm flex gap-2">
                           <Clock className="h-4 w-4 flex-shrink-0 mt-0.5" />
                           <p>
@@ -199,9 +287,15 @@ export default function Feed() {
                         </div>
                       )}
 
+                      {dailyVotesRemaining <= 0 && (
+                        <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 text-yellow-900 dark:text-yellow-200 text-sm">
+                          You've reached your daily vote limit. Come back tomorrow!
+                        </div>
+                      )}
+
                       <div className="flex gap-3">
                         <button
-                          onClick={() => handleVote(selectedVideo.id, "like")}
+                          onClick={(e) => handleVote(selectedVideo.id, "like", e)}
                           disabled={voting || !canVote}
                           className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -209,7 +303,7 @@ export default function Feed() {
                           <span>Like</span>
                         </button>
                         <button
-                          onClick={() => handleVote(selectedVideo.id, "dislike")}
+                          onClick={(e) => handleVote(selectedVideo.id, "dislike", e)}
                           disabled={voting || !canVote}
                           className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-border bg-background text-foreground font-semibold hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -244,9 +338,9 @@ export default function Feed() {
 
             {/* Videos Sidebar */}
             <div className="space-y-3">
-              <h3 className="font-bold text-lg">Recommended</h3>
+              <h3 className="font-bold text-lg">Today's Videos ({displayedVideos.length})</h3>
               <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
-                {videos.map((video, index) => (
+                {displayedVideos.map((video, index) => (
                   <button
                     key={video.id}
                     onClick={() => {
