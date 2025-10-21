@@ -25,6 +25,7 @@ export default function Profile() {
   const [withdrawMethod, setWithdrawMethod] = useState("paypal");
   const [withdrawing, setWithdrawing] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated()) {
