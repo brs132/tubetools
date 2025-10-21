@@ -358,8 +358,8 @@ export default function Feed() {
               )}
             </div>
 
-            {/* Videos Sidebar */}
-            <div className="space-y-3">
+            {/* Videos Sidebar - Desktop Only */}
+            <div className="space-y-3 hidden lg:block">
               <h3 className="font-bold text-lg">
                 Today's Videos ({displayedVideos.length})
               </h3>
