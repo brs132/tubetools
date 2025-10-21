@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { handleSignup, handleLogin } from "./routes/auth";
-import { handleGetVideos, handleGetVideo, handleVote } from "./routes/videos";
+import { handleGetVideos, handleGetVideo, handleVote, handleGetDailyVotes } from "./routes/videos";
 import { handleGetBalance, handleGetTransactions } from "./routes/balance";
 import {
   handleCreateWithdrawal,
@@ -34,6 +34,7 @@ export function createServer() {
   app.get("/api/videos", handleGetVideos);
   app.get("/api/videos/:id", handleGetVideo);
   app.post("/api/videos/:id/vote", handleVote);
+  app.get("/api/daily-votes", handleGetDailyVotes);
 
   // Balance and transaction routes
   app.get("/api/balance", handleGetBalance);
