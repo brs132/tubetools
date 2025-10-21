@@ -174,6 +174,7 @@ export default function Feed() {
       setVotedVideos((prev) => new Set([...prev, videoId]));
       setDailyVotesRemaining(response.dailyVotesRemaining || 0);
       setTotalVideosWatched((prev) => prev + 1);
+      setVotingStreak(response.votingStreak || 0);
 
       // Add money animation
       const rect = (event.target as HTMLElement).getBoundingClientRect();
