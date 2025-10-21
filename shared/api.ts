@@ -91,4 +91,5 @@ export interface VoteResponse {
   rewardAmount?: number;
   votingStreak?: number;
   totalVideosWatched?: number;
+  votingDaysCount?: number;
 }
