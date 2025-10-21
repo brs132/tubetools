@@ -38,14 +38,10 @@ export const handleGetBalance: RequestHandler = (req, res) => {
     let daysUntilWithdrawal = WITHDRAWAL_COOLDOWN_DAYS;
     let withdrawalEligible = false;
 
-    if (user.firstEarnAt) {
-      const firstEarnDate = new Date(user.firstEarnAt);
-      const daysPassed = Math.floor(
-        (Date.now() - firstEarnDate.getTime()) / (1000 * 60 * 60 * 24),
-      );
-      daysUntilWithdrawal = Math.max(0, WITHDRAWAL_COOLDOWN_DAYS - daysPassed);
-      withdrawalEligible = daysUntilWithdrawal === 0;
-    }
+    // Use voting days count if available, otherwise fall back to firstEarnAt
+    const votingDays = user.votingDaysCount || 0;
+    daysUntilWithdrawal = Math.max(0, WITHDRAWAL_COOLDOWN_DAYS - votingDays);
+    withdrawalEligible = daysUntilWithdrawal === 0 && votingDays > 0;
 
     // Get pending withdrawal if any
     const pendingWithdrawal = Array.from(db.withdrawals.values()).find(
