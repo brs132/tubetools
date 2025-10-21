@@ -19,30 +19,30 @@ export function createServer() {
   app.use(express.urlencoded({ extended: true }));
 
   // Example API routes
-  app.get("/api/ping", (_req, res) => {
+  app.get(["/ping", "/api/ping"], (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
     res.json({ message: ping });
   });
 
-  app.get("/api/demo", handleDemo);
+  app.get(["/demo", "/api/demo"], handleDemo);
 
   // Auth routes
-  app.post("/api/auth/signup", handleSignup);
-  app.post("/api/auth/login", handleLogin);
+  app.post(["/auth/signup", "/api/auth/signup"], handleSignup);
+  app.post(["/auth/login", "/api/auth/login"], handleLogin);
 
   // Video routes
-  app.get("/api/videos", handleGetVideos);
-  app.get("/api/videos/:id", handleGetVideo);
-  app.post("/api/videos/:id/vote", handleVote);
-  app.get("/api/daily-votes", handleGetDailyVotes);
+  app.get(["/videos", "/api/videos"], handleGetVideos);
+  app.get(["/videos/:id", "/api/videos/:id"], handleGetVideo);
+  app.post(["/videos/:id/vote", "/api/videos/:id/vote"], handleVote);
+  app.get(["/daily-votes", "/api/daily-votes"], handleGetDailyVotes);
 
   // Balance and transaction routes
-  app.get("/api/balance", handleGetBalance);
-  app.get("/api/transactions", handleGetTransactions);
+  app.get(["/balance", "/api/balance"], handleGetBalance);
+  app.get(["/transactions", "/api/transactions"], handleGetTransactions);
 
   // Withdrawal routes
-  app.post("/api/withdrawals", handleCreateWithdrawal);
-  app.get("/api/withdrawals", handleGetWithdrawals);
+  app.post(["/withdrawals", "/api/withdrawals"], handleCreateWithdrawal);
+  app.get(["/withdrawals", "/api/withdrawals"], handleGetWithdrawals);
 
   return app;
 }
