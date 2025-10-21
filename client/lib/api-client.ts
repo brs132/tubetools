@@ -25,80 +25,84 @@ export async function apiCall<T>(
     });
 
     let text = "";
+    let readSuccess = false;
 
-    // Try to read response body, with multiple fallback strategies
+    // Try to read response body using text() with multiple fallback strategies
     try {
-      // First attempt: use text()
       text = await response.text();
+      readSuccess = true;
     } catch (firstError) {
-      // If text() fails, the body might already be consumed
-      // Try to clone and read from the clone
-      try {
-        const clonedResponse = response.clone();
-        text = await clonedResponse.text();
-      } catch (secondError) {
-        // If cloning also fails, we can't read the body
-        console.error("Unable to read response body:", firstError);
+      // If text() fails, try cloning the response
+      console.warn("Initial text() failed, attempting clone fallback", firstError);
 
-        // For error responses, throw with status code
-        if (!response.ok) {
+      try {
+        // Clone allows us to read the response again
+        const cloned = response.clone();
+        text = await cloned.text();
+        readSuccess = true;
+      } catch (secondError) {
+        console.error("Clone fallback also failed", secondError);
+        // Both strategies failed - we can't read the body
+        // Use status code to determine what to return
+        if (response.ok) {
+          // Successful response with unreadable body - return empty
+          return {} as T;
+        } else {
+          // Error response with unreadable body
           throw new Error(`API error: ${response.status}`);
         }
-
-        // For successful responses, return empty object
-        return {} as T;
       }
     }
 
-    // Check response status
+    // At this point, readSuccess should be true and text should contain the body
     if (!response.ok) {
       let errorMessage = `API error: ${response.status}`;
 
-      // Try to extract error details from response body
-      if (text) {
+      if (readSuccess && text) {
         try {
           const errorData = JSON.parse(text);
           if (errorData.error) {
             errorMessage = `${response.status}: ${errorData.error}`;
           }
         } catch {
-          // If we can't parse, use raw text if short enough
+          // Response is not JSON
           if (text.length < 200) {
             errorMessage = `${response.status}: ${text}`;
           }
         }
       }
 
-      console.error("API error response:", errorMessage);
+      console.error("API error:", errorMessage);
       throw new Error(errorMessage);
     }
 
-    // For successful responses
-    if (!text) {
+    // Handle successful response (2xx status)
+    if (!text || text.trim() === "") {
       return {} as T;
     }
 
     try {
-      return JSON.parse(text) as T;
+      const parsed = JSON.parse(text) as T;
+      return parsed;
     } catch (parseErr) {
-      console.error("Failed to parse JSON response:", text.substring(0, 100));
-      throw new Error("Invalid response format");
+      console.error("JSON parse error:", text.substring(0, 200));
+      throw new Error("Invalid JSON response");
     }
   } catch (err) {
-    // Handle network errors and other fetch-level errors
+    // Handle TypeError separately for network-related errors
     if (err instanceof TypeError) {
-      const errorMessage = err.message || "Unknown error";
-      console.error("Fetch error:", errorMessage);
+      const msg = err.message || "Unknown error";
+      console.error("TypeError caught:", msg);
 
-      if (errorMessage.includes("Failed to fetch") ||
-          errorMessage.includes("NetworkError")) {
+      // Check for specific network error patterns
+      if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
         throw new Error("Network error - please check your connection");
       }
 
-      throw new Error(`Network error: ${errorMessage}`);
+      throw new Error(`Connection error: ${msg}`);
     }
 
-    // Re-throw other errors
+    // For all other errors, re-throw as-is
     throw err;
   }
 }
