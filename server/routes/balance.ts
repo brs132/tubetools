@@ -23,6 +23,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
+      console.warn("No valid token in authorization header");
       res.status(401).set("Content-Type", "application/json").json({ error: "Unauthorized" });
       return;
     }
@@ -31,6 +32,8 @@ export const handleGetBalance: RequestHandler = (req, res) => {
     const user = db.users.get(userId);
 
     if (!user) {
+      console.warn(`User not found for userId: ${userId}`);
+      console.warn(`Available users: ${Array.from(db.users.keys()).join(", ") || "none"}`);
       res.status(404).set("Content-Type", "application/json").json({ error: "User not found" });
       return;
     }
