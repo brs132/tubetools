@@ -206,14 +206,14 @@ export default function Profile() {
                     <button
                       type="submit"
                       disabled={withdrawing}
-                      className="flex-1 btn-primary disabled:opacity-50"
+                      className="flex-1 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
                     >
                       {withdrawing ? "Processing..." : "Submit"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowWithdrawForm(false)}
-                      className="flex-1 btn-outline"
+                      className="flex-1 px-6 py-3 rounded-lg border border-border bg-background text-foreground font-semibold hover:bg-muted transition-colors"
                     >
                       Cancel
                     </button>
