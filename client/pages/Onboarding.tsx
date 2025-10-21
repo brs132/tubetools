@@ -65,23 +65,17 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background flex flex-col items-center justify-center px-4">
-      {/* Background gradient orbs */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/20 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-      </div>
-
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="gradient-primary rounded-2xl p-3">
-              <Play className="h-8 w-8 text-primary-foreground" />
+            <div className="bg-red-600 rounded-lg p-3">
+              <Play className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                WatchEarn
+              <h1 className="text-3xl font-bold text-foreground">
+                TubeTools
               </h1>
               <p className="text-xs text-muted-foreground mt-1">Watch. Vote. Earn.</p>
             </div>
@@ -92,21 +86,21 @@ export default function Onboarding() {
         <div className="card-base mb-8">
           <div className="space-y-3">
             <div className="flex gap-3">
-              <CheckCircle2 className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-sm">Watch quality videos</p>
                 <p className="text-xs text-muted-foreground">Curated content inside the app</p>
               </div>
             </div>
             <div className="flex gap-3">
-              <CheckCircle2 className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-sm">Vote and earn rewards</p>
                 <p className="text-xs text-muted-foreground">$0.30 - $2.00 per vote</p>
               </div>
             </div>
             <div className="flex gap-3">
-              <CheckCircle2 className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-sm">Withdraw after 20 days</p>
                 <p className="text-xs text-muted-foreground">Start with $213.19 balance</p>
