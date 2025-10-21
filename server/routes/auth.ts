@@ -11,10 +11,7 @@ export const handleSignup: RequestHandler = (req, res) => {
 
     if (!name || !email) {
       console.warn("Missing name or email in signup");
-      res
-        .status(400)
-        .set("Content-Type", "application/json")
-        .json({ error: "Name and email are required" });
+      res.status(400).json({ error: "Name and email are required" });
       return;
     }
 
