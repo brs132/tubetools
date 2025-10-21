@@ -34,9 +34,10 @@ export const handleGetVideos: RequestHandler = (req, res) => {
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
-    res.json(videos);
+    res.set("Content-Type", "application/json").json(videos);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch videos" });
+    console.error("Videos error:", error);
+    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch videos" });
   }
 };
 
@@ -46,7 +47,7 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).set("Content-Type", "application/json").json({ error: "Unauthorized" });
       return;
     }
 
@@ -58,13 +59,14 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
     const allVotes = Array.from(db.votes.values())
       .filter((v) => v.userId === userId);
 
-    res.json({
+    res.set("Content-Type", "application/json").json({
       remaining,
       voted: dailyVotes,
       totalVotes: allVotes.length,
     });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch daily votes" });
+    console.error("Daily votes error:", error);
+    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch daily votes" });
   }
 };
 
@@ -75,13 +77,14 @@ export const handleGetVideo: RequestHandler = (req, res) => {
     const video = db.videos.get(id);
 
     if (!video) {
-      res.status(404).json({ error: "Video not found" });
+      res.status(404).set("Content-Type", "application/json").json({ error: "Video not found" });
       return;
     }
 
-    res.json(video);
+    res.set("Content-Type", "application/json").json(video);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch video" });
+    console.error("Video error:", error);
+    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch video" });
   }
 };
 
@@ -99,7 +102,7 @@ export const handleVote: RequestHandler = (req, res) => {
     const { voteType } = req.body;
 
     if (!voteType || !["like", "dislike"].includes(voteType)) {
-      res.status(400).json({ error: "Invalid vote type" });
+      res.status(400).set("Content-Type", "application/json").json({ error: "Invalid vote type" });
       return;
     }
 
@@ -108,7 +111,7 @@ export const handleVote: RequestHandler = (req, res) => {
     const video = db.videos.get(id);
 
     if (!user || !video) {
-      res.status(404).json({ error: "User or video not found" });
+      res.status(404).set("Content-Type", "application/json").json({ error: "User or video not found" });
       return;
     }
 
@@ -134,7 +137,7 @@ export const handleVote: RequestHandler = (req, res) => {
     // Check daily vote limit (1-7 votes per day)
     const dailyVotes = getDailyVoteCount(userId);
     if (dailyVotes >= 7) {
-      res.status(400).json({
+      res.status(400).set("Content-Type", "application/json").json({
         error: "You've reached your daily vote limit (7 votes)",
         dailyVotesRemaining: 0,
       });
@@ -207,9 +210,9 @@ export const handleVote: RequestHandler = (req, res) => {
     // Save database after modifications
     saveDBToFile();
 
-    res.json(response);
+    res.set("Content-Type", "application/json").json(response);
   } catch (error) {
     console.error("Vote error:", error);
-    res.status(500).json({ error: "Failed to process vote" });
+    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to process vote" });
   }
 };
