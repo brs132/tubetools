@@ -305,7 +305,7 @@ export default function Profile() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-4">
+          <div className="col-span-1 space-y-4">
             {/* User Info */}
             <div className="card-base space-y-3">
               <h3 className="font-bold">User Info</h3>
