@@ -33,6 +33,7 @@ interface EnhancedVideo extends Video {
 
 export default function Feed() {
   const navigate = useNavigate();
+  const user = getUser();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [allVideos, setAllVideos] = useState<Video[]>([]);
   const [displayedVideos, setDisplayedVideos] = useState<EnhancedVideo[]>([]);
