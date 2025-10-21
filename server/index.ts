@@ -15,8 +15,12 @@ export function createServer() {
 
   // Middleware
   app.use(cors());
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+  // Disable compression to avoid stream reading issues
+  app.disable("x-powered-by");
+  app.set("trust proxy", 1);
 
   // Example API routes
   app.get(["/ping", "/api/ping"], (_req, res) => {
