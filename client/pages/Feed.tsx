@@ -6,7 +6,16 @@ import { Video, VoteResponse } from "@shared/api";
 import Layout from "@/components/Layout";
 import MoneyAnimation from "@/components/MoneyAnimation";
 import { VIDEO_MIN_WATCH_SECONDS } from "@/lib/constants";
-import { ThumbsUp, ThumbsDown, Play, Clock, Zap } from "lucide-react";
+import {
+  ThumbsUp,
+  ThumbsDown,
+  Play,
+  Zap,
+  Eye,
+  MessageCircle,
+  Calendar,
+  Star,
+} from "lucide-react";
 
 interface MoneyAnimationData {
   id: string;
@@ -15,12 +24,19 @@ interface MoneyAnimationData {
   y: number;
 }
 
+interface EnhancedVideo extends Video {
+  rating?: number;
+  views?: number;
+  uploadedAt?: string;
+  sessionId?: string;
+}
+
 export default function Feed() {
   const navigate = useNavigate();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [allVideos, setAllVideos] = useState<Video[]>([]);
-  const [displayedVideos, setDisplayedVideos] = useState<Video[]>([]);
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [displayedVideos, setDisplayedVideos] = useState<EnhancedVideo[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<EnhancedVideo | null>(null);
   const [userBalance, setUserBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
@@ -30,9 +46,8 @@ export default function Feed() {
   const [watchTimer, setWatchTimer] = useState<NodeJS.Timeout | null>(null);
   const [isVideoFocused, setIsVideoFocused] = useState(false);
   const [dailyVotesRemaining, setDailyVotesRemaining] = useState(7);
-  const [moneyAnimations, setMoneyAnimations] = useState<MoneyAnimationData[]>(
-    [],
-  );
+  const [moneyAnimations, setMoneyAnimations] = useState<MoneyAnimationData[]>([]);
+  const [totalVideosWatched, setTotalVideosWatched] = useState(0);
 
   // Shuffle array
   const shuffleArray = (array: any[]) => {
@@ -42,6 +57,27 @@ export default function Feed() {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+  };
+
+  // Generate random video rating 1-10
+  const generateRating = (): number => {
+    return Math.floor(Math.random() * 10) + 1;
+  };
+
+  // Generate random views
+  const generateViews = (): number => {
+    return Math.floor(Math.random() * 1000000) + 10000;
+  };
+
+  // Generate enhanced videos with infinite scroll capability
+  const generateEnhancedVideos = (videos: Video[]): EnhancedVideo[] => {
+    return videos.map((video, index) => ({
+      ...video,
+      rating: generateRating(),
+      views: generateViews(),
+      uploadedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+      sessionId: `${index}-${Date.now()}`,
+    }));
   };
 
   useEffect(() => {
@@ -78,14 +114,8 @@ export default function Feed() {
       const data = await apiGet<Video[]>("/api/videos");
       setAllVideos(data);
 
-      // Shuffle videos and select random ones for today
-      const shuffled = shuffleArray(data);
-      setDisplayedVideos(shuffled);
-
-      if (shuffled.length > 0) {
-        setSelectedVideo(shuffled[0]);
-        setWatchedSeconds(0);
-      }
+      // Generate initial batch with randomization
+      generateNewBatch(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load videos");
     } finally {
@@ -93,10 +123,21 @@ export default function Feed() {
     }
   };
 
+  const generateNewBatch = (baseVideos: Video[]) => {
+    const shuffled = shuffleArray(baseVideos);
+    const enhanced = generateEnhancedVideos(shuffled);
+    setDisplayedVideos(enhanced);
+
+    if (enhanced.length > 0) {
+      setSelectedVideo(enhanced[0]);
+      setWatchedSeconds(0);
+    }
+  };
+
   const handleVote = async (
     videoId: string,
     voteType: "like" | "dislike",
-    event: React.MouseEvent,
+    event: React.MouseEvent
   ) => {
     if (votedVideos.has(videoId)) {
       setError("You've already voted on this video");
@@ -109,9 +150,7 @@ export default function Feed() {
     }
 
     if (watchedSeconds < VIDEO_MIN_WATCH_SECONDS) {
-      setError(
-        `Please watch at least ${VIDEO_MIN_WATCH_SECONDS} seconds before voting`,
-      );
+      setError(`Please watch at least ${VIDEO_MIN_WATCH_SECONDS} seconds before voting`);
       return;
     }
 
@@ -126,6 +165,7 @@ export default function Feed() {
       setUserBalance(response.newBalance);
       setVotedVideos((prev) => new Set([...prev, videoId]));
       setDailyVotesRemaining(response.dailyVotesRemaining || 0);
+      setTotalVideosWatched((prev) => prev + 1);
 
       // Add money animation
       const rect = (event.target as HTMLElement).getBoundingClientRect();
@@ -137,14 +177,18 @@ export default function Feed() {
       };
       setMoneyAnimations((prev) => [...prev, newAnimation]);
 
-      // Move to next video after a brief delay
+      // Move to next video
       setTimeout(() => {
         const currentIndex = displayedVideos.findIndex((v) => v.id === videoId);
         if (currentIndex < displayedVideos.length - 1) {
           setSelectedVideo(displayedVideos[currentIndex + 1]);
           setWatchedSeconds(0);
         } else if (response.dailyVotesRemaining > 0) {
-          setError("No more videos available today. Come back tomorrow!");
+          // Generate infinite videos by reshuffling
+          generateNewBatch(allVideos);
+          setWatchedSeconds(0);
+        } else {
+          setError("You've reached your daily vote limit. Come back tomorrow!");
         }
       }, 800);
     } catch (err) {
@@ -162,14 +206,28 @@ export default function Feed() {
     setMoneyAnimations((prev) => prev.filter((anim) => anim.id !== id));
   };
 
+  const formatViews = (views: number): string => {
+    if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M`;
+    if (views >= 1000) return `${(views / 1000).toFixed(1)}K`;
+    return views.toString();
+  };
+
+  const getTimeAgo = (date: string): string => {
+    const now = new Date();
+    const then = new Date(date);
+    const diff = Math.floor((now.getTime() - then.getTime()) / 1000);
+
+    if (diff < 60) return "now";
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    return `${Math.floor(diff / 604800)}w ago`;
+  };
+
   if (!isAuthenticated()) return null;
 
-  const canVote =
-    watchedSeconds >= VIDEO_MIN_WATCH_SECONDS && dailyVotesRemaining > 0;
-  const watchProgressPercent = Math.min(
-    (watchedSeconds / VIDEO_MIN_WATCH_SECONDS) * 100,
-    100,
-  );
+  const canVote = watchedSeconds >= VIDEO_MIN_WATCH_SECONDS && dailyVotesRemaining > 0;
+  const watchProgressPercent = Math.min((watchedSeconds / VIDEO_MIN_WATCH_SECONDS) * 100, 100);
 
   return (
     <Layout>
@@ -189,32 +247,33 @@ export default function Feed() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
             {/* Main Video Player */}
             <div className="lg:col-span-2 space-y-4">
-              {/* Daily Votes Indicator */}
-              <div className="card-base p-4 bg-gradient-to-r from-red-600/10 to-red-600/5 border-red-200 dark:border-red-900">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-red-600" />
+              {/* Daily Votes & Stats */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="card-base p-4 bg-gradient-to-r from-red-600/10 to-red-600/5 border-red-200 dark:border-red-900">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold">Daily Votes</p>
-                      <p className="text-xs text-muted-foreground">
-                        {7 - dailyVotesRemaining} / 7 votes used today
+                      <p className="text-xs font-semibold text-muted-foreground">
+                        Daily Votes
+                      </p>
+                      <p className="text-2xl font-bold text-red-600">
+                        {dailyVotesRemaining}
                       </p>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-red-600">
-                      {dailyVotesRemaining}
-                    </p>
-                    <p className="text-xs text-muted-foreground">remaining</p>
+                    <Zap className="h-5 w-5 text-red-600" />
                   </div>
                 </div>
-                <div className="mt-3 w-full bg-muted rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-red-600 h-full rounded-full transition-all duration-300"
-                    style={{
-                      width: `${((7 - dailyVotesRemaining) / 7) * 100}%`,
-                    }}
-                  />
+                <div className="card-base p-4 bg-gradient-to-r from-blue-600/10 to-blue-600/5 border-blue-200 dark:border-blue-900">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground">
+                        Videos Watched
+                      </p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {totalVideosWatched}
+                      </p>
+                    </div>
+                    <Eye className="h-5 w-5 text-blue-600" />
+                  </div>
                 </div>
               </div>
 
@@ -240,18 +299,9 @@ export default function Feed() {
                     </div>
                   </div>
 
-                  {/* Watch Progress */}
+                  {/* Watch Progress Bar */}
                   {!votedVideos.has(selectedVideo.id) && (
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Watch progress
-                        </span>
-                        <span className="font-semibold">
-                          {Math.round(watchedSeconds)}s /{" "}
-                          {VIDEO_MIN_WATCH_SECONDS}s
-                        </span>
-                      </div>
                       <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-red-600 h-full rounded-full transition-all duration-300"
@@ -262,18 +312,35 @@ export default function Feed() {
                   )}
 
                   {/* Video Info */}
-                  <div className="card-base space-y-3">
-                    <h2 className="text-2xl font-bold">
-                      {selectedVideo.title}
-                    </h2>
-                    <p className="text-muted-foreground text-sm">
-                      {selectedVideo.description}
-                    </p>
+                  <div className="card-base space-y-4">
+                    <div>
+                      <h2 className="text-2xl font-bold mb-2">
+                        {selectedVideo.title}
+                      </h2>
+                      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Eye className="h-4 w-4" />
+                          <span>{formatViews(selectedVideo.views || 0)} views</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>
+                            {getTimeAgo(selectedVideo.uploadedAt || new Date().toISOString())}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-yellow-600">
+                          <Star className="h-4 w-4 fill-yellow-600" />
+                          <span>
+                            {selectedVideo.rating || 5}/10
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                       <div>
                         <p className="text-xs font-semibold text-muted-foreground mb-1">
-                          REWARD RANGE
+                          REWARD
                         </p>
                         <p className="text-lg font-bold">
                           ${selectedVideo.rewardMin.toFixed(2)} - $
@@ -295,39 +362,30 @@ export default function Feed() {
                   {!votedVideos.has(selectedVideo.id) ? (
                     <>
                       {!canVote && dailyVotesRemaining > 0 && (
-                        <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 text-sm flex gap-2">
-                          <Clock className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                          <p>
-                            Watch at least {VIDEO_MIN_WATCH_SECONDS} seconds
-                            before voting
-                          </p>
+                        <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 text-sm">
+                          Watch 4 seconds before voting
                         </div>
                       )}
 
                       {dailyVotesRemaining <= 0 && (
                         <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 text-yellow-900 dark:text-yellow-200 text-sm">
-                          You've reached your daily vote limit. Come back
-                          tomorrow!
+                          You've reached your daily vote limit. Come back tomorrow!
                         </div>
                       )}
 
                       <div className="flex gap-3">
                         <button
-                          onClick={(e) =>
-                            handleVote(selectedVideo.id, "like", e)
-                          }
+                          onClick={(e) => handleVote(selectedVideo.id, "like", e)}
                           disabled={voting || !canVote}
-                          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <ThumbsUp className="h-5 w-5" />
                           <span>Like</span>
                         </button>
                         <button
-                          onClick={(e) =>
-                            handleVote(selectedVideo.id, "dislike", e)
-                          }
+                          onClick={(e) => handleVote(selectedVideo.id, "dislike", e)}
                           disabled={voting || !canVote}
-                          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-border bg-background text-foreground font-semibold hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <ThumbsDown className="h-5 w-5" />
                           <span>Dislike</span>
@@ -360,13 +418,14 @@ export default function Feed() {
 
             {/* Videos Sidebar - Desktop Only */}
             <div className="space-y-3 hidden lg:block">
-              <h3 className="font-bold text-lg">
-                Today's Videos ({displayedVideos.length})
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <Play className="h-4 w-4" />
+                Playlist
               </h3>
               <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
-                {displayedVideos.map((video, index) => (
+                {displayedVideos.slice(0, 10).map((video, index) => (
                   <button
-                    key={video.id}
+                    key={`${video.id}-${index}`}
                     onClick={() => {
                       setSelectedVideo(video);
                       setWatchedSeconds(0);
@@ -386,19 +445,19 @@ export default function Feed() {
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                         <Play className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
+                      <div className="absolute top-1 right-1 text-xs font-bold text-yellow-600 bg-black/70 px-1.5 py-0.5 rounded">
+                        {video.rating || 5}/10
+                      </div>
                     </div>
                     <p className="text-xs font-semibold line-clamp-2">
                       {index + 1}. {video.title}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      ${video.rewardMin.toFixed(2)} - $
-                      {video.rewardMax.toFixed(2)}
-                    </p>
-                    {votedVideos.has(video.id) && (
-                      <p className="text-xs text-red-600 font-semibold mt-1">
-                        ✓ Voted
-                      </p>
-                    )}
+                    <div className="flex justify-between items-center mt-1 text-xs text-muted-foreground">
+                      <span>${video.rewardMin.toFixed(2)}</span>
+                      {votedVideos.has(video.id) && (
+                        <span className="text-red-600 font-semibold">✓</span>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>
