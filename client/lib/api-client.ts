@@ -24,8 +24,23 @@ export async function apiCall<T>(
       headers,
     });
 
-    // Read body only once
-    const text = await response.text();
+    let text = "";
+
+    // Try to read response body with fallback handling
+    try {
+      text = await response.text();
+    } catch (bodyReadError) {
+      // Handle "body stream already read" or other body reading errors
+      if (bodyReadError instanceof TypeError) {
+        console.error("Body stream error:", bodyReadError);
+        // If we can't read the body, check status code
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        return {} as T;
+      }
+      throw bodyReadError;
+    }
 
     if (!response.ok) {
       console.error(`API error ${response.status}:`, text);
@@ -43,7 +58,7 @@ export async function apiCall<T>(
       throw new Error("Invalid response format");
     }
   } catch (err) {
-    if (err instanceof TypeError) {
+    if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
       console.error("Network error:", err);
       throw new Error("Network error - please check your connection");
     }
