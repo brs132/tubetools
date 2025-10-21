@@ -69,21 +69,26 @@ export default function Feed() {
     return Math.floor(Math.random() * 1000000) + 10000;
   };
 
-  // Generate random reward (0.30 to 27.00)
-  const generateReward = (): number => {
-    return Math.random() * (27.0 - 0.3) + 0.3;
+  // Generate random reward range (0.30 to 27.00)
+  const generateRewardRange = (): { min: number; max: number } => {
+    const min = Math.round((Math.random() * (27.0 - 0.3) + 0.3) * 100) / 100;
+    const max = Math.round((min + Math.random() * (27.0 - min)) * 100) / 100;
+    return { min, max };
   };
 
   // Generate enhanced videos with infinite scroll capability
   const generateEnhancedVideos = (videos: Video[]): EnhancedVideo[] => {
-    return videos.map((video) => ({
-      ...video,
-      rating: generateRating(),
-      views: generateViews(),
-      uploadedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      rewardMin: generateReward(),
-      rewardMax: generateReward(),
-    }));
+    return videos.map((video) => {
+      const { min, max } = generateRewardRange();
+      return {
+        ...video,
+        rating: generateRating(),
+        views: generateViews(),
+        uploadedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+        rewardMin: min,
+        rewardMax: max,
+      };
+    });
   };
 
   useEffect(() => {
