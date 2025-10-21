@@ -23,7 +23,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).set("Content-Type", "application/json").json({ error: "Unauthorized" });
       return;
     }
 
@@ -31,7 +31,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
     const user = db.users.get(userId);
 
     if (!user) {
-      res.status(404).json({ error: "User not found" });
+      res.status(404).set("Content-Type", "application/json").json({ error: "User not found" });
       return;
     }
 
@@ -55,9 +55,10 @@ export const handleGetBalance: RequestHandler = (req, res) => {
       pendingWithdrawal: pendingWithdrawal || null,
     };
 
-    res.json(response);
+    res.set("Content-Type", "application/json").json(response);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch balance" });
+    console.error("Balance error:", error);
+    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch balance" });
   }
 };
 
@@ -67,7 +68,7 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).set("Content-Type", "application/json").json({ error: "Unauthorized" });
       return;
     }
 
@@ -79,8 +80,9 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
-    res.json(transactions);
+    res.set("Content-Type", "application/json").json(transactions);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch transactions" });
+    console.error("Transactions error:", error);
+    res.status(500).set("Content-Type", "application/json").json({ error: "Failed to fetch transactions" });
   }
 };
