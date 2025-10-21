@@ -101,7 +101,7 @@ export default function Profile() {
           {/* Main Content */}
           <div className="md:col-span-2 space-y-6">
             {/* Balance Card */}
-            <div className="card-base gradient-accent p-6 text-primary-foreground">
+            <div className="card-base bg-red-600 p-6 text-white">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <p className="text-sm font-semibold opacity-90 mb-1">
