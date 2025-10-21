@@ -104,7 +104,7 @@ export default function Onboarding() {
               <div>
                 <p className="font-semibold text-sm">Vote and earn rewards</p>
                 <p className="text-xs text-muted-foreground">
-                  $0.30 - $2.00 per vote
+                  $0.30 - $27.00 per vote
                 </p>
               </div>
             </div>
