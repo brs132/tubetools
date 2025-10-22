@@ -10,7 +10,10 @@ import {
   handleVote,
   handleGetDailyVotes,
 } from "../../server/routes/videos";
-import { handleGetBalance, handleGetTransactions } from "../../server/routes/balance";
+import {
+  handleGetBalance,
+  handleGetTransactions,
+} from "../../server/routes/balance";
 import {
   handleCreateWithdrawal,
   handleGetWithdrawals,
