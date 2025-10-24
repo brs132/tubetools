@@ -352,6 +352,7 @@ export default function Feed() {
                   <div className="card-base p-0 overflow-hidden bg-black">
                     <div className="aspect-video relative">
                       <YouTubePlayer
+                        key={selectedVideo.id}
                         videoId={selectedVideo.id}
                         onDurationChange={setVideoDuration}
                         onTimeUpdate={setWatchedSeconds}
