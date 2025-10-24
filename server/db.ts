@@ -1,6 +1,7 @@
 import { UserData, Video, Vote, Transaction, Withdrawal } from "@shared/api";
 import * as fs from "fs";
 import * as path from "path";
+import { v4 as uuidv4 } from "uuid";
 
 // In-memory database (for development - would be replaced with real DB)
 export interface DBUser extends UserData {}
