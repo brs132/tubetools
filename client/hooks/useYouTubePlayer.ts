@@ -44,18 +44,8 @@ export function useYouTubePlayer(
   // Create player
   useEffect(() => {
     const setupPlayer = () => {
-      if (!window.YT || !containerRef.current) {
+      if (!window.YT || !containerRef.current || playerRef.current) {
         return;
-      }
-
-      // Destroy old player if exists
-      if (playerRef.current) {
-        try {
-          playerRef.current.destroy();
-        } catch (err) {
-          // Ignore
-        }
-        playerRef.current = null;
       }
 
       const containerId = `yt-${videoId}`;

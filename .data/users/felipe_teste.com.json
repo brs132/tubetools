@@ -3,19 +3,36 @@
     "id": "b3npvlvyp5emh50h5oi",
     "name": "felipe",
     "email": "felipe@teste.com",
-    "balance": 0,
+    "balance": 32.88,
     "createdAt": "2025-10-24T15:34:01.218Z",
-    "firstEarnAt": null,
-    "votingStreak": 0,
-    "lastVotedAt": null,
-    "lastVoteDateReset": null,
-    "votingDaysCount": 0
+    "firstEarnAt": "2025-10-24T16:21:13.449Z",
+    "votingStreak": 1,
+    "lastVotedAt": "2025-10-24T16:21:13.449Z",
+    "lastVoteDateReset": "2025-10-24T16:21:13.449Z",
+    "votingDaysCount": 1
   },
-  "votes": [],
-  "transactions": [],
+  "votes": [
+    {
+      "id": "xwzdxpv94gcmh525v1m",
+      "videoId": "vDGrfhJH1P4",
+      "voteType": "like",
+      "rewardAmount": 16.44,
+      "createdAt": "2025-10-24T16:21:13.449Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "s7gdna5mkvmh525v1n",
+      "type": "credit",
+      "amount": 16.44,
+      "description": "Video vote reward - Video 33",
+      "status": "completed",
+      "createdAt": "2025-10-24T16:21:13.449Z"
+    }
+  ],
   "withdrawals": [],
   "dailyVoteCount": {
-    "count": 0,
+    "count": 1,
     "date": "2025-10-24"
   }
 }
