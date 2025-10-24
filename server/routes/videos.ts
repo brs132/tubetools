@@ -63,7 +63,7 @@ export const handleGetVideos: RequestHandler = (req, res) => {
   }
 };
 
-export const handleGetDailyVotes: RequestHandler = (req, res) => {
+export const handleGetDailyVotes: RequestHandler = async (req, res) => {
   try {
     const token = req.headers.authorization;
     const email = getEmailFromToken(token);
@@ -73,14 +73,14 @@ export const handleGetDailyVotes: RequestHandler = (req, res) => {
       return;
     }
 
-    const userData = getUserByEmail(email);
+    const userData = await getUserByEmail(email);
 
     if (!userData) {
       res.status(401).json({ error: "User not found" });
       return;
     }
 
-    const dailyVotes = getDailyVoteCount(email);
+    const dailyVotes = await getDailyVoteCount(email);
     const remaining = Math.max(0, 7 - dailyVotes);
 
     // Get total votes for this user (all time)
@@ -120,7 +120,7 @@ export const handleGetVideo: RequestHandler = (req, res) => {
   }
 };
 
-export const handleVote: RequestHandler = (req, res) => {
+export const handleVote: RequestHandler = async (req, res) => {
   try {
     console.log("[handleVote] Starting vote handler");
     const token = req.headers.authorization;
@@ -159,7 +159,7 @@ export const handleVote: RequestHandler = (req, res) => {
       return;
     }
 
-    let userData = getUserByEmail(email);
+    let userData = await getUserByEmail(email);
 
     // User should exist at this point (already logged in)
     if (!userData) {
@@ -192,7 +192,7 @@ export const handleVote: RequestHandler = (req, res) => {
     }
 
     // Check daily vote limit (1-7 votes per day)
-    const dailyVotes = getDailyVoteCount(email);
+    const dailyVotes = await getDailyVoteCount(email);
     if (dailyVotes >= 7) {
       res.status(400).json({
         error: "You've reached your daily vote limit (7 votes)",
@@ -222,7 +222,7 @@ export const handleVote: RequestHandler = (req, res) => {
     };
 
     // Add vote to user data
-    addVote(email, vote);
+    await addVote(email, vote);
 
     // Update user profile
     user.lastVotedAt = nowISO;
@@ -240,7 +240,7 @@ export const handleVote: RequestHandler = (req, res) => {
     user.balance = newBalance;
 
     // Update profile in database
-    updateUserProfile(email, user);
+    await updateUserProfile(email, user);
 
     // Create transaction record
     const transactionId = generateId();
@@ -254,7 +254,7 @@ export const handleVote: RequestHandler = (req, res) => {
     };
 
     // Add transaction
-    addTransaction(email, transaction);
+    await addTransaction(email, transaction);
 
     const dailyVotesRemaining = 7 - (dailyVotes + 1);
 
