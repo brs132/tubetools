@@ -85,7 +85,10 @@ export const handleGetVideo: RequestHandler = (req, res) => {
       return;
     }
 
-    res.json(video);
+    res.json({
+      ...video,
+      duration: video.duration || 180,
+    });
   } catch (error) {
     console.error("Video error:", error);
     res.status(500).json({ error: "Failed to fetch video" });
