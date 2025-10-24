@@ -178,13 +178,14 @@ export default function Feed() {
     }
   };
 
-  // When selected video changes, reset watched seconds
+  // When selected video changes, reset watched seconds and loading state
   useEffect(() => {
     if (selectedVideo) {
       setWatchedSeconds(0);
-      // Duration will be set by YouTube IFrame API onReady
-      // Start with a temporary value that will be overridden
       setVideoDuration(selectedVideo.duration || 180);
+      setVideoLoading(true);
+      setVideoLoadError(false);
+      setMoneyAnimations([]);
     }
   }, [selectedVideo]);
 
