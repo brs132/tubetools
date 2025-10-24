@@ -46,7 +46,27 @@ export default function YouTubePlayer({
 
   // Create and manage player
   useEffect(() => {
-    if (!isPlayerReady || !window.YT || playerRef.current) return;
+    if (!isPlayerReady || !window.YT) return;
+
+    // Destroy previous player if exists
+    if (playerRef.current && playerRef.current.destroy) {
+      try {
+        playerRef.current.destroy();
+      } catch (err) {
+        console.debug("Error destroying previous player:", err);
+      }
+      playerRef.current = null;
+    }
+
+    // Clear any pending intervals
+    if (updateIntervalRef.current) {
+      clearInterval(updateIntervalRef.current);
+      updateIntervalRef.current = null;
+    }
+
+    // Create new player
+    const container = document.getElementById(playerContainerId);
+    if (!container) return;
 
     playerRef.current = new window.YT.Player(playerContainerId, {
       width: "100%",
@@ -76,11 +96,20 @@ export default function YouTubePlayer({
     });
 
     return () => {
+      if (playerRef.current && playerRef.current.destroy) {
+        try {
+          playerRef.current.destroy();
+        } catch (err) {
+          console.debug("Error destroying player on cleanup:", err);
+        }
+        playerRef.current = null;
+      }
       if (updateIntervalRef.current) {
         clearInterval(updateIntervalRef.current);
+        updateIntervalRef.current = null;
       }
     };
-  }, [isPlayerReady, videoId, onDurationChange, onStateChange, autoplay]);
+  }, [isPlayerReady, videoId, playerContainerId, onDurationChange, onStateChange, autoplay]);
 
   // Track current time
   useEffect(() => {
