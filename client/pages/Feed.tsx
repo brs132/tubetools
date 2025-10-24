@@ -400,14 +400,8 @@ export default function Feed() {
                           </p>
                           <button
                             onClick={() => {
-                              const attempts = videoLoadAttempts[selectedVideo.id] || 0;
-                              if (attempts < 2) {
-                                setVideoLoadAttempts((prev) => ({
-                                  ...prev,
-                                  [selectedVideo.id]: attempts + 1,
-                                }));
-                                setVideoLoadError(false);
-                              }
+                              setVideoRetryTrigger((prev) => prev + 1);
+                              setVideoLoadError(false);
                             }}
                             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-xs"
                           >
