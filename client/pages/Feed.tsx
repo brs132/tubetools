@@ -185,18 +185,18 @@ export default function Feed() {
     }
   }, [selectedVideo]);
 
-  // Timer para rastrear tempo assistido
-  useEffect(() => {
-    if (!selectedVideo || votedVideos.has(selectedVideo.id)) {
-      return;
-    }
+  // Callbacks for YouTube player
+  const handleDurationChange = (duration: number) => {
+    setVideoDuration(duration);
+  };
 
-    const timer = setInterval(() => {
-      setWatchedSeconds((prev) => prev + 0.1);
-    }, 100);
+  const handleTimeUpdate = (time: number) => {
+    setWatchedSeconds(time);
+  };
 
-    return () => clearInterval(timer);
-  }, [selectedVideo, votedVideos]);
+  const handleStateChange = (state: "playing" | "paused" | "ended") => {
+    setVideoState(state);
+  };
 
   const handleVote = async (
     videoId: string,
