@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { isAuthenticated, getUser } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
@@ -184,21 +184,14 @@ export default function Feed() {
     }
   }, [selectedVideo]);
 
-  // Timer para incrementar tempo assistido
-  useEffect(() => {
-    if (!selectedVideo || votedVideos.has(selectedVideo.id) || videoDuration === 0) {
-      return;
-    }
+  // Memoized callbacks para evitar recriação do player
+  const handleTimeUpdate = useCallback((time: number) => {
+    setWatchedSeconds(time);
+  }, []);
 
-    const timer = setInterval(() => {
-      setWatchedSeconds((prev) => {
-        const newVal = prev + 0.1;
-        return newVal >= videoDuration ? videoDuration : newVal;
-      });
-    }, 100);
-
-    return () => clearInterval(timer);
-  }, [selectedVideo, videoDuration, votedVideos]);
+  const handleDurationReady = useCallback((duration: number) => {
+    setVideoDuration(duration);
+  }, []);
 
   const handleVote = async (
     videoId: string,
@@ -371,6 +364,8 @@ export default function Feed() {
                       <VideoPlayer
                         key={selectedVideo.id}
                         videoId={selectedVideo.id}
+                        onTimeUpdate={handleTimeUpdate}
+                        onDurationReady={handleDurationReady}
                       />
                     </div>
                   </div>
