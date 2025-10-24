@@ -38,23 +38,11 @@ export default function VideoPlayer({
     document.body.appendChild(script);
   }, []);
 
-  // Create/Update player
+  // Create player once
   useEffect(() => {
-    if (!window.YT || !containerRef.current) return;
+    if (!window.YT || !containerRef.current || playerRef.current) return;
 
-    // Clear previous player
-    if (playerRef.current) {
-      playerRef.current.destroy?.();
-      playerRef.current = null;
-    }
-
-    // Clear polling
-    if (pollRef.current) {
-      clearInterval(pollRef.current);
-    }
-
-    // Create new player
-    const playerId = `yt-${videoId}`;
+    // Create player once
     playerRef.current = new window.YT.Player(containerRef.current, {
       width: "100%",
       height: "100%",
@@ -72,6 +60,7 @@ export default function VideoPlayer({
           }
 
           // Start polling
+          if (pollRef.current) clearInterval(pollRef.current);
           pollRef.current = setInterval(() => {
             try {
               const state = playerRef.current?.getPlayerState();
@@ -95,7 +84,23 @@ export default function VideoPlayer({
         clearInterval(pollRef.current);
       }
     };
-  }, [videoId, onTimeUpdate, onDurationReady]);
+  }, [onTimeUpdate, onDurationReady]);
+
+  // Load different video without recreating player
+  useEffect(() => {
+    if (playerRef.current && playerRef.current.loadVideoById) {
+      playerRef.current.loadVideoById(videoId);
+      // Get duration after loading
+      setTimeout(() => {
+        if (playerRef.current) {
+          const duration = playerRef.current.getDuration();
+          if (duration > 0) {
+            onDurationReady(duration);
+          }
+        }
+      }, 500);
+    }
+  }, [videoId, onDurationReady]);
 
   // Cleanup
   useEffect(() => {
