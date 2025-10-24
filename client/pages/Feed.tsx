@@ -203,8 +203,19 @@ export default function Feed() {
     if (enhanced.length > 0) {
       setSelectedVideo(enhanced[0]);
       setWatchedSeconds(0);
+      setVideoDuration(0);
     }
   };
+
+  // When selected video changes, update video duration tracking
+  useEffect(() => {
+    if (selectedVideo && iframeRef.current) {
+      // Use a fallback duration of 3 minutes (180 seconds) if we can't detect
+      // In a real scenario, you'd use YouTube API to get exact duration
+      setVideoDuration(180);
+      setWatchedSeconds(0);
+    }
+  }, [selectedVideo]);
 
   const handleVote = async (
     videoId: string,
