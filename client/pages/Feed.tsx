@@ -349,21 +349,15 @@ export default function Feed() {
               {selectedVideo ? (
                 <>
                   {/* Video Container */}
-                  <div
-                    className="card-base p-0 overflow-hidden bg-black"
-                    onMouseEnter={() => setIsVideoFocused(true)}
-                    onMouseLeave={() => setIsVideoFocused(false)}
-                  >
+                  <div className="card-base p-0 overflow-hidden bg-black">
                     <div className="aspect-video relative">
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        src={`${selectedVideo.url}?autoplay=1`}
-                        title={selectedVideo.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full"
-                      ></iframe>
+                      <YouTubePlayer
+                        videoId={selectedVideo.id}
+                        onDurationChange={setVideoDuration}
+                        onTimeUpdate={setWatchedSeconds}
+                        onStateChange={setVideoState}
+                        autoplay={true}
+                      />
                     </div>
                   </div>
 
