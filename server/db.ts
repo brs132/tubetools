@@ -109,6 +109,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/W5PRZuaQ3VM/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 240,
     },
     {
       id: "keOaQm6RpBg",
@@ -118,6 +119,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/keOaQm6RpBg/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 180,
     },
     {
       id: "aP2up9N6H-g",
@@ -127,6 +129,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/aP2up9N6H-g/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 300,
     },
     {
       id: "VGa1imApfdg",
@@ -136,6 +139,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/VGa1imApfdg/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 200,
     },
     {
       id: "C_BZQkU5Cds",
@@ -145,6 +149,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/C_BZQkU5Cds/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 240,
     },
     {
       id: "kQcq3rpne78",
@@ -154,6 +159,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/kQcq3rpne78/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 180,
     },
     {
       id: "gx-zPheFnHo",
@@ -163,6 +169,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/gx-zPheFnHo/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 220,
     },
     {
       id: "0xzN6FM5x_E",
@@ -172,6 +179,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/0xzN6FM5x_E/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 260,
     },
     {
       id: "7oBZ8sBjdyQ",
@@ -181,6 +189,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/7oBZ8sBjdyQ/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 210,
     },
     {
       id: "UYaY2Kb_PKI",
@@ -190,6 +199,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/UYaY2Kb_PKI/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 190,
     },
     {
       id: "s92UMJNjPIA",
@@ -199,6 +209,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/s92UMJNjPIA/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 250,
     },
     {
       id: "qIVDxL2lgN4",
@@ -208,6 +219,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/qIVDxL2lgN4/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 280,
     },
     {
       id: "HXFkg0vwLpQ",
@@ -217,6 +229,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/HXFkg0vwLpQ/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 200,
     },
     {
       id: "o-Ikkh5oxuo",
@@ -226,6 +239,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/o-Ikkh5oxuo/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 240,
     },
     {
       id: "A92_B_mnO-I",
@@ -235,6 +249,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/A92_B_mnO-I/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 180,
     },
     {
       id: "fvyBCesuxMM",
@@ -244,6 +259,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/fvyBCesuxMM/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 270,
     },
     {
       id: "7QLzzSml07Y",
@@ -253,6 +269,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/7QLzzSml07Y/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 230,
     },
     {
       id: "t8Zz1XGuPK8",
@@ -262,6 +279,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/t8Zz1XGuPK8/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 210,
     },
     {
       id: "XMdrHHh2aJc",
@@ -271,6 +289,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/XMdrHHh2aJc/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 200,
     },
     {
       id: "ErwS24cBZPc",
@@ -280,6 +299,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/ErwS24cBZPc/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 190,
     },
     {
       id: "OnQXRxW9VcQ",
@@ -289,6 +309,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/OnQXRxW9VcQ/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 250,
     },
     {
       id: "MRV8mFWwtS4",
@@ -298,6 +319,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/MRV8mFWwtS4/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 220,
     },
     {
       id: "6vEEVNAOFFY",
@@ -307,6 +329,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/6vEEVNAOFFY/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 240,
     },
     {
       id: "A4WZF74dAg4",
@@ -316,6 +339,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/A4WZF74dAg4/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 180,
     },
     {
       id: "taOdaf_nw3U",
@@ -325,6 +349,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/taOdaf_nw3U/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 260,
     },
     {
       id: "imgPdo4TaT8",
@@ -334,6 +359,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/imgPdo4TaT8/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 210,
     },
     {
       id: "wXcBGfXXL4w",
@@ -343,6 +369,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/wXcBGfXXL4w/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 230,
     },
     {
       id: "Kr8XAnR80XA",
@@ -352,6 +379,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/Kr8XAnR80XA/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 200,
     },
     {
       id: "qYbhqbOEaY8",
@@ -361,6 +389,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/qYbhqbOEaY8/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 270,
     },
     {
       id: "EbXSbP-wEFU",
@@ -370,6 +399,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/EbXSbP-wEFU/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 190,
     },
     {
       id: "50A9wjJ40Dk",
@@ -379,6 +409,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/50A9wjJ40Dk/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 240,
     },
     {
       id: "O6rHeD5x2tI",
@@ -388,6 +419,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/O6rHeD5x2tI/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 250,
     },
     {
       id: "vDGrfhJH1P4",
@@ -397,6 +429,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/vDGrfhJH1P4/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 220,
     },
     {
       id: "fLonJKaTQqM",
@@ -406,6 +439,7 @@ function initializeDB() {
       thumbnail: "https://img.youtube.com/vi/fLonJKaTQqM/maxresdefault.jpg",
       ...getVideoReward(),
       createdAt: new Date().toISOString(),
+      duration: 280,
     },
   ];
 

@@ -42,6 +42,7 @@ export interface Video {
   rewardMin: number;
   rewardMax: number;
   createdAt: string;
+  duration?: number;
 }
 
 export interface Vote {
