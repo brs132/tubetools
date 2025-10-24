@@ -31,8 +31,15 @@ export async function executeQuery(sql: string, params: any[] = []) {
 }
 
 export async function executeSingleQuery(sql: string, params: any[] = []) {
-  const result = await executeQuery(sql, params);
-  return result.rows[0] || null;
+  try {
+    const result = await executeQuery(sql, params);
+    const row = result.rows[0] || null;
+    console.log("[executeSingleQuery] Result:", row ? "found" : "not found");
+    return row;
+  } catch (err) {
+    console.error("[executeSingleQuery] Error:", err instanceof Error ? err.message : err);
+    throw err;
+  }
 }
 
 export async function seedVideos() {
