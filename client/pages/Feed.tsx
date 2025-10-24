@@ -59,6 +59,9 @@ export default function Feed() {
     user?.votingDaysCount || 0,
   );
   const [videoDuration, setVideoDuration] = useState(180);
+  const [videoState, setVideoState] = useState<"playing" | "paused" | "ended">(
+    "paused",
+  );
 
   // Shuffle array
   const shuffleArray = (array: any[]) => {
