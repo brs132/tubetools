@@ -63,7 +63,8 @@ export default function Profile() {
       // Ensure amount is a number (DB might return it as string)
       const normalizedTransactions = data.map((tx) => ({
         ...tx,
-        amount: typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount,
+        amount:
+          typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount,
       }));
       setTransactions(normalizedTransactions);
     } catch (err) {
