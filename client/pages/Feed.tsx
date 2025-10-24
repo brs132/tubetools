@@ -182,18 +182,12 @@ export default function Feed() {
     }
   }, [selectedVideo]);
 
-  // Timer para rastrear tempo assistido
-  useEffect(() => {
-    if (!selectedVideo || votedVideos.has(selectedVideo.id)) {
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setWatchedSeconds((prev) => prev + 0.1);
-    }, 100);
-
-    return () => clearInterval(timer);
-  }, [selectedVideo, votedVideos]);
+  // Use YouTube player hook to sync with actual video playback
+  const playerContainerRef = useYouTubePlayer(
+    selectedVideo?.id || "",
+    setWatchedSeconds,
+    setVideoDuration,
+  );
 
   const handleVote = async (
     videoId: string,
