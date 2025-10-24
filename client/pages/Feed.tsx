@@ -5,6 +5,7 @@ import { apiGet, apiPost } from "@/lib/api-client";
 import { Video, VoteResponse } from "@shared/api";
 import Layout from "@/components/Layout";
 import MoneyAnimation from "@/components/MoneyAnimation";
+import YouTubePlayer from "@/components/YouTubePlayer";
 import { VIDEO_MIN_WATCH_SECONDS } from "@/lib/constants";
 import {
   ThumbsUp,
