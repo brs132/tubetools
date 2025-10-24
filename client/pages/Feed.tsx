@@ -64,9 +64,7 @@ export default function Feed() {
   const [votingDaysCount, setVotingDaysCount] = useState(
     user?.votingDaysCount || 0,
   );
-  const [videoDuration, setVideoDuration] = useState(0);
-  const playerRef = useRef<any>(null);
-  const videoContainerRef = useRef<HTMLDivElement>(null);
+  const [videoDuration, setVideoDuration] = useState(180);
 
   // Shuffle array
   const shuffleArray = (array: any[]) => {
