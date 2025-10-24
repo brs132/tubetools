@@ -14,12 +14,19 @@ export function getPool(): Pool {
 }
 
 export async function executeQuery(sql: string, params: any[] = []) {
-  const client = await getPool().connect();
   try {
-    const result = await client.query(sql, params);
-    return result;
-  } finally {
-    client.release();
+    const client = await getPool().connect();
+    try {
+      console.log("[executeQuery] Executing SQL:", sql.substring(0, 50), "params:", params);
+      const result = await client.query(sql, params);
+      console.log("[executeQuery] Query successful, rows:", result.rows.length);
+      return result;
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error("[executeQuery] Database error:", err instanceof Error ? err.message : err);
+    throw err;
   }
 }
 
