@@ -5,20 +5,33 @@ import { BalanceInfo } from "@shared/api";
 
 function getEmailFromToken(token: string | undefined): string | null {
   if (!token) {
-    console.warn("No authorization token provided");
+    console.warn("[Balance] No authorization token provided");
     return null;
   }
+
   try {
-    const bearerToken = token.replace("Bearer ", "");
-    const email = Buffer.from(bearerToken, "base64").toString();
-    if (!email) {
-      console.warn("Could not extract email from token");
+    console.log("[Balance] Raw token:", token.substring(0, 50) + "...");
+
+    // Remove "Bearer " prefix if present
+    let tokenValue = token;
+    if (token.startsWith("Bearer ")) {
+      tokenValue = token.slice(7);
+    }
+
+    console.log("[Balance] Token value:", tokenValue.substring(0, 30) + "...");
+
+    // Decode from base64
+    const email = Buffer.from(tokenValue, "base64").toString("utf-8").trim();
+
+    if (!email || email.length === 0) {
+      console.warn("[Balance] Email is empty after decoding");
       return null;
     }
-    console.log("Extracted email from token:", email);
+
+    console.log("[Balance] Extracted email from token:", email);
     return email;
   } catch (err) {
-    console.error("Error decoding token:", err);
+    console.error("[Balance] Error decoding token:", err);
     return null;
   }
 }
