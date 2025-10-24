@@ -124,6 +124,8 @@ export async function handler(event: any, context: any) {
     const videoIdMatch = path.match(/^\/videos\/([^/]+)$/);
     const videoVoteMatch = path.match(/^\/videos\/([^/]+)\/vote$/);
 
+    console.log(`[API Handler] Regex matches - videoIdMatch: ${videoIdMatch ? videoIdMatch[1] : "no"}, videoVoteMatch: ${videoVoteMatch ? videoVoteMatch[1] : "no"}`);
+
     if (videoIdMatch) {
       req.params = { id: videoIdMatch[1] };
     }
