@@ -3,7 +3,7 @@ import { SignupRequest, LoginRequest, AuthResponse } from "@shared/api";
 import { createUser, getUserByEmail, generateId } from "../user-db";
 import { SYSTEM_STARTING_BALANCE } from "../constants";
 
-export const handleSignup: RequestHandler = (req, res) => {
+export const handleSignup: RequestHandler = async (req, res) => {
   try {
     console.log("Signup request received with body:", JSON.stringify(req.body));
 
@@ -25,7 +25,7 @@ export const handleSignup: RequestHandler = (req, res) => {
     const trimmedEmail = email.trim().toLowerCase();
 
     // Check if email already exists
-    const existingUser = getUserByEmail(trimmedEmail);
+    const existingUser = await getUserByEmail(trimmedEmail);
     if (existingUser) {
       console.warn(`Email already registered: ${trimmedEmail}`);
       res
@@ -37,7 +37,7 @@ export const handleSignup: RequestHandler = (req, res) => {
     // Create new user
     const userId = generateId();
     console.log(`Creating user: ${userId} with email: ${trimmedEmail}`);
-    const userData = createUser(
+    const userData = await createUser(
       userId,
       name.trim(),
       trimmedEmail,
@@ -62,7 +62,7 @@ export const handleSignup: RequestHandler = (req, res) => {
   }
 };
 
-export const handleLogin: RequestHandler = (req, res) => {
+export const handleLogin: RequestHandler = async (req, res) => {
   try {
     const { email } = req.body as LoginRequest;
 
@@ -75,7 +75,7 @@ export const handleLogin: RequestHandler = (req, res) => {
     const trimmedEmail = email.trim().toLowerCase();
     console.log("Login attempt with email:", trimmedEmail);
 
-    const userData = getUserByEmail(trimmedEmail);
+    const userData = await getUserByEmail(trimmedEmail);
 
     if (!userData) {
       console.warn(`User not found: ${trimmedEmail}`);
