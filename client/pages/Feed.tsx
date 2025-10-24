@@ -410,65 +410,63 @@ export default function Feed() {
                           </button>
                         </div>
                       )}
-                      <div className="absolute inset-0 w-full h-full overflow-hidden">
-                        <VideoPlayer
-                          key={`${selectedVideo.id}-${videoRetryTrigger}`}
-                          videoId={selectedVideo.id}
-                          onTimeUpdate={handleTimeUpdate}
-                          onDurationReady={handleDurationReady}
-                          onLoadFail={() => {
-                            const attempts = videoLoadAttempts[selectedVideo.id] || 0;
-                            const newAttempts = attempts + 1;
+                      <VideoPlayer
+                        key={`${selectedVideo.id}-${videoRetryTrigger}`}
+                        videoId={selectedVideo.id}
+                        onTimeUpdate={handleTimeUpdate}
+                        onDurationReady={handleDurationReady}
+                        onLoadFail={() => {
+                          const attempts = videoLoadAttempts[selectedVideo.id] || 0;
+                          const newAttempts = attempts + 1;
 
+                          console.log(
+                            `[Feed] Video ${selectedVideo.id} load failed, attempt ${newAttempts}/2`,
+                          );
+
+                          if (newAttempts >= 2) {
+                            // Skip to next video after 2 failed attempts
                             console.log(
-                              `[Feed] Video ${selectedVideo.id} load failed, attempt ${newAttempts}/2`,
+                              `[Feed] Max attempts reached, skipping to next video`,
+                            );
+                            setError(
+                              "Vídeo não carregou. Pulando para o próximo...",
                             );
 
-                            if (newAttempts >= 2) {
-                              // Skip to next video after 2 failed attempts
-                              console.log(
-                                `[Feed] Max attempts reached, skipping to next video`,
-                              );
-                              setError(
-                                "Vídeo não carregou. Pulando para o próximo...",
-                              );
-
-                              setTimeout(() => {
-                                const currentIndex =
-                                  displayedVideos.findIndex(
-                                    (v) => v.id === selectedVideo.id,
-                                  ) || 0;
-                                if (currentIndex < displayedVideos.length - 1) {
-                                  setSelectedVideo(
-                                    displayedVideos[currentIndex + 1],
-                                  );
-                                } else {
-                                  // Generate new batch if at end
-                                  generateNewBatch(allVideos);
-                                }
-                                setVideoLoadAttempts({});
-                                setVideoLoadError(false);
-                              }, 2000);
-                            } else {
-                              // Show error and allow retry
-                              setVideoLoadAttempts((prev) => ({
-                                ...prev,
-                                [selectedVideo.id]: newAttempts,
-                              }));
-                              setVideoLoadError(true);
-                            }
-                          }}
-                          onLoadSuccess={() => {
-                            console.log(
-                              `[Feed] Video ${selectedVideo.id} loaded successfully`,
-                            );
-                            setVideoLoading(false);
-                            setVideoLoadError(false);
-                            // Reset attempts on success
-                            setVideoLoadAttempts({});
-                          }}
-                        />
-                      </div>
+                            setTimeout(() => {
+                              const currentIndex =
+                                displayedVideos.findIndex(
+                                  (v) => v.id === selectedVideo.id,
+                                ) || 0;
+                              if (currentIndex < displayedVideos.length - 1) {
+                                setSelectedVideo(
+                                  displayedVideos[currentIndex + 1],
+                                );
+                              } else {
+                                // Generate new batch if at end
+                                generateNewBatch(allVideos);
+                              }
+                              setVideoLoadAttempts({});
+                              setVideoLoadError(false);
+                            }, 2000);
+                          } else {
+                            // Show error and allow retry
+                            setVideoLoadAttempts((prev) => ({
+                              ...prev,
+                              [selectedVideo.id]: newAttempts,
+                            }));
+                            setVideoLoadError(true);
+                          }
+                        }}
+                        onLoadSuccess={() => {
+                          console.log(
+                            `[Feed] Video ${selectedVideo.id} loaded successfully`,
+                          );
+                          setVideoLoading(false);
+                          setVideoLoadError(false);
+                          // Reset attempts on success
+                          setVideoLoadAttempts({});
+                        }}
+                      />
                     </div>
                   </div>
 
