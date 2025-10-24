@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { isAuthenticated, getUser } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
@@ -371,8 +371,6 @@ export default function Feed() {
                       <VideoPlayer
                         key={selectedVideo.id}
                         videoId={selectedVideo.id}
-                        onTimeUpdate={handleTimeUpdate}
-                        onDurationReady={handleDurationReady}
                       />
                     </div>
                   </div>
