@@ -60,7 +60,12 @@ export default function Profile() {
   const loadTransactions = async () => {
     try {
       const data = await apiGet<Transaction[]>("/api/transactions");
-      setTransactions(data);
+      // Ensure amount is a number (DB might return it as string)
+      const normalizedTransactions = data.map((tx) => ({
+        ...tx,
+        amount: typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount,
+      }));
+      setTransactions(normalizedTransactions);
     } catch (err) {
       console.error("Transactions error:", err);
     } finally {
