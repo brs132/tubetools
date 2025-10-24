@@ -33,7 +33,8 @@ export default function Onboarding() {
     setLoading(true);
 
     try {
-      const payload: SignupRequest = { name, email };
+      const normalizedEmail = email.toLowerCase().trim();
+      const payload: SignupRequest = { name, email: normalizedEmail };
       console.log("Sending signup request with payload:", payload);
 
       const response = await apiPost<AuthResponse>("/api/auth/signup", payload);
