@@ -21,10 +21,14 @@ export default function VideoPlayer({
   videoId,
   onTimeUpdate,
   onDurationReady,
+  onLoadFail,
+  onLoadSuccess,
 }: VideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
+  const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const loadSuccessRef = useRef(false);
 
   // Load YouTube API
   useEffect(() => {
