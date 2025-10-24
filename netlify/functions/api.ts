@@ -1,68 +1,55 @@
-import serverless from "serverless-http";
-import "dotenv/config";
-import express from "express";
-import cors from "cors";
-import { handleDemo } from "../../server/routes/demo";
-import { handleSignup, handleLogin } from "../../server/routes/auth";
-import {
-  handleGetVideos,
-  handleGetVideo,
-  handleVote,
-  handleGetDailyVotes,
-} from "../../server/routes/videos";
-import {
-  handleGetBalance,
-  handleGetTransactions,
-} from "../../server/routes/balance";
-import {
-  handleCreateWithdrawal,
-  handleGetWithdrawals,
-} from "../../server/routes/withdrawals";
+import { Handler } from "@netlify/functions";
+import { createServer } from "../../server";
 
-function createServer() {
-  const app = express();
+let app: any;
 
-  // Middleware
-  app.use(cors());
-  app.use(express.json({ limit: "10mb" }));
-  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-  // Disable compression to avoid stream reading issues
-  app.disable("x-powered-by");
-  app.set("trust proxy", 1);
-
-  // Example API routes
-  app.get(["/ping"], (_req, res) => {
-    const ping = process.env.PING_MESSAGE ?? "ping";
-    res.json({ message: ping });
-  });
-
-  app.get(["/demo"], handleDemo);
-
-  // Auth routes
-  app.post(["/auth/signup"], handleSignup);
-  app.post(["/auth/login"], handleLogin);
-
-  // Video routes
-  app.get(["/videos"], handleGetVideos);
-  app.get(["/videos/:id"], handleGetVideo);
-  app.post(["/videos/:id/vote"], handleVote);
-  app.get(["/daily-votes"], handleGetDailyVotes);
-
-  // Balance and transaction routes
-  app.get(["/balance"], handleGetBalance);
-  app.get(["/transactions"], handleGetTransactions);
-
-  // Withdrawal routes
-  app.post(["/withdrawals"], handleCreateWithdrawal);
-  app.get(["/withdrawals"], handleGetWithdrawals);
-
-  return app;
+try {
+  app = createServer();
+} catch (error) {
+  console.error("Failed to create server:", error);
 }
 
-const app = createServer();
+export const handler: Handler = async (event, context) => {
+  try {
+    return await new Promise((resolve) => {
+      if (!app) {
+        resolve({
+          statusCode: 500,
+          body: JSON.stringify({ error: "Server not initialized" }),
+        });
+        return;
+      }
 
-// The Netlify redirect strips /.netlify/functions/api prefix, so routes arrive without it
-export const handler = serverless(app, {
-  binary: ["application/octet-stream", "image/*"],
-});
+      const req = {
+        method: event.httpMethod,
+        url: event.path,
+        headers: event.headers,
+        body: event.body,
+      };
+
+      const res = {
+        statusCode: 200,
+        headers: {} as Record<string, string>,
+        body: "",
+      };
+
+      // Handle the request
+      app(req, res);
+
+      resolve({
+        statusCode: res.statusCode || 200,
+        headers: res.headers,
+        body: res.body,
+      });
+    });
+  } catch (error) {
+    console.error("Handler error:", error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
+    };
+  }
+};
