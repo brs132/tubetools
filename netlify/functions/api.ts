@@ -165,7 +165,15 @@ export async function handler(event: any, context: any) {
     } else if (path === "/withdrawals" && method === "GET") {
       await handleGetWithdrawals(req, res);
     } else {
-      console.log(`Route not found: ${method} ${path}`);
+      console.log(
+        `[API Handler] Route not found: ${method} ${path}`,
+      );
+      console.log(
+        `[API Handler] videoIdMatch: ${videoIdMatch ? "yes" : "no"}, videoVoteMatch: ${videoVoteMatch ? "yes" : "no"}`,
+      );
+      console.log(
+        `[API Handler] Available routes: /ping, /auth/signup, /auth/login, /videos, /videos/{id}, /videos/{id}/vote, /daily-votes, /balance, /transactions, /withdrawals`,
+      );
       res.status(404).json({ error: "Not found" });
     }
 
