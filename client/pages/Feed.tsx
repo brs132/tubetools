@@ -384,8 +384,8 @@ export default function Feed() {
               {selectedVideo ? (
                 <>
                   {/* Video Container */}
-                  <div className="card-base p-0 overflow-hidden bg-black relative">
-                    <div className="aspect-video relative flex items-center justify-center overflow-hidden">
+                  <div className="card-base p-0 bg-black relative" style={{ overflow: "hidden" }}>
+                    <div className="aspect-video w-full relative flex items-center justify-center" style={{ overflow: "hidden" }}>
                       {videoLoading && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20">
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4" />
