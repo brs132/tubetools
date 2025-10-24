@@ -111,11 +111,12 @@ export function createUser(
   email: string,
   initialBalance: number = 213.19,
 ): UserData {
+  const normalizedEmail = email.toLowerCase().trim();
   const now = new Date().toISOString();
   const profile: UserProfile = {
     id,
-    name,
-    email,
+    name: name.trim(),
+    email: normalizedEmail,
     balance: initialBalance,
     createdAt: now,
     firstEarnAt: null,
@@ -126,7 +127,7 @@ export function createUser(
   };
 
   const userData = createEmptyUserData(profile);
-  saveUserData(email, userData);
+  saveUserData(normalizedEmail, userData);
   return userData;
 }
 
