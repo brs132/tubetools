@@ -62,8 +62,9 @@ export default function VideoPlayer({
       <html>
       <head>
         <style>
-          body { margin: 0; padding: 0; }
-          #player { width: 100%; height: 100%; }
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          html, body { width: 100%; height: 100%; overflow: hidden; }
+          #player { width: 100%; height: 100%; display: block; }
         </style>
       </head>
       <body>
