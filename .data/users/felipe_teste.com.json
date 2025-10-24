@@ -3,11 +3,11 @@
     "id": "b3npvlvyp5emh50h5oi",
     "name": "felipe",
     "email": "felipe@teste.com",
-    "balance": 111.96,
+    "balance": 159.06,
     "createdAt": "2025-10-24T15:34:01.218Z",
     "firstEarnAt": "2025-10-24T16:21:13.449Z",
     "votingStreak": 1,
-    "lastVotedAt": "2025-10-24T16:49:35.947Z",
+    "lastVotedAt": "2025-10-24T16:53:49.786Z",
     "lastVoteDateReset": "2025-10-24T16:21:13.449Z",
     "votingDaysCount": 1
   },
@@ -46,6 +46,13 @@
       "voteType": "like",
       "rewardAmount": 3.64,
       "createdAt": "2025-10-24T16:49:35.947Z"
+    },
+    {
+      "id": "8vzl594jgkxmh53bska",
+      "videoId": "UYaY2Kb_PKI",
+      "voteType": "like",
+      "rewardAmount": 23.55,
+      "createdAt": "2025-10-24T16:53:49.786Z"
     }
   ],
   "transactions": [
@@ -88,11 +95,19 @@
       "description": "Video vote reward - Video 24",
       "status": "completed",
       "createdAt": "2025-10-24T16:49:35.947Z"
+    },
+    {
+      "id": "r2ouk3r54bmh53bska",
+      "type": "credit",
+      "amount": 23.55,
+      "description": "Video vote reward - Video 10",
+      "status": "completed",
+      "createdAt": "2025-10-24T16:53:49.786Z"
     }
   ],
   "withdrawals": [],
   "dailyVoteCount": {
-    "count": 5,
+    "count": 6,
     "date": "2025-10-24"
   }
 }
