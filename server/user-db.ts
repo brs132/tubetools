@@ -60,8 +60,9 @@ function ensureUsersDir() {
 }
 
 function getFilePath(email: string): string {
-  // Sanitize email for use as filename
-  const sanitized = email.toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+  // Normalize email and sanitize for use as filename
+  const normalized = email.toLowerCase().trim();
+  const sanitized = normalized.replace(/[^a-z0-9._-]/g, "_");
   return path.join(USERS_DIR, `${sanitized}.json`);
 }
 
