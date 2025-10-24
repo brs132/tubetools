@@ -34,14 +34,12 @@ export default function VideoPlayer({
   const loadSuccessRef = useRef(false);
   const playerReadyRef = useRef(false);
 
-  // Create portal container once
+  // Create portal container once (attach to body for isolation)
   useEffect(() => {
     if (portalContainerRef.current) return;
 
     const container = document.createElement("div");
-    container.id = "youtube-player-portal";
-    container.style.cssText =
-      "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0;";
+    container.id = "youtube-player-portal-" + Math.random().toString(36);
     document.body.appendChild(container);
     portalContainerRef.current = container;
 
