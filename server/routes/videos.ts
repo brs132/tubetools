@@ -159,13 +159,18 @@ export const handleVote: RequestHandler = async (req, res) => {
       return;
     }
 
+    console.log("[handleVote] Attempting to get user by email:", email);
     let userData = await getUserByEmail(email);
 
     // User should exist at this point (already logged in)
     if (!userData) {
+      console.error("[handleVote] User not found in database for email:", email);
+      console.error("[handleVote] This likely means: 1) Database connection failed, 2) User was not created, or 3) Email format mismatch");
       res.status(404).json({ error: "User not found" });
       return;
     }
+
+    console.log("[handleVote] User found:", userData.profile.email, "Balance:", userData.profile.balance);
 
     const user = userData.profile;
     const now = new Date();
