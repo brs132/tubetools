@@ -72,6 +72,19 @@ export async function handler(event: any, context: any) {
   };
 
   try {
+    // Handle CORS preflight
+    if (method === "OPTIONS") {
+      return {
+        statusCode: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        },
+        body: "",
+      };
+    }
+
     // Route handling
     if (path === "/ping" && method === "GET") {
       return {
