@@ -1,69 +1,56 @@
-import { createServer } from "../../server";
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import serverless from "serverless-http";
+import { handleDemo } from "../../server/routes/demo";
+import { handleSignup, handleLogin } from "../../server/routes/auth";
+import {
+  handleGetVideos,
+  handleGetVideo,
+  handleVote,
+  handleGetDailyVotes,
+} from "../../server/routes/videos";
+import { handleGetBalance, handleGetTransactions } from "../../server/routes/balance";
+import {
+  handleCreateWithdrawal,
+  handleGetWithdrawals,
+} from "../../server/routes/withdrawals";
 
-const app = createServer();
+const app = express();
 
-export async function handler(event: any, context: any) {
-  try {
-    // Create a mock request/response for Express
-    const mockRes = {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: "",
-      json: function (data: any) {
-        this.body = JSON.stringify(data);
-        return this;
-      },
-      status: function (code: number) {
-        this.statusCode = code;
-        return this;
-      },
-      send: function (data: any) {
-        if (typeof data === "object") {
-          this.json(data);
-        } else {
-          this.body = data;
-        }
-        return this;
-      },
-      set: function (key: string, value: string) {
-        this.headers[key] = value;
-        return this;
-      },
-      end: function () {
-        return this;
-      },
-    };
+// Middleware
+app.use(cors());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-    const mockReq = {
-      method: event.httpMethod,
-      path: event.path,
-      url: event.path,
-      query: event.queryStringParameters || {},
-      params: event.pathParameters || {},
-      headers: event.headers || {},
-      body: event.body ? JSON.parse(event.body) : {},
-      get: function (header: string) {
-        return this.headers[header.toLowerCase()];
-      },
-    };
+// Config
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
 
-    // Call the Express app
-    app(mockReq, mockRes);
+// Routes
+app.get("/ping", (_req, res) => {
+  const ping = process.env.PING_MESSAGE ?? "ping";
+  res.json({ message: ping });
+});
 
-    return {
-      statusCode: mockRes.statusCode,
-      headers: mockRes.headers,
-      body: mockRes.body,
-    };
-  } catch (error) {
-    console.error("Handler error:", error);
-    return {
-      statusCode: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        error: "Internal server error",
-        details: error instanceof Error ? error.message : "Unknown",
-      }),
-    };
-  }
-}
+app.get("/demo", handleDemo);
+
+// Auth routes
+app.post("/auth/signup", handleSignup);
+app.post("/auth/login", handleLogin);
+
+// Video routes
+app.get("/videos", handleGetVideos);
+app.get("/videos/:id", handleGetVideo);
+app.post("/videos/:id/vote", handleVote);
+app.get("/daily-votes", handleGetDailyVotes);
+
+// Balance routes
+app.get("/balance", handleGetBalance);
+app.get("/transactions", handleGetTransactions);
+
+// Withdrawal routes
+app.post("/withdrawals", handleCreateWithdrawal);
+app.get("/withdrawals", handleGetWithdrawals);
+
+export const handler = serverless(app);
