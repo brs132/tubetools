@@ -1,55 +1,8 @@
-import "dotenv/config";
-import express from "express";
-import cors from "cors";
-import { handleDemo } from "../server/routes/demo";
-import { handleSignup, handleLogin } from "../server/routes/auth";
-import {
-  handleGetVideos,
-  handleGetVideo,
-  handleVote,
-  handleGetDailyVotes,
-} from "../server/routes/videos";
-import { handleGetBalance, handleGetTransactions } from "../server/routes/balance";
-import {
-  handleCreateWithdrawal,
-  handleGetWithdrawals,
-} from "../server/routes/withdrawals";
+import { createServer } from "../server";
+import { IncomingMessage, ServerResponse } from "http";
 
-const app = express();
+const app = createServer();
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// Config
-app.disable("x-powered-by");
-app.set("trust proxy", 1);
-
-// Routes
-app.get(["/ping", "/api/ping"], (_req, res) => {
-  const ping = process.env.PING_MESSAGE ?? "ping";
-  res.json({ message: ping });
-});
-
-app.get(["/demo", "/api/demo"], handleDemo);
-
-// Auth routes
-app.post(["/auth/signup", "/api/auth/signup"], handleSignup);
-app.post(["/auth/login", "/api/auth/login"], handleLogin);
-
-// Video routes
-app.get(["/videos", "/api/videos"], handleGetVideos);
-app.get(["/videos/:id", "/api/videos/:id"], handleGetVideo);
-app.post(["/videos/:id/vote", "/api/videos/:id/vote"], handleVote);
-app.get(["/daily-votes", "/api/daily-votes"], handleGetDailyVotes);
-
-// Balance routes
-app.get(["/balance", "/api/balance"], handleGetBalance);
-app.get(["/transactions", "/api/transactions"], handleGetTransactions);
-
-// Withdrawal routes
-app.post(["/withdrawals", "/api/withdrawals"], handleCreateWithdrawal);
-app.get(["/withdrawals", "/api/withdrawals"], handleGetWithdrawals);
-
-export default app;
+export default function handler(req: IncomingMessage, res: ServerResponse) {
+  return app(req, res);
+}
