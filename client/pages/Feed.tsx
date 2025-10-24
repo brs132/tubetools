@@ -187,6 +187,7 @@ export default function Feed() {
       setVideoLoading(true);
       setVideoLoadError(false);
       setMoneyAnimations([]);
+      setVideoRetryTrigger(0);
     }
   }, [selectedVideo]);
 
