@@ -210,11 +210,45 @@ export default function Feed() {
 
   // When selected video changes, update video duration tracking
   useEffect(() => {
-    if (selectedVideo && iframeRef.current) {
-      // Use a fallback duration of 3 minutes (180 seconds) if we can't detect
-      // In a real scenario, you'd use YouTube API to get exact duration
-      setVideoDuration(180);
+    if (selectedVideo && iframeRef.current && videoContainerRef.current) {
+      // Reset watch time
       setWatchedSeconds(0);
+
+      // Create YouTube player when iframe loads
+      const checkPlayerReady = setInterval(() => {
+        if (window.YT && window.YT.Player && !playerRef.current) {
+          try {
+            // Extract video ID from YouTube URL
+            const videoUrl = selectedVideo.videoUrl || selectedVideo.id;
+            const videoId = videoUrl
+              .split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/)
+              .filter((id) => !/^[A-Za-z0-9_-]{11}$/.test(id))[0];
+
+            // Initialize player
+            playerRef.current = new window.YT.Player(videoContainerRef.current, {
+              videoId: videoId || selectedVideo.id,
+              events: {
+                onReady: (e: any) => {
+                  // Video is ready, get duration
+                  const duration = e.target.getDuration();
+                  setVideoDuration(duration || 180);
+                },
+                onStateChange: (e: any) => {
+                  // Clear interval when player is ready
+                  clearInterval(checkPlayerReady);
+                },
+              },
+            });
+          } catch (error) {
+            console.error("Error creating YouTube player:", error);
+            // Fallback to 180s if player creation fails
+            setVideoDuration(180);
+            clearInterval(checkPlayerReady);
+          }
+        }
+      }, 500);
+
+      return () => clearInterval(checkPlayerReady);
     }
   }, [selectedVideo]);
 
