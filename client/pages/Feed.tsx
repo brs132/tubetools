@@ -152,15 +152,23 @@ export default function Feed() {
     // Track video watch time when video is in focus
     if (isVideoFocused && selectedVideo && !votedVideos.has(selectedVideo.id)) {
       const timer = setInterval(() => {
-        setWatchedSeconds((prev) => prev + 0.5);
-      }, 500);
+        setWatchedSeconds((prev) => {
+          const newSeconds = prev + 0.1;
+          return newSeconds;
+        });
+      }, 100);
       setWatchTimer(timer);
 
-      return () => clearInterval(timer);
+      return () => {
+        if (timer) clearInterval(timer);
+      };
     } else {
-      if (watchTimer) clearInterval(watchTimer);
+      if (watchTimer) {
+        clearInterval(watchTimer);
+        setWatchTimer(null);
+      }
     }
-  }, [isVideoFocused, selectedVideo, votedVideos]);
+  }, [isVideoFocused, selectedVideo, votedVideos, watchTimer]);
 
   const loadVideos = async () => {
     try {
