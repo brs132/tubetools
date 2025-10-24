@@ -52,11 +52,21 @@ export async function handler(event: any, context: any) {
     }
   }
 
+  // Normalize headers to lowercase keys
+  const normalizedHeaders: Record<string, string> = {};
+  if (event.headers) {
+    for (const [key, value] of Object.entries(event.headers)) {
+      normalizedHeaders[key.toLowerCase()] = value as string;
+    }
+  }
+
+  console.log(`[API Handler] Normalized headers:`, normalizedHeaders);
+
   const req: any = {
     method,
     path,
     url: path,
-    headers: event.headers || {},
+    headers: normalizedHeaders,
     query: event.queryStringParameters || {},
     params: event.pathParameters || {},
     body,
