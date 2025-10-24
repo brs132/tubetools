@@ -21,7 +21,7 @@ function getEmailFromToken(token: string | undefined): string | null {
   }
 }
 
-export const handleCreateWithdrawal: RequestHandler = (req, res) => {
+export const handleCreateWithdrawal: RequestHandler = async (req, res) => {
   try {
     const token = req.headers.authorization;
     const email = getEmailFromToken(token);
@@ -38,7 +38,7 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
       return;
     }
 
-    const userData = getUserByEmail(email);
+    const userData = await getUserByEmail(email);
 
     if (!userData) {
       res.status(404).json({ error: "User not found" });
@@ -99,7 +99,7 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
       requestedAt: now,
     };
 
-    addWithdrawal(email, withdrawal);
+    await addWithdrawal(email, withdrawal);
 
     // Create transaction record
     const transactionId = generateId();
@@ -112,7 +112,7 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
       createdAt: now,
     };
 
-    addTransaction(email, transaction);
+    await addTransaction(email, transaction);
 
     res.json(withdrawal);
   } catch (error) {
@@ -121,7 +121,7 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
   }
 };
 
-export const handleGetWithdrawals: RequestHandler = (req, res) => {
+export const handleGetWithdrawals: RequestHandler = async (req, res) => {
   try {
     const token = req.headers.authorization;
     const email = getEmailFromToken(token);
@@ -131,7 +131,7 @@ export const handleGetWithdrawals: RequestHandler = (req, res) => {
       return;
     }
 
-    const userData = getUserByEmail(email);
+    const userData = await getUserByEmail(email);
 
     if (!userData) {
       res.status(404).json({ error: "User not found" });
