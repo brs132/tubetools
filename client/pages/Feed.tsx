@@ -310,11 +310,12 @@ export default function Feed() {
   if (!isAuthenticated()) return null;
 
   const canVote =
-    watchedSeconds >= VIDEO_MIN_WATCH_SECONDS && dailyVotesRemaining > 0;
+    watchedSeconds >= videoDuration && dailyVotesRemaining > 0;
   const watchProgressPercent = Math.min(
-    (watchedSeconds / VIDEO_MIN_WATCH_SECONDS) * 100,
+    videoDuration > 0 ? (watchedSeconds / videoDuration) * 100 : 0,
     100,
   );
+  const secondsRemaining = Math.max(0, videoDuration - watchedSeconds);
 
   return (
     <Layout>
