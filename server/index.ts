@@ -14,6 +14,12 @@ import {
   handleCreateWithdrawal,
   handleGetWithdrawals,
 } from "./routes/withdrawals";
+import { seedVideos } from "./db-neon";
+
+// Initialize database on startup
+seedVideos().catch((err) => {
+  console.error("Failed to seed videos:", err);
+});
 
 export function createServer() {
   const app = express();
