@@ -163,10 +163,19 @@ export default function Feed() {
     // Track video watch time when video is in focus
     if (isVideoFocused && selectedVideo && !votedVideos.has(selectedVideo.id)) {
       const timer = setInterval(() => {
-        setWatchedSeconds((prev) => {
-          const newSeconds = prev + 0.1;
-          return newSeconds;
-        });
+        if (playerRef.current && playerRef.current.getCurrentTime) {
+          try {
+            // Get actual time from YouTube player
+            const currentTime = playerRef.current.getCurrentTime();
+            setWatchedSeconds(currentTime);
+          } catch (error) {
+            // If player API fails, fall back to increment
+            setWatchedSeconds((prev) => prev + 0.1);
+          }
+        } else {
+          // Fallback: increment if player not ready
+          setWatchedSeconds((prev) => prev + 0.1);
+        }
       }, 100);
       setWatchTimer(timer);
 
