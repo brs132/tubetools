@@ -63,16 +63,17 @@ export default function VideoPlayer({
           if (pollRef.current) clearInterval(pollRef.current);
           pollRef.current = setInterval(() => {
             try {
-              const state = playerRef.current?.getPlayerState();
+              if (!playerRef.current) return;
+              const state = playerRef.current.getPlayerState?.();
               // Only report time when playing (state 1)
               if (state === 1) {
-                const time = playerRef.current?.getCurrentTime();
-                if (time >= 0) {
+                const time = playerRef.current.getCurrentTime?.();
+                if (typeof time === "number" && time >= 0) {
                   onTimeUpdate(time);
                 }
               }
             } catch (err) {
-              // Ignore
+              // Silently ignore polling errors
             }
           }, 100);
         },
