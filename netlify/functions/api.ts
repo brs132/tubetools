@@ -6,7 +6,10 @@ import {
   handleVote,
   handleGetDailyVotes,
 } from "../../server/routes/videos";
-import { handleGetBalance, handleGetTransactions } from "../../server/routes/balance";
+import {
+  handleGetBalance,
+  handleGetTransactions,
+} from "../../server/routes/balance";
 import {
   handleCreateWithdrawal,
   handleGetWithdrawals,
@@ -15,7 +18,7 @@ import {
 export async function handler(event: any, context: any) {
   const path = event.path || "";
   const method = event.httpMethod || "GET";
-  
+
   // Mock Express-like request and response objects
   const req: any = {
     method,
