@@ -35,7 +35,9 @@ export async function handler(event: any, context: any) {
 
   const method = event.httpMethod || "GET";
 
-  console.log(`[API Handler] Method: ${method}, Path: ${path}, Raw Path: ${event.path}, Raw URL: ${event.rawPath}`);
+  console.log(
+    `[API Handler] Method: ${method}, Path: ${path}, Raw Path: ${event.path}, Raw URL: ${event.rawPath}`,
+  );
   console.log(`[API Handler] Full event keys:`, Object.keys(event));
 
   // Mock Express-like request and response objects
