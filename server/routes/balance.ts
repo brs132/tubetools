@@ -36,7 +36,7 @@ function getEmailFromToken(token: string | undefined): string | null {
   }
 }
 
-export const handleGetBalance: RequestHandler = (req, res) => {
+export const handleGetBalance: RequestHandler = async (req, res) => {
   try {
     const token = req.headers.authorization;
     const email = getEmailFromToken(token);
@@ -47,7 +47,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
       return;
     }
 
-    const userData = getUserByEmail(email);
+    const userData = await getUserByEmail(email);
 
     if (!userData) {
       res.status(404).json({ error: "User not found" });
@@ -64,7 +64,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
     withdrawalEligible = daysUntilWithdrawal === 0 && votingDays > 0;
 
     // Get pending withdrawal if any
-    const pendingWithdrawal = getPendingWithdrawal(email);
+    const pendingWithdrawal = await getPendingWithdrawal(email);
 
     const response: BalanceInfo = {
       user,
@@ -80,7 +80,7 @@ export const handleGetBalance: RequestHandler = (req, res) => {
   }
 };
 
-export const handleGetTransactions: RequestHandler = (req, res) => {
+export const handleGetTransactions: RequestHandler = async (req, res) => {
   try {
     const token = req.headers.authorization;
     const email = getEmailFromToken(token);
@@ -90,7 +90,7 @@ export const handleGetTransactions: RequestHandler = (req, res) => {
       return;
     }
 
-    const userData = getUserByEmail(email);
+    const userData = await getUserByEmail(email);
 
     if (!userData) {
       res.status(404).json({ error: "User not found" });
