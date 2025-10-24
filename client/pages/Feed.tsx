@@ -147,7 +147,6 @@ export default function Feed() {
     }
   };
 
-
   const loadVideos = async () => {
     try {
       setLoading(true);
@@ -289,7 +288,8 @@ export default function Feed() {
 
   // Reduce duration by 1 second for voting threshold
   const effectiveDuration = Math.max(1, videoDuration - 1);
-  const canVote = watchedSeconds >= effectiveDuration && dailyVotesRemaining > 0;
+  const canVote =
+    watchedSeconds >= effectiveDuration && dailyVotesRemaining > 0;
   const watchProgressPercent = Math.min(
     effectiveDuration > 0 ? (watchedSeconds / effectiveDuration) * 100 : 0,
     100,
