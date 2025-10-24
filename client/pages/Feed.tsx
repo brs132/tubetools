@@ -236,6 +236,7 @@ export default function Feed() {
 
       // Move to next video
       setTimeout(() => {
+        setMoneyAnimations([]); // Clear any lingering money animations
         const currentIndex = displayedVideos.findIndex((v) => v.id === videoId);
         if (currentIndex < displayedVideos.length - 1) {
           setSelectedVideo(displayedVideos[currentIndex + 1]);
