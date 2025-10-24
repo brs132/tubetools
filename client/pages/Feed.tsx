@@ -193,6 +193,29 @@ export default function Feed() {
     setVideoDuration(duration);
   };
 
+  // Fallback timer se YouTube API não carregar rápido
+  useEffect(() => {
+    if (!selectedVideo || videoDuration === 0) {
+      return;
+    }
+
+    // Se não começou a contar após 2 segundos, usa timer como fallback
+    const timeout = setTimeout(() => {
+      if (watchedSeconds === 0) {
+        const timer = setInterval(() => {
+          setWatchedSeconds((prev) => {
+            const newVal = prev + 0.1;
+            return newVal >= videoDuration ? videoDuration : newVal;
+          });
+        }, 100);
+
+        return () => clearInterval(timer);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, [selectedVideo, videoDuration]);
+
   const handleVote = async (
     videoId: string,
     voteType: "like" | "dislike",
