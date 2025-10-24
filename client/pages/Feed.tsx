@@ -185,18 +185,18 @@ export default function Feed() {
     }
   }, [selectedVideo]);
 
-  // Callbacks for YouTube player
-  const handleDurationChange = (duration: number) => {
-    setVideoDuration(duration);
-  };
+  // Timer para rastrear tempo assistido
+  useEffect(() => {
+    if (!selectedVideo || votedVideos.has(selectedVideo.id)) {
+      return;
+    }
 
-  const handleTimeUpdate = (time: number) => {
-    setWatchedSeconds(time);
-  };
+    const timer = setInterval(() => {
+      setWatchedSeconds((prev) => prev + 0.1);
+    }, 100);
 
-  const handleStateChange = (state: "playing" | "paused" | "ended") => {
-    setVideoState(state);
-  };
+    return () => clearInterval(timer);
+  }, [selectedVideo, votedVideos]);
 
   const handleVote = async (
     videoId: string,
