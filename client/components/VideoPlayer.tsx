@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 interface VideoPlayerProps {
   videoId: string;
@@ -16,7 +17,6 @@ declare global {
 }
 
 let apiLoaded = false;
-const playerCache = new Map<string, any>();
 
 export default function VideoPlayer({
   videoId,
@@ -25,14 +25,14 @@ export default function VideoPlayer({
   onLoadFail,
   onLoadSuccess,
 }: VideoPlayerProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const portalContainerRef = useRef<HTMLDivElement | null>(null);
+  const playerContainerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<any>(null);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const checkLoadingRef = useRef<NodeJS.Timeout | null>(null);
   const loadSuccessRef = useRef(false);
   const playerReadyRef = useRef(false);
-  const [containerKey, setContainerKey] = useState(0);
 
   // Load YouTube API once
   useEffect(() => {
