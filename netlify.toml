@@ -3,11 +3,6 @@
   functions = "netlify/functions"
   publish = "dist/spa"
 
-
-[functions]
-  node_bundler = "esbuild"
-  external_node_modules = ["express", "cors", "dotenv"]
-
 [[redirects]]
   force = true
   from = "/api/*"
