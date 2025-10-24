@@ -312,7 +312,10 @@ export default function Profile() {
                   <div>
                     <p className="font-semibold">
                       Withdrawal pending: $
-                      {balance.pendingWithdrawal.amount.toFixed(2)}
+                      {(typeof balance.pendingWithdrawal.amount === "string"
+                        ? parseFloat(balance.pendingWithdrawal.amount)
+                        : balance.pendingWithdrawal.amount
+                      ).toFixed(2)}
                     </p>
                     <p className="text-xs opacity-80">
                       Your request is under review
