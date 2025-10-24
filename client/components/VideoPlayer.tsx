@@ -29,12 +29,16 @@ export default function VideoPlayer({
     if (apiLoaded || window.YT) return;
 
     window.onYouTubeIframeAPIReady = () => {
+      console.log("[VideoPlayer] YouTube IFrame API ready");
       apiLoaded = true;
     };
 
     const script = document.createElement("script");
     script.src = "https://www.youtube.com/iframe_api";
     script.async = true;
+    script.onerror = () => {
+      console.error("[VideoPlayer] Failed to load YouTube IFrame API");
+    };
     document.body.appendChild(script);
   }, []);
 
