@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
 
 interface VideoPlayerProps {
   videoId: string;
@@ -25,201 +24,306 @@ export default function VideoPlayer({
   onLoadFail,
   onLoadSuccess,
 }: VideoPlayerProps) {
-  const portalContainerRef = useRef<HTMLDivElement | null>(null);
-  const playerContainerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
   const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const checkLoadingRef = useRef<NodeJS.Timeout | null>(null);
   const loadSuccessRef = useRef(false);
   const playerReadyRef = useRef(false);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const currentVideoIdRef = useRef<string>("");
 
-  // Create portal container once (attach to body for isolation)
+  // Load YouTube API once into iframe
   useEffect(() => {
-    if (portalContainerRef.current) return;
+    if (!containerRef.current) return;
 
-    const container = document.createElement("div");
-    container.id = "youtube-player-portal-" + Math.random().toString(36);
-    document.body.appendChild(container);
-    portalContainerRef.current = container;
+    // Create a stable iframe container
+    if (iframeRef.current) return;
+
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText =
+      "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;";
+    iframe.allow =
+      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+    iframe.allowFullscreen = true;
+
+    containerRef.current.appendChild(iframe);
+    iframeRef.current = iframe;
+
+    const iframeDoc =
+      iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) return;
+
+    // Create HTML for the iframe
+    iframeDoc.open();
+    iframeDoc.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { margin: 0; padding: 0; }
+          #player { width: 100%; height: 100%; }
+        </style>
+      </head>
+      <body>
+        <div id="player"></div>
+        <script src="https://www.youtube.com/iframe_api"><\/script>
+        <script>
+          let player = null;
+          let apiReady = false;
+          
+          function onYouTubeIframeAPIReady() {
+            apiReady = true;
+            window.parent.postMessage({type: 'ytapi-ready'}, '*');
+          }
+          
+          window.createYouTubePlayer = function(videoId) {
+            if (!apiReady) {
+              setTimeout(() => window.createYouTubePlayer(videoId), 100);
+              return;
+            }
+            
+            try {
+              if (player) {
+                try { player.destroy(); } catch(e) {}
+              }
+              
+              player = new YT.Player('player', {
+                width: '100%',
+                height: '100%',
+                videoId: videoId,
+                playerVars: {
+                  autoplay: 1,
+                  controls: 1,
+                  modestbranding: 1,
+                  fs: 1,
+                  rel: 0
+                },
+                events: {
+                  onReady: function(e) {
+                    window.parent.postMessage({
+                      type: 'player-ready',
+                      duration: e.target.getDuration()
+                    }, '*');
+                  },
+                  onError: function(e) {
+                    window.parent.postMessage({
+                      type: 'player-error',
+                      error: e.data
+                    }, '*');
+                  }
+                }
+              });
+            } catch(err) {
+              window.parent.postMessage({
+                type: 'player-error',
+                error: err.message
+              }, '*');
+            }
+          };
+          
+          window.loadVideo = function(videoId) {
+            if (player && player.loadVideoById) {
+              try {
+                player.loadVideoById(videoId);
+                window.parent.postMessage({
+                  type: 'video-load-start'
+                }, '*');
+              } catch(err) {
+                window.parent.postMessage({
+                  type: 'player-error',
+                  error: err.message
+                }, '*');
+              }
+            }
+          };
+          
+          window.pollPlayer = function() {
+            if (!player) return null;
+            try {
+              const state = player.getPlayerState();
+              const time = player.getCurrentTime();
+              const duration = player.getDuration();
+              return { state, time, duration };
+            } catch(err) {
+              return null;
+            }
+          };
+        <\/script>
+      </body>
+      </html>
+    `);
+    iframeDoc.close();
 
     return () => {
-      if (portalContainerRef.current?.parentNode) {
-        portalContainerRef.current.parentNode.removeChild(portalContainerRef.current);
+      if (iframeRef.current?.parentNode) {
+        iframeRef.current.parentNode.removeChild(iframeRef.current);
+        iframeRef.current = null;
       }
     };
   }, []);
 
-  // Load YouTube API once
+  // Handle messages from iframe
   useEffect(() => {
-    if (apiLoaded || window.YT) {
-      apiLoaded = true;
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+
+      const { type, duration, error } = event.data;
+
+      switch (type) {
+        case "ytapi-ready":
+          console.log("[VideoPlayer] YouTube API ready in iframe");
+          apiLoaded = true;
+          // Load the initial video
+          if (iframeRef.current?.contentWindow) {
+            iframeRef.current.contentWindow.createYouTubePlayer(videoId);
+          }
+          break;
+
+        case "player-ready":
+          console.log(
+            `[VideoPlayer] Player ready for ${videoId}, duration: ${duration}`,
+          );
+          playerReadyRef.current = true;
+          if (duration > 0) {
+            onDurationReady(duration);
+          }
+
+          // Start polling
+          if (pollRef.current) clearInterval(pollRef.current);
+          pollRef.current = setInterval(() => {
+            if (iframeRef.current?.contentWindow?.pollPlayer) {
+              const data = iframeRef.current.contentWindow.pollPlayer();
+              if (data && data.state === 1 && typeof data.time === "number") {
+                onTimeUpdate(data.time);
+              }
+            }
+          }, 100);
+
+          // Setup timeout
+          if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+          loadTimeoutRef.current = setTimeout(() => {
+            if (!loadSuccessRef.current && playerReadyRef.current) {
+              console.warn(
+                `[VideoPlayer] Video ${videoId} did not reach playable state`,
+              );
+              onLoadFail?.();
+            }
+          }, 5000);
+
+          // Monitor loading
+          if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
+          checkLoadingRef.current = setInterval(() => {
+            if (iframeRef.current?.contentWindow?.pollPlayer) {
+              const data = iframeRef.current.contentWindow.pollPlayer();
+              if (
+                data &&
+                data.duration > 0 &&
+                data.state !== -1 &&
+                !loadSuccessRef.current
+              ) {
+                loadSuccessRef.current = true;
+                if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+                if (checkLoadingRef.current)
+                  clearInterval(checkLoadingRef.current);
+                onLoadSuccess?.();
+              }
+
+              if (data && data.state === -1 && !loadSuccessRef.current) {
+                if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+                if (checkLoadingRef.current)
+                  clearInterval(checkLoadingRef.current);
+                onLoadFail?.();
+              }
+            }
+          }, 200);
+          break;
+
+        case "player-error":
+          console.error(`[VideoPlayer] Player error:`, error);
+          if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+          if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
+          onLoadFail?.();
+          break;
+
+        case "video-load-start":
+          loadSuccessRef.current = false;
+          console.log(`[VideoPlayer] Loading video ${videoId}`);
+          break;
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [videoId, onTimeUpdate, onDurationReady, onLoadFail, onLoadSuccess]);
+
+  // Load new video
+  useEffect(() => {
+    if (!apiLoaded || !iframeRef.current?.contentWindow) {
+      currentVideoIdRef.current = videoId;
       return;
     }
 
-    window.onYouTubeIframeAPIReady = () => {
-      console.log("[VideoPlayer] YouTube IFrame API ready");
-      apiLoaded = true;
-    };
+    if (currentVideoIdRef.current === videoId) return;
 
-    const script = document.createElement("script");
-    script.src = "https://www.youtube.com/iframe_api";
-    script.async = true;
-    script.onerror = () => {
-      console.error("[VideoPlayer] Failed to load YouTube IFrame API");
-      onLoadFail?.();
-    };
-    document.body.appendChild(script);
-  }, [onLoadFail]);
+    currentVideoIdRef.current = videoId;
+    loadSuccessRef.current = false;
 
-  // Create/manage player
-  useEffect(() => {
-    if (!window.YT?.Player || !playerContainerRef.current) return;
+    // Clear timeouts
+    if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+    if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
 
-    const createPlayer = async () => {
-      try {
-        playerReadyRef.current = false;
-        loadSuccessRef.current = false;
+    // Load video
+    if (iframeRef.current.contentWindow.loadVideo) {
+      iframeRef.current.contentWindow.loadVideo(videoId);
 
-        // Give container time to be ready
-        await new Promise((resolve) => setTimeout(resolve, 100));
+      // Setup 5s timeout
+      loadTimeoutRef.current = setTimeout(() => {
+        if (!loadSuccessRef.current) {
+          console.warn(
+            `[VideoPlayer] Video ${videoId} failed to load within 5s`,
+          );
+          onLoadFail?.();
+        }
+      }, 5000);
 
-        if (!playerContainerRef.current) return;
+      // Monitor
+      checkLoadingRef.current = setInterval(() => {
+        if (iframeRef.current?.contentWindow?.pollPlayer) {
+          const data = iframeRef.current.contentWindow.pollPlayer();
+          if (
+            data &&
+            data.duration > 0 &&
+            data.state !== -1 &&
+            !loadSuccessRef.current
+          ) {
+            loadSuccessRef.current = true;
+            if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+            if (checkLoadingRef.current)
+              clearInterval(checkLoadingRef.current);
+            onLoadSuccess?.();
+          }
 
-        const newPlayer = new window.YT.Player(playerContainerRef.current, {
-          width: "100%",
-          height: "100%",
-          videoId: videoId,
-          playerVars: {
-            autoplay: 1,
-            controls: 1,
-            modestbranding: 1,
-            origin: window.location.origin,
-            fs: 1,
-            rel: 0,
-          },
-          events: {
-            onReady: (event: any) => {
-              console.log(`[VideoPlayer] Player ready for video ${videoId}`);
-              playerReadyRef.current = true;
-
-              try {
-                const duration = event.target.getDuration?.();
-                if (duration > 0) {
-                  onDurationReady(duration);
-                }
-              } catch (err) {
-                console.warn("[VideoPlayer] Error getting duration");
-              }
-
-              // Start polling
-              if (pollRef.current) clearInterval(pollRef.current);
-              pollRef.current = setInterval(() => {
-                try {
-                  if (!playerRef.current || !playerReadyRef.current) return;
-                  const state = playerRef.current.getPlayerState?.();
-                  if (state === 1) {
-                    const time = playerRef.current.getCurrentTime?.();
-                    if (typeof time === "number" && time >= 0) {
-                      onTimeUpdate(time);
-                    }
-                  }
-                } catch (err) {
-                  // Ignore
-                }
-              }, 100);
-            },
-            onError: (event: any) => {
-              console.error(`[VideoPlayer] Player error for ${videoId}:`, event.data);
-              if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-              if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
-              onLoadFail?.();
-            },
-          },
-        });
-
-        playerRef.current = newPlayer;
-
-        // Setup timeout
-        if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-        loadTimeoutRef.current = setTimeout(() => {
-          if (!loadSuccessRef.current && playerReadyRef.current) {
-            console.warn(`[VideoPlayer] Video ${videoId} failed to load within 5s`);
+          if (data && data.state === -1 && !loadSuccessRef.current) {
+            if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+            if (checkLoadingRef.current)
+              clearInterval(checkLoadingRef.current);
             onLoadFail?.();
           }
-        }, 5000);
-
-        // Monitor loading
-        if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
-        checkLoadingRef.current = setInterval(() => {
-          try {
-            if (!playerRef.current || !playerReadyRef.current) return;
-
-            const state = playerRef.current.getPlayerState?.();
-            const duration = playerRef.current.getDuration?.();
-
-            if (
-              duration > 0 &&
-              state !== -1 &&
-              state !== undefined &&
-              !loadSuccessRef.current
-            ) {
-              loadSuccessRef.current = true;
-              if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-              if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
-              onLoadSuccess?.();
-            }
-
-            if (state === -1 && !loadSuccessRef.current) {
-              if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-              if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
-              onLoadFail?.();
-            }
-          } catch (err) {
-            // Ignore
-          }
-        }, 200);
-      } catch (err) {
-        console.error(`[VideoPlayer] Failed to create player:`, err);
-        onLoadFail?.();
-      }
-    };
-
-    createPlayer();
-
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-      if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
-
-      try {
-        if (playerRef.current?.destroy) {
-          playerRef.current.destroy();
         }
-      } catch (err) {
-        // Ignore
-      }
-      playerRef.current = null;
-    };
-  }, [videoId, onTimeUpdate, onDurationReady, onLoadFail, onLoadSuccess]);
+      }, 200);
+    }
+  }, [videoId, onLoadFail, onLoadSuccess, onDurationReady]);
 
-  // Portal content - isolated from React DOM tree
-  const portalContent = (
+  return (
     <div
-      ref={playerContainerRef}
+      ref={containerRef}
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
+        position: "relative",
         width: "100%",
         height: "100%",
-        pointerEvents: "auto",
-        zIndex: 1,
       }}
     />
   );
-
-  return portalContainerRef.current
-    ? createPortal(portalContent, portalContainerRef.current)
-    : null;
 }
