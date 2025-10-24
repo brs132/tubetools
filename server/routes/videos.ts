@@ -122,16 +122,21 @@ export const handleGetVideo: RequestHandler = (req, res) => {
 
 export const handleVote: RequestHandler = (req, res) => {
   try {
+    console.log("[handleVote] Starting vote handler");
     const token = req.headers.authorization;
+    console.log("[handleVote] Token header present:", !!token);
     const email = getEmailFromToken(token);
 
     if (!email) {
+      console.warn("[handleVote] No valid email from token");
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
     const { id } = req.params;
     const { voteType } = req.body;
+
+    console.log("[handleVote] Video ID:", id, "Vote type:", voteType, "Email:", email);
 
     if (!voteType || !["like", "dislike"].includes(voteType)) {
       res.status(400).json({ error: "Invalid vote type" });
