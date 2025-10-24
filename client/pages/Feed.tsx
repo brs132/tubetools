@@ -32,6 +32,13 @@ interface EnhancedVideo extends Video {
   sessionId?: string;
 }
 
+declare global {
+  interface Window {
+    YT: any;
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
 export default function Feed() {
   const navigate = useNavigate();
   const user = getUser();
