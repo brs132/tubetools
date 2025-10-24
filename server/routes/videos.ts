@@ -97,9 +97,9 @@ export const handleGetVideo: RequestHandler = (req, res) => {
 export const handleVote: RequestHandler = (req, res) => {
   try {
     const token = req.headers.authorization;
-    const userId = getUserIdFromToken(token);
+    const email = getEmailFromToken(token);
 
-    if (!userId) {
+    if (!email) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
@@ -113,7 +113,6 @@ export const handleVote: RequestHandler = (req, res) => {
     }
 
     const db = getDB();
-    let user = db.users.get(userId);
     const video = db.videos.get(id);
 
     // If video not found, return error
@@ -122,24 +121,15 @@ export const handleVote: RequestHandler = (req, res) => {
       return;
     }
 
-    // If user not found, create demo user
-    if (!user) {
-      const now = new Date();
-      user = {
-        id: userId,
-        name: "Demo User",
-        email: "demo@example.com",
-        balance: 213.19,
-        createdAt: now.toISOString(),
-        firstEarnAt: null,
-        votingStreak: 0,
-        lastVotedAt: null,
-        lastVoteDateReset: null,
-        votingDaysCount: 0,
-      };
-      db.users.set(userId, user);
+    let userData = getUserByEmail(email);
+
+    // User should exist at this point (already logged in)
+    if (!userData) {
+      res.status(404).json({ error: "User not found" });
+      return;
     }
 
+    const user = userData.profile;
     const now = new Date();
 
     // Calculate hours since last reset
@@ -164,7 +154,7 @@ export const handleVote: RequestHandler = (req, res) => {
     }
 
     // Check daily vote limit (1-7 votes per day)
-    const dailyVotes = getDailyVoteCount(userId);
+    const dailyVotes = getDailyVoteCount(email);
     if (dailyVotes >= 7) {
       res.status(400).json({
         error: "You've reached your daily vote limit (7 votes)",
@@ -187,18 +177,16 @@ export const handleVote: RequestHandler = (req, res) => {
 
     const vote = {
       id: voteId,
-      userId,
       videoId: id,
       voteType: voteType as "like" | "dislike",
       rewardAmount: reward,
       createdAt: nowISO,
     };
 
-    db.votes.set(voteId, vote);
+    // Add vote to user data
+    addVote(email, vote);
 
-    // Increment daily vote count
-    incrementDailyVoteCount(userId);
-    const dailyVotesRemaining = 7 - getDailyVoteCount(userId);
+    // Update user profile
     user.lastVotedAt = nowISO;
 
     // Update voting streak (based on voting days, not calendar days)
@@ -213,11 +201,13 @@ export const handleVote: RequestHandler = (req, res) => {
     const newBalance = roundToTwoDecimals(user.balance + reward);
     user.balance = newBalance;
 
+    // Update profile in database
+    updateUserProfile(email, user);
+
     // Create transaction record
     const transactionId = generateId();
     const transaction = {
       id: transactionId,
-      userId,
       type: "credit" as const,
       amount: reward,
       description: `Video vote reward - ${video.title}`,
@@ -225,7 +215,10 @@ export const handleVote: RequestHandler = (req, res) => {
       createdAt: nowISO,
     };
 
-    db.transactions.set(transactionId, transaction);
+    // Add transaction
+    addTransaction(email, transaction);
+
+    const dailyVotesRemaining = 7 - (dailyVotes + 1);
 
     const response: VoteResponse = {
       vote,
@@ -235,9 +228,6 @@ export const handleVote: RequestHandler = (req, res) => {
       votingStreak: user.votingStreak || 0,
       votingDaysCount: user.votingDaysCount || 0,
     };
-
-    // Save database after modifications
-    saveDBToFile();
 
     res.json(response);
   } catch (error) {
