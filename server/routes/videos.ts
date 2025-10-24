@@ -26,7 +26,7 @@ function getEmailFromToken(token: string | undefined): string | null {
       tokenValue = token.slice(7);
     }
 
-    console.log("[Videos] Token value:", tokenValue.substring(0, 30) + "...");
+    console.log("[Videos] Token value after Bearer removal:", tokenValue.substring(0, 30) + "...");
 
     // Decode from base64
     const email = Buffer.from(tokenValue, "base64").toString("utf-8").trim();
@@ -36,7 +36,7 @@ function getEmailFromToken(token: string | undefined): string | null {
       return null;
     }
 
-    console.log("[Videos] Extracted email:", email);
+    console.log("[Videos] Extracted email from token:", email, "Length:", email.length);
     return email;
   } catch (err) {
     console.error("[Videos] Error decoding token:", err);
