@@ -198,7 +198,7 @@ export default function Feed() {
   useEffect(() => {
     if (selectedVideo) {
       setWatchedSeconds(0);
-      setVideoDuration(180); // Default 3 minutes
+      setVideoDuration(selectedVideo.duration || 180); // Use video duration or default to 3 minutes
     }
   }, [selectedVideo]);
 
