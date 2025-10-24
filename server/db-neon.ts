@@ -6,8 +6,10 @@ export function getPool(): Pool {
   if (!pool) {
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
+      console.error("[getPool] DATABASE_URL is not set! Available env vars:", Object.keys(process.env).filter(k => !k.includes('SECRET')).sort());
       throw new Error("DATABASE_URL environment variable is not set");
     }
+    console.log("[getPool] Creating new pool with DATABASE_URL");
     pool = new Pool({ connectionString });
   }
   return pool;
