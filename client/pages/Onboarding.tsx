@@ -65,7 +65,9 @@ export default function Onboarding() {
     setLoading(true);
 
     try {
-      const payload: LoginRequest = { email };
+      const normalizedEmail = email.toLowerCase().trim();
+      const payload: LoginRequest = { email: normalizedEmail };
+      console.log("Sending login request with payload:", payload);
       const response = await apiPost<AuthResponse>("/api/auth/login", payload);
 
       setUser(response.user);
