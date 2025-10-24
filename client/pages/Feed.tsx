@@ -472,6 +472,17 @@ export default function Feed() {
                     </div>
                   )}
 
+                  {!votedVideos.has(selectedVideo.id) &&
+                    watchedSeconds < videoDuration && (
+                      <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 text-sm">
+                        Por favor, assista o vídeo completo.{" "}
+                        <span className="font-semibold">
+                          {Math.ceil(secondsRemaining)}s
+                        </span>{" "}
+                        restantes para votar.
+                      </div>
+                    )}
+
                   <div className="flex gap-3">
                     <button
                       onClick={(e) => handleVote(selectedVideo.id, "like", e)}
