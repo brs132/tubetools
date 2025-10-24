@@ -226,35 +226,53 @@ export default function Feed() {
 
   // When selected video changes, update video duration tracking
   useEffect(() => {
-    if (selectedVideo && iframeRef.current && videoContainerRef.current) {
+    if (selectedVideo && videoContainerRef.current) {
       // Reset watch time
       setWatchedSeconds(0);
 
+      // Destroy previous player if it exists
+      if (playerRef.current && playerRef.current.destroy) {
+        try {
+          playerRef.current.destroy();
+          playerRef.current = null;
+        } catch (error) {
+          console.error("Error destroying previous player:", error);
+        }
+      }
+
       // Create YouTube player when iframe loads
       const checkPlayerReady = setInterval(() => {
-        if (window.YT && window.YT.Player && !playerRef.current) {
+        if (window.YT && window.YT.Player && videoContainerRef.current && !playerRef.current) {
           try {
             // Extract video ID from YouTube URL
-            const videoUrl = selectedVideo.videoUrl || selectedVideo.id;
-            const videoId = videoUrl
-              .split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/)
-              .filter((id) => !/^[A-Za-z0-9_-]{11}$/.test(id))[0];
+            const videoUrl = selectedVideo.url || selectedVideo.id;
+            const videoIdMatch = videoUrl.match(
+              /(?:youtube\.com\/embed\/|youtu\.be\/|youtube\.com\/watch\?v=)([^&?\s]+)/
+            );
+            const videoId = videoIdMatch ? videoIdMatch[1] : selectedVideo.id;
+
+            // Clear container and create player
+            videoContainerRef.current.innerHTML = "";
 
             // Initialize player
             playerRef.current = new window.YT.Player(videoContainerRef.current, {
-              videoId: videoId || selectedVideo.id,
+              videoId: videoId,
+              width: "100%",
+              height: "100%",
+              playerVars: {
+                autoplay: 1,
+                controls: 1,
+              },
               events: {
                 onReady: (e: any) => {
                   // Video is ready, get duration
                   const duration = e.target.getDuration();
-                  setVideoDuration(duration || 180);
-                },
-                onStateChange: (e: any) => {
-                  // Clear interval when player is ready
-                  clearInterval(checkPlayerReady);
+                  setVideoDuration(Math.ceil(duration) || 180);
                 },
               },
             });
+
+            clearInterval(checkPlayerReady);
           } catch (error) {
             console.error("Error creating YouTube player:", error);
             // Fallback to 180s if player creation fails
@@ -262,7 +280,7 @@ export default function Feed() {
             clearInterval(checkPlayerReady);
           }
         }
-      }, 500);
+      }, 300);
 
       return () => clearInterval(checkPlayerReady);
     }
