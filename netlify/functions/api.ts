@@ -121,32 +121,30 @@ export async function handler(event: any, context: any) {
       req.params = { id: videoVoteMatch[1] };
     }
 
-    const next = () => {}; // Dummy next function
-
     if (path === "/demo" && method === "GET") {
-      await handleDemo(req, res, next);
+      await handleDemo(req, res);
     } else if (path === "/auth/signup" && method === "POST") {
       console.log("Handling signup with body:", req.body);
-      await handleSignup(req, res, next);
+      await handleSignup(req, res);
     } else if (path === "/auth/login" && method === "POST") {
       console.log("Handling login with body:", req.body);
-      await handleLogin(req, res, next);
+      await handleLogin(req, res);
     } else if (path === "/videos" && method === "GET") {
-      await handleGetVideos(req, res, next);
+      await handleGetVideos(req, res);
     } else if (videoIdMatch && method === "GET") {
-      await handleGetVideo(req, res, next);
+      await handleGetVideo(req, res);
     } else if (videoVoteMatch && method === "POST") {
-      await handleVote(req, res, next);
+      await handleVote(req, res);
     } else if (path === "/daily-votes" && method === "GET") {
-      await handleGetDailyVotes(req, res, next);
+      await handleGetDailyVotes(req, res);
     } else if (path === "/balance" && method === "GET") {
-      await handleGetBalance(req, res, next);
+      await handleGetBalance(req, res);
     } else if (path === "/transactions" && method === "GET") {
-      await handleGetTransactions(req, res, next);
+      await handleGetTransactions(req, res);
     } else if (path === "/withdrawals" && method === "POST") {
-      await handleCreateWithdrawal(req, res, next);
+      await handleCreateWithdrawal(req, res);
     } else if (path === "/withdrawals" && method === "GET") {
-      await handleGetWithdrawals(req, res, next);
+      await handleGetWithdrawals(req, res);
     } else {
       console.log(`Route not found: ${method} ${path}`);
       res.status(404).json({ error: "Not found" });
