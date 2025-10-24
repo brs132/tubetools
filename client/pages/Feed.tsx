@@ -185,21 +185,18 @@ export default function Feed() {
     }
   }, [selectedVideo]);
 
-  // Memoize callbacks to prevent unnecessary re-renders in YouTubePlayer
-  const handleDurationChange = useCallback((duration: number) => {
-    setVideoDuration(duration);
-  }, []);
+  // Timer para rastrear tempo assistido
+  useEffect(() => {
+    if (!selectedVideo || votedVideos.has(selectedVideo.id)) {
+      return;
+    }
 
-  const handleTimeUpdate = useCallback((time: number) => {
-    setWatchedSeconds(time);
-  }, []);
+    const timer = setInterval(() => {
+      setWatchedSeconds((prev) => prev + 0.1);
+    }, 100);
 
-  const handleStateChange = useCallback(
-    (state: "playing" | "paused" | "ended") => {
-      setVideoState(state);
-    },
-    [],
-  );
+    return () => clearInterval(timer);
+  }, [selectedVideo, votedVideos]);
 
   const handleVote = async (
     videoId: string,
