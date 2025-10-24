@@ -19,6 +19,10 @@ export async function handler(event: any, context: any) {
   // Extract path from various possible sources
   let path = event.path || event.rawPath || "";
 
+  console.log(
+    `[API Handler] BEFORE processing - path: ${path}, rawPath: ${event.rawPath}, requestContext.path: ${event.requestContext?.path}`,
+  );
+
   // Remove .netlify/functions/api prefix if present
   if (path.includes("/.netlify/functions/api")) {
     path = path.split("/.netlify/functions/api")[1] || "";
@@ -36,7 +40,7 @@ export async function handler(event: any, context: any) {
   const method = event.httpMethod || "GET";
 
   console.log(
-    `[API Handler] Method: ${method}, Path: ${path}, Raw Path: ${event.path}, Raw URL: ${event.rawPath}`,
+    `[API Handler] AFTER processing - Method: ${method}, Path: ${path}`,
   );
   console.log(`[API Handler] Full event keys:`, Object.keys(event));
 
