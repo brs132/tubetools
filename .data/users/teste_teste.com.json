@@ -1,0 +1,38 @@
+{
+  "profile": {
+    "id": "lsf6q2ckwnbmh50f8em",
+    "name": "teste",
+    "email": "teste@teste.com",
+    "balance": 228.67000000000002,
+    "createdAt": "2025-10-24T15:32:31.438Z",
+    "firstEarnAt": "2025-10-24T15:32:45.785Z",
+    "votingStreak": 1,
+    "lastVotedAt": "2025-10-24T15:32:45.785Z",
+    "lastVoteDateReset": "2025-10-24T15:32:45.785Z",
+    "votingDaysCount": 1
+  },
+  "votes": [
+    {
+      "id": "mi5qj4bd7uamh50fjh6",
+      "videoId": "gx-zPheFnHo",
+      "voteType": "like",
+      "rewardAmount": 7.74,
+      "createdAt": "2025-10-24T15:32:45.785Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "kcajb1hq04nmh50fjh6",
+      "type": "credit",
+      "amount": 7.74,
+      "description": "Video vote reward - Video 7",
+      "status": "completed",
+      "createdAt": "2025-10-24T15:32:45.785Z"
+    }
+  ],
+  "withdrawals": [],
+  "dailyVoteCount": {
+    "count": 1,
+    "date": "2025-10-24"
+  }
+}
