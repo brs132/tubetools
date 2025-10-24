@@ -43,26 +43,27 @@ export const handleGetVideos: RequestHandler = (req, res) => {
 export const handleGetDailyVotes: RequestHandler = (req, res) => {
   try {
     const token = req.headers.authorization;
-    const userId = getUserIdFromToken(token);
+    const email = getEmailFromToken(token);
 
-    if (!userId) {
+    if (!email) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
-    const db = getDB();
-    const dailyVotes = getDailyVoteCount(userId);
+    const userData = getUserByEmail(email);
+
+    if (!userData) {
+      res.status(401).json({ error: "User not found" });
+      return;
+    }
+
+    const dailyVotes = getDailyVoteCount(email);
     const remaining = Math.max(0, 7 - dailyVotes);
 
     // Get total votes for this user (all time)
-    const allVotes = Array.from(db.votes.values()).filter(
-      (v) => v.userId === userId,
-    );
-
-    // If user has no votes yet, provide demo data
-    const totalVotes = allVotes.length > 0 ? allVotes.length : 23;
-    const votedToday = dailyVotes > 0 ? dailyVotes : 0;
-    const remainingVotes = remaining > 0 ? remaining : 7;
+    const totalVotes = userData.votes.length;
+    const votedToday = dailyVotes;
+    const remainingVotes = remaining;
 
     res.json({
       remaining: remainingVotes,
