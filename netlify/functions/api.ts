@@ -71,17 +71,30 @@ export async function handler(event: any, context: any) {
       };
     }
 
+    // Extract ID from path for parameterized routes
+    const videoIdMatch = path.match(/^\/videos\/([^/]+)$/);
+    const videoVoteMatch = path.match(/^\/videos\/([^/]+)\/vote$/);
+
+    if (videoIdMatch) {
+      req.params = { id: videoIdMatch[1] };
+    }
+    if (videoVoteMatch) {
+      req.params = { id: videoVoteMatch[1] };
+    }
+
     if (path === "/demo" && method === "GET") {
       await handleDemo(req, res);
     } else if (path === "/auth/signup" && method === "POST") {
+      console.log("Handling signup with body:", req.body);
       await handleSignup(req, res);
     } else if (path === "/auth/login" && method === "POST") {
+      console.log("Handling login with body:", req.body);
       await handleLogin(req, res);
     } else if (path === "/videos" && method === "GET") {
       await handleGetVideos(req, res);
-    } else if (path.match(/^\/videos\/[^/]+$/) && method === "GET") {
+    } else if (videoIdMatch && method === "GET") {
       await handleGetVideo(req, res);
-    } else if (path.match(/^\/videos\/[^/]+\/vote$/) && method === "POST") {
+    } else if (videoVoteMatch && method === "POST") {
       await handleVote(req, res);
     } else if (path === "/daily-votes" && method === "GET") {
       await handleGetDailyVotes(req, res);
@@ -94,6 +107,7 @@ export async function handler(event: any, context: any) {
     } else if (path === "/withdrawals" && method === "GET") {
       await handleGetWithdrawals(req, res);
     } else {
+      console.log(`Route not found: ${method} ${path}`);
       res.status(404).json({ error: "Not found" });
     }
 
