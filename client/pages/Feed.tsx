@@ -378,23 +378,16 @@ export default function Feed() {
                     onMouseEnter={() => setIsVideoFocused(true)}
                     onMouseLeave={() => setIsVideoFocused(false)}
                   >
-                    <div
-                      ref={videoContainerRef}
-                      className="aspect-video relative"
-                      id={`youtube-player-${selectedVideo.id}`}
-                    >
-                      {/* YouTube IFrame API will inject player here */}
-                      {!playerRef.current && (
-                        <iframe
-                          width="100%"
-                          height="100%"
-                          src={`${selectedVideo.url}?autoplay=1`}
-                          title={selectedVideo.title}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="w-full h-full"
-                        ></iframe>
-                      )}
+                    <div className="aspect-video relative">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={`${selectedVideo.url}?autoplay=1`}
+                        title={selectedVideo.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full"
+                      ></iframe>
                     </div>
                   </div>
 
