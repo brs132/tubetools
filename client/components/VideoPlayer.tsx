@@ -4,6 +4,8 @@ interface VideoPlayerProps {
   videoId: string;
   onTimeUpdate: (time: number) => void;
   onDurationReady: (duration: number) => void;
+  onLoadFail?: () => void;
+  onLoadSuccess?: () => void;
 }
 
 declare global {
