@@ -50,6 +50,7 @@ export interface UserData {
 export async function loadUserData(email: string): Promise<UserData | null> {
   try {
     const normalizedEmail = email.toLowerCase().trim();
+    console.log("[loadUserData] Attempting to load user:", normalizedEmail);
 
     const user = await executeSingleQuery(
       "SELECT * FROM users WHERE email = $1",
@@ -57,8 +58,11 @@ export async function loadUserData(email: string): Promise<UserData | null> {
     );
 
     if (!user) {
+      console.log("[loadUserData] No user found with email:", normalizedEmail);
       return null;
     }
+
+    console.log("[loadUserData] User found:", user.email, "ID:", user.id);
 
     const votes = await executeQuery(
       `SELECT id, video_id as "videoId", vote_type as "voteType", reward_amount as "rewardAmount", created_at as "createdAt"
