@@ -184,14 +184,21 @@ export default function Feed() {
     }
   }, [selectedVideo]);
 
-  // Memoized callbacks para evitar recriação do player
-  const handleTimeUpdate = useCallback((time: number) => {
-    setWatchedSeconds(time);
-  }, []);
+  // Timer para incrementar tempo assistido
+  useEffect(() => {
+    if (!selectedVideo || votedVideos.has(selectedVideo.id) || videoDuration === 0) {
+      return;
+    }
 
-  const handleDurationReady = useCallback((duration: number) => {
-    setVideoDuration(duration);
-  }, []);
+    const timer = setInterval(() => {
+      setWatchedSeconds((prev) => {
+        const newVal = prev + 0.1;
+        return newVal >= videoDuration ? videoDuration : newVal;
+      });
+    }, 100);
+
+    return () => clearInterval(timer);
+  }, [selectedVideo, videoDuration, votedVideos]);
 
   const handleVote = async (
     videoId: string,
