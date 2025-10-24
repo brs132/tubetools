@@ -3,6 +3,10 @@
   functions = "netlify/functions"
   publish = "dist/spa"
 
+# Disable Neon extension - we use @neondatabase/serverless npm package instead
+[extensions]
+  neon = false
+
 [[redirects]]
   force = true
   from = "/api/*"
