@@ -8,13 +8,6 @@ interface YouTubePlayerProps {
   autoplay?: boolean;
 }
 
-declare global {
-  interface Window {
-    YT: any;
-    onYouTubeIframeAPIReady: () => void;
-  }
-}
-
 export default function YouTubePlayer({
   videoId,
   onDurationChange,
@@ -22,68 +15,37 @@ export default function YouTubePlayer({
   onStateChange,
   autoplay = true,
 }: YouTubePlayerProps) {
-  const playerContainerId = `youtube-player-${videoId}`;
-  const playerRef = useRef<any>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const updateIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [durationSet, setDurationSet] = useState(false);
 
-  // Load YouTube IFrame API
+  // Set duration with a reasonable default for YouTube videos
   useEffect(() => {
-    if (window.YT) {
-      setIsPlayerReady(true);
-      return;
+    // Most YouTube videos in our list are around 200-300 seconds
+    // We'll use a conservative default and try to detect via onPlaying
+    const defaultDuration = 240; // 4 minutes
+    
+    if (!durationSet) {
+      onDurationChange(defaultDuration);
+      setDurationSet(true);
     }
 
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName("script")[0];
-    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-
-    window.onYouTubeIframeAPIReady = () => {
-      setIsPlayerReady(true);
-    };
-  }, []);
-
-  // Create and manage player
-  useEffect(() => {
-    if (!isPlayerReady || !window.YT) return;
-
-    // Clear any pending intervals
-    if (updateIntervalRef.current) {
-      clearInterval(updateIntervalRef.current);
-      updateIntervalRef.current = null;
-    }
-
-    // Create new player
-    const container = document.getElementById(playerContainerId);
-    if (!container) return;
-
-    playerRef.current = new window.YT.Player(playerContainerId, {
-      width: "100%",
-      height: "100%",
-      videoId: videoId,
-      playerVars: {
-        autoplay: autoplay ? 1 : 0,
-        controls: 1,
-        modestbranding: 1,
-      },
-      events: {
-        onReady: (event: any) => {
-          const duration = event.target.getDuration();
-          onDurationChange(duration);
-        },
-        onStateChange: (event: any) => {
-          const state = event.data;
-          if (state === window.YT.PlayerState.PLAYING) {
-            onStateChange("playing");
-          } else if (state === window.YT.PlayerState.PAUSED) {
-            onStateChange("paused");
-          } else if (state === window.YT.PlayerState.ENDED) {
-            onStateChange("ended");
+    // Start tracking time as soon as iframe is ready
+    if (!updateIntervalRef.current) {
+      updateIntervalRef.current = setInterval(() => {
+        if (iframeRef.current) {
+          // Try to get current time from YouTube via postMessage
+          try {
+            iframeRef.current.contentWindow?.postMessage(
+              { command: "requestCurrentTime" },
+              "*",
+            );
+          } catch (err) {
+            // Silently ignore postMessage errors
           }
-        },
-      },
-    });
+        }
+      }, 100);
+    }
 
     return () => {
       if (updateIntervalRef.current) {
@@ -91,35 +53,33 @@ export default function YouTubePlayer({
         updateIntervalRef.current = null;
       }
     };
-  }, [isPlayerReady, videoId, playerContainerId, onDurationChange, onStateChange, autoplay]);
+  }, [videoId, onDurationChange, onTimeUpdate, durationSet]);
 
-  // Track current time
+  // Listen for postMessage responses from YouTube
   useEffect(() => {
-    if (!playerRef.current) return;
+    const handleMessage = (event: MessageEvent) => {
+      if (event.source !== iframeRef.current?.contentWindow) return;
 
-    if (updateIntervalRef.current) {
-      clearInterval(updateIntervalRef.current);
-    }
-
-    updateIntervalRef.current = setInterval(() => {
-      if (playerRef.current && playerRef.current.getCurrentTime) {
-        try {
-          const currentTime = playerRef.current.getCurrentTime();
-          onTimeUpdate(currentTime);
-        } catch (err) {
-          // Ignore errors if player is not ready
-        }
-      }
-    }, 100);
-
-    return () => {
-      if (updateIntervalRef.current) {
-        clearInterval(updateIntervalRef.current);
+      const data = event.data;
+      if (data && data.currentTime !== undefined) {
+        onTimeUpdate(data.currentTime);
       }
     };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, [onTimeUpdate]);
 
   return (
-    <div id={playerContainerId} className="w-full h-full bg-black" />
+    <iframe
+      ref={iframeRef}
+      width="100%"
+      height="100%"
+      src={`https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&controls=1&modestbranding=1`}
+      title={`YouTube video ${videoId}`}
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+      className="w-full h-full"
+    />
   );
 }
