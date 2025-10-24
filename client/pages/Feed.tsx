@@ -62,6 +62,7 @@ export default function Feed() {
   >({});
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoLoadError, setVideoLoadError] = useState(false);
+  const [videoRetryTrigger, setVideoRetryTrigger] = useState(0);
 
   // Shuffle array
   const shuffleArray = (array: any[]) => {
