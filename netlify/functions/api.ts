@@ -16,6 +16,10 @@ import {
 } from "../../server/routes/withdrawals";
 
 export async function handler(event: any, context: any) {
+  // Log environment and request details
+  console.log("[API Handler] DATABASE_URL set:", !!process.env.DATABASE_URL);
+  console.log("[API Handler] Environment keys:", Object.keys(process.env).filter(k => !k.includes("SECRET")));
+
   // Extract path from various possible sources
   let path =
     event.path || event.rawPath || event.requestContext?.http?.path || "";
