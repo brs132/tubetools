@@ -27,10 +27,15 @@ function getEmailFromToken(token: string | undefined): string | null {
 export const handleGetVideos: RequestHandler = (req, res) => {
   try {
     const db = getDB();
-    const videos = Array.from(db.videos.values()).sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
+    const videos = Array.from(db.videos.values())
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .map((video) => ({
+        ...video,
+        duration: video.duration || 180,
+      }));
     res.json(videos);
   } catch (error) {
     console.error("Videos error:", error);
