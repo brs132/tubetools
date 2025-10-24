@@ -48,16 +48,6 @@ export default function YouTubePlayer({
   useEffect(() => {
     if (!isPlayerReady || !window.YT) return;
 
-    // Destroy previous player if exists
-    if (playerRef.current && playerRef.current.destroy) {
-      try {
-        playerRef.current.destroy();
-      } catch (err) {
-        console.debug("Error destroying previous player:", err);
-      }
-      playerRef.current = null;
-    }
-
     // Clear any pending intervals
     if (updateIntervalRef.current) {
       clearInterval(updateIntervalRef.current);
@@ -96,14 +86,6 @@ export default function YouTubePlayer({
     });
 
     return () => {
-      if (playerRef.current && playerRef.current.destroy) {
-        try {
-          playerRef.current.destroy();
-        } catch (err) {
-          console.debug("Error destroying player on cleanup:", err);
-        }
-        playerRef.current = null;
-      }
       if (updateIntervalRef.current) {
         clearInterval(updateIntervalRef.current);
         updateIntervalRef.current = null;
