@@ -64,12 +64,21 @@ export default function VideoPlayer({
   useEffect(() => {
     if (!window.YT?.Player || !containerRef.current) return;
 
-    const createPlayer = () => {
+    const createPlayer = async () => {
       try {
-        // Clear any existing content
-        if (containerRef.current) {
-          containerRef.current.innerHTML = "";
+        // Ensure container is clean
+        if (containerRef.current && containerRef.current.innerHTML) {
+          try {
+            containerRef.current.innerHTML = "";
+          } catch (e) {
+            // Ignore innerHTML errors
+          }
         }
+
+        // Give DOM time to settle before creating player
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        if (!containerRef.current) return;
 
         playerReadyRef.current = false;
         loadSuccessRef.current = false;
@@ -83,6 +92,8 @@ export default function VideoPlayer({
             controls: 1,
             modestbranding: 1,
             origin: window.location.origin,
+            fs: 1,
+            rel: 0,
           },
           events: {
             onReady: (event: any) => {
@@ -120,6 +131,9 @@ export default function VideoPlayer({
                 `[VideoPlayer] Player error for video ${videoId}:`,
                 event.data,
               );
+              if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+              if (checkLoadingRef.current)
+                clearInterval(checkLoadingRef.current);
               onLoadFail?.();
             },
           },
@@ -184,8 +198,18 @@ export default function VideoPlayer({
       if (pollRef.current) clearInterval(pollRef.current);
       if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
       if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
+
+      // Cleanup player
+      try {
+        if (playerRef.current?.destroy) {
+          playerRef.current.destroy();
+        }
+      } catch (err) {
+        // Ignore destroy errors
+      }
+      playerRef.current = null;
     };
-  }, [containerKey, onTimeUpdate, onDurationReady, onLoadFail, onLoadSuccess]);
+  }, [containerKey, videoId, onTimeUpdate, onDurationReady, onLoadFail, onLoadSuccess]);
 
   // Change video without destroying player
   useEffect(() => {
