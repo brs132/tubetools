@@ -192,75 +192,91 @@ export default function Feed() {
     setVideoDuration(duration);
   }, []);
 
-  const handleVote = async (
-    videoId: string,
-    voteType: "like" | "dislike",
-    event: React.MouseEvent,
-  ) => {
-    if (dailyVotesRemaining <= 0) {
-      setError("You've reached your daily vote limit. Come back tomorrow!");
-      return;
-    }
+  const handleVote = useCallback(
+    async (
+      videoId: string,
+      voteType: "like" | "dislike",
+      event: React.MouseEvent,
+    ) => {
+      const effectiveDuration = Math.max(1, videoDuration - 1);
+      const secondsRemaining = Math.max(0, effectiveDuration - watchedSeconds);
 
-    if (watchedSeconds < effectiveDuration) {
-      const remaining = Math.ceil(secondsRemaining);
-      setError(`Por favor, assista o vídeo completo. ${remaining}s restantes.`);
-      return;
-    }
-
-    setVoting(true);
-    setError("");
-
-    try {
-      const response = await apiPost<any>(`/api/videos/${videoId}/vote`, {
-        voteType,
-      });
-
-      setUserBalance(response.newBalance);
-      setVotedVideos((prev) => new Set([...prev, videoId]));
-      setDailyVotesRemaining(response.dailyVotesRemaining || 0);
-      setTotalVideosWatched((prev) => prev + 1);
-      setVotingStreak(response.votingStreak || 0);
-      setVotingDaysCount(response.votingDaysCount || votingDaysCount);
-
-      // Add money animation
-      const rect = (event.target as HTMLElement).getBoundingClientRect();
-      const newAnimation: MoneyAnimationData = {
-        id: `anim-${Date.now()}-${Math.random()}`,
-        amount: response.rewardAmount,
-        x: rect.left + rect.width / 2,
-        y: rect.top,
-      };
-      setMoneyAnimations((prev) => [...prev, newAnimation]);
-
-      // Move to next video
-      setTimeout(() => {
-        setMoneyAnimations([]); // Clear any lingering money animations
-        const currentIndex = displayedVideos.findIndex((v) => v.id === videoId);
-        if (currentIndex < displayedVideos.length - 1) {
-          setSelectedVideo(displayedVideos[currentIndex + 1]);
-          setWatchedSeconds(0);
-        } else if (response.dailyVotesRemaining > 0) {
-          // Generate infinite videos by reshuffling
-          generateNewBatch(allVideos);
-          setWatchedSeconds(0);
-        } else {
-          setError("You've reached your daily vote limit. Come back tomorrow!");
-        }
-      }, 800);
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "";
-      if (errorMsg.includes("daily vote limit")) {
-        setDailyVotesRemaining(0);
+      if (dailyVotesRemaining <= 0) {
         setError("You've reached your daily vote limit. Come back tomorrow!");
-      } else {
-        // Silently fail for other errors
-        console.error("Vote error:", err);
+        return;
       }
-    } finally {
-      setVoting(false);
-    }
-  };
+
+      if (watchedSeconds < effectiveDuration) {
+        const remaining = Math.ceil(secondsRemaining);
+        setError(`Por favor, assista o vídeo completo. ${remaining}s restantes.`);
+        return;
+      }
+
+      setVoting(true);
+      setError("");
+
+      try {
+        const response = await apiPost<any>(
+          `/api/videos/${videoId}/vote`,
+          {
+            voteType,
+          },
+        );
+
+        setUserBalance(response.newBalance);
+        setVotedVideos((prev) => new Set([...prev, videoId]));
+        setDailyVotesRemaining(response.dailyVotesRemaining || 0);
+        setTotalVideosWatched((prev) => prev + 1);
+        setVotingStreak(response.votingStreak || 0);
+        setVotingDaysCount(response.votingDaysCount || votingDaysCount);
+
+        // Add money animation
+        const rect = (event.target as HTMLElement).getBoundingClientRect();
+        const newAnimation: MoneyAnimationData = {
+          id: `anim-${Date.now()}-${Math.random()}`,
+          amount: response.rewardAmount,
+          x: rect.left + rect.width / 2,
+          y: rect.top,
+        };
+        setMoneyAnimations((prev) => [...prev, newAnimation]);
+
+        // Move to next video
+        setTimeout(() => {
+          setMoneyAnimations([]); // Clear any lingering money animations
+          const currentIndex = displayedVideos.findIndex((v) => v.id === videoId);
+          if (currentIndex < displayedVideos.length - 1) {
+            setSelectedVideo(displayedVideos[currentIndex + 1]);
+            setWatchedSeconds(0);
+          } else if (response.dailyVotesRemaining > 0) {
+            // Generate infinite videos by reshuffling
+            generateNewBatch(allVideos);
+            setWatchedSeconds(0);
+          } else {
+            setError("You've reached your daily vote limit. Come back tomorrow!");
+          }
+        }, 800);
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "";
+        if (errorMsg.includes("daily vote limit")) {
+          setDailyVotesRemaining(0);
+          setError("You've reached your daily vote limit. Come back tomorrow!");
+        } else {
+          // Silently fail for other errors
+          console.error("Vote error:", err);
+        }
+      } finally {
+        setVoting(false);
+      }
+    },
+    [
+      videoDuration,
+      watchedSeconds,
+      dailyVotesRemaining,
+      votingDaysCount,
+      displayedVideos,
+      allVideos,
+    ],
+  );
 
   const removeMoneyAnimation = (id: string) => {
     setMoneyAnimations((prev) => prev.filter((anim) => anim.id !== id));
