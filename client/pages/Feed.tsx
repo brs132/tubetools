@@ -367,9 +367,9 @@ export default function Feed() {
                       <YouTubePlayer
                         key={selectedVideo.id}
                         videoId={selectedVideo.id}
-                        onDurationChange={() => {}}
-                        onTimeUpdate={() => {}}
-                        onStateChange={() => {}}
+                        onDurationChange={handleDurationChange}
+                        onTimeUpdate={handleTimeUpdate}
+                        onStateChange={handleStateChange}
                         autoplay={true}
                       />
                     </div>
