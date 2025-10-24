@@ -101,27 +101,78 @@ export default function VideoPlayer({
   useEffect(() => {
     if (!playerRef.current?.loadVideoById) return;
 
+    // Reset load state
+    loadSuccessRef.current = false;
+
+    // Clear any existing load timeout
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+    }
+
     try {
       playerRef.current.loadVideoById(videoId);
-      // Get duration after loading
-      const timeoutId = setTimeout(() => {
+
+      // Set up 5-second timeout to detect loading failure
+      loadTimeoutRef.current = setTimeout(() => {
+        if (!loadSuccessRef.current) {
+          console.error(
+            `[VideoPlayer] Video ${videoId} failed to load within 5 seconds`,
+          );
+          onLoadFail?.();
+        }
+      }, 5000);
+
+      // Monitor loading progress
+      const checkLoadingRef = setInterval(() => {
         try {
-          if (playerRef.current?.getDuration) {
-            const duration = playerRef.current.getDuration();
-            if (duration > 0) {
-              onDurationReady(duration);
+          if (!playerRef.current) return;
+
+          const state = playerRef.current.getPlayerState?.();
+          const duration = playerRef.current.getDuration?.();
+
+          // Check if video loaded successfully
+          if (
+            duration > 0 &&
+            state !== -1 &&
+            state !== undefined &&
+            !loadSuccessRef.current
+          ) {
+            loadSuccessRef.current = true;
+            if (loadTimeoutRef.current) {
+              clearTimeout(loadTimeoutRef.current);
             }
+            onLoadSuccess?.();
+            onDurationReady(duration);
+            clearInterval(checkLoadingRef);
+          }
+
+          // Detect error state
+          if (state === -1 && !loadSuccessRef.current) {
+            console.error(
+              `[VideoPlayer] Video ${videoId} failed to load (error state)`,
+            );
+            if (loadTimeoutRef.current) {
+              clearTimeout(loadTimeoutRef.current);
+            }
+            onLoadFail?.();
+            clearInterval(checkLoadingRef);
           }
         } catch (err) {
-          // Ignore duration fetch errors
+          // Ignore monitoring errors
         }
-      }, 500);
+      }, 200);
 
-      return () => clearTimeout(timeoutId);
+      return () => {
+        clearInterval(checkLoadingRef);
+        if (loadTimeoutRef.current) {
+          clearTimeout(loadTimeoutRef.current);
+        }
+      };
     } catch (err) {
-      // Ignore load errors
+      console.error(`[VideoPlayer] Exception loading video ${videoId}:`, err);
+      onLoadFail?.();
     }
-  }, [videoId, onDurationReady]);
+  }, [videoId, onDurationReady, onLoadFail, onLoadSuccess]);
 
   // Cleanup
   useEffect(() => {
