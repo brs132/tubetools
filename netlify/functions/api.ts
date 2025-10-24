@@ -32,30 +32,30 @@ function createServer() {
   app.set("trust proxy", 1);
 
   // Example API routes
-  app.get(["/ping", "/api/ping"], (_req, res) => {
+  app.get(["/ping"], (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
     res.json({ message: ping });
   });
 
-  app.get(["/demo", "/api/demo"], handleDemo);
+  app.get(["/demo"], handleDemo);
 
   // Auth routes
-  app.post(["/auth/signup", "/api/auth/signup"], handleSignup);
-  app.post(["/auth/login", "/api/auth/login"], handleLogin);
+  app.post(["/auth/signup"], handleSignup);
+  app.post(["/auth/login"], handleLogin);
 
   // Video routes
-  app.get(["/videos", "/api/videos"], handleGetVideos);
-  app.get(["/videos/:id", "/api/videos/:id"], handleGetVideo);
-  app.post(["/videos/:id/vote", "/api/videos/:id/vote"], handleVote);
-  app.get(["/daily-votes", "/api/daily-votes"], handleGetDailyVotes);
+  app.get(["/videos"], handleGetVideos);
+  app.get(["/videos/:id"], handleGetVideo);
+  app.post(["/videos/:id/vote"], handleVote);
+  app.get(["/daily-votes"], handleGetDailyVotes);
 
   // Balance and transaction routes
-  app.get(["/balance", "/api/balance"], handleGetBalance);
-  app.get(["/transactions", "/api/transactions"], handleGetTransactions);
+  app.get(["/balance"], handleGetBalance);
+  app.get(["/transactions"], handleGetTransactions);
 
   // Withdrawal routes
-  app.post(["/withdrawals", "/api/withdrawals"], handleCreateWithdrawal);
-  app.get(["/withdrawals", "/api/withdrawals"], handleGetWithdrawals);
+  app.post(["/withdrawals"], handleCreateWithdrawal);
+  app.get(["/withdrawals"], handleGetWithdrawals);
 
   return app;
 }
