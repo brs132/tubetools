@@ -149,8 +149,8 @@ export default function Feed() {
   };
 
   useEffect(() => {
-    // Track video watch time when video is in focus
-    if (isVideoFocused && selectedVideo && !votedVideos.has(selectedVideo.id)) {
+    // Track video watch time automatically when video is selected (not just on focus)
+    if (selectedVideo && !votedVideos.has(selectedVideo.id)) {
       const timer = setInterval(() => {
         setWatchedSeconds((prev) => prev + 0.1);
       }, 100);
@@ -165,7 +165,7 @@ export default function Feed() {
         setWatchTimer(null);
       }
     }
-  }, [isVideoFocused, selectedVideo, votedVideos, watchTimer]);
+  }, [selectedVideo, votedVideos, watchTimer]);
 
   const loadVideos = async () => {
     try {
