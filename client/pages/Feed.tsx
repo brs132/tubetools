@@ -174,11 +174,13 @@ export default function Feed() {
     }
   };
 
-  // When selected video changes, update video duration tracking
+  // When selected video changes, reset watched seconds
   useEffect(() => {
     if (selectedVideo) {
       setWatchedSeconds(0);
-      setVideoDuration(selectedVideo.duration || 180); // Use video duration or default to 3 minutes
+      // Duration will be set by YouTube IFrame API onReady
+      // Start with a temporary value that will be overridden
+      setVideoDuration(selectedVideo.duration || 180);
     }
   }, [selectedVideo]);
 
