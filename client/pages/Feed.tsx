@@ -415,6 +415,7 @@ export default function Feed() {
                         </div>
                       )}
                       <VideoPlayer
+                        key={`${selectedVideo.id}-${videoLoadAttempts[selectedVideo.id] || 0}`}
                         videoId={selectedVideo.id}
                         onTimeUpdate={handleTimeUpdate}
                         onDurationReady={handleDurationReady}
