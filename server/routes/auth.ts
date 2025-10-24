@@ -28,14 +28,21 @@ export const handleSignup: RequestHandler = (req, res) => {
     const existingUser = getUserByEmail(trimmedEmail);
     if (existingUser) {
       console.warn(`Email already registered: ${trimmedEmail}`);
-      res.status(400).json({ error: "Email already registered. Please use login instead." });
+      res
+        .status(400)
+        .json({ error: "Email already registered. Please use login instead." });
       return;
     }
 
     // Create new user
     const userId = generateId();
     console.log(`Creating user: ${userId} with email: ${trimmedEmail}`);
-    const userData = createUser(userId, name.trim(), trimmedEmail, SYSTEM_STARTING_BALANCE);
+    const userData = createUser(
+      userId,
+      name.trim(),
+      trimmedEmail,
+      SYSTEM_STARTING_BALANCE,
+    );
 
     console.log(`User created successfully: ${userId} (${trimmedEmail})`);
 

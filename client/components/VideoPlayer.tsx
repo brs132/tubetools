@@ -51,8 +51,7 @@ export default function VideoPlayer({
     containerRef.current.appendChild(iframe);
     iframeRef.current = iframe;
 
-    const iframeDoc =
-      iframe.contentDocument || iframe.contentWindow?.document;
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!iframeDoc) return;
 
     // Create HTML for the iframe
@@ -225,14 +224,16 @@ export default function VideoPlayer({
                 !loadSuccessRef.current
               ) {
                 loadSuccessRef.current = true;
-                if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+                if (loadTimeoutRef.current)
+                  clearTimeout(loadTimeoutRef.current);
                 if (checkLoadingRef.current)
                   clearInterval(checkLoadingRef.current);
                 onLoadSuccess?.();
               }
 
               if (data && data.state === -1 && !loadSuccessRef.current) {
-                if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+                if (loadTimeoutRef.current)
+                  clearTimeout(loadTimeoutRef.current);
                 if (checkLoadingRef.current)
                   clearInterval(checkLoadingRef.current);
                 onLoadFail?.();
@@ -301,15 +302,13 @@ export default function VideoPlayer({
           ) {
             loadSuccessRef.current = true;
             if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-            if (checkLoadingRef.current)
-              clearInterval(checkLoadingRef.current);
+            if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
             onLoadSuccess?.();
           }
 
           if (data && data.state === -1 && !loadSuccessRef.current) {
             if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-            if (checkLoadingRef.current)
-              clearInterval(checkLoadingRef.current);
+            if (checkLoadingRef.current) clearInterval(checkLoadingRef.current);
             onLoadFail?.();
           }
         }

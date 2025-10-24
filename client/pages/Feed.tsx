@@ -216,7 +216,9 @@ export default function Feed() {
 
       if (watchedSeconds < effectiveDuration) {
         const remaining = Math.ceil(secondsRemaining);
-        setError(`Por favor, assista o vídeo completo. ${remaining}s restantes.`);
+        setError(
+          `Por favor, assista o vídeo completo. ${remaining}s restantes.`,
+        );
         return;
       }
 
@@ -224,12 +226,9 @@ export default function Feed() {
       setError("");
 
       try {
-        const response = await apiPost<any>(
-          `/api/videos/${videoId}/vote`,
-          {
-            voteType,
-          },
-        );
+        const response = await apiPost<any>(`/api/videos/${videoId}/vote`, {
+          voteType,
+        });
 
         setUserBalance(response.newBalance);
         setVotedVideos((prev) => new Set([...prev, videoId]));
@@ -251,7 +250,9 @@ export default function Feed() {
         // Move to next video
         setTimeout(() => {
           setMoneyAnimations([]); // Clear any lingering money animations
-          const currentIndex = displayedVideos.findIndex((v) => v.id === videoId);
+          const currentIndex = displayedVideos.findIndex(
+            (v) => v.id === videoId,
+          );
           if (currentIndex < displayedVideos.length - 1) {
             setSelectedVideo(displayedVideos[currentIndex + 1]);
             setWatchedSeconds(0);
@@ -260,7 +261,9 @@ export default function Feed() {
             generateNewBatch(allVideos);
             setWatchedSeconds(0);
           } else {
-            setError("You've reached your daily vote limit. Come back tomorrow!");
+            setError(
+              "You've reached your daily vote limit. Come back tomorrow!",
+            );
           }
         }, 800);
       } catch (err) {
@@ -384,8 +387,14 @@ export default function Feed() {
               {selectedVideo ? (
                 <>
                   {/* Video Container */}
-                  <div className="card-base p-0 bg-black relative" style={{ overflow: "hidden" }}>
-                    <div className="aspect-video w-full relative flex items-center justify-center" style={{ overflow: "hidden" }}>
+                  <div
+                    className="card-base p-0 bg-black relative"
+                    style={{ overflow: "hidden" }}
+                  >
+                    <div
+                      className="aspect-video w-full relative flex items-center justify-center"
+                      style={{ overflow: "hidden" }}
+                    >
                       {videoLoading && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20">
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4" />
@@ -416,7 +425,8 @@ export default function Feed() {
                         onTimeUpdate={handleTimeUpdate}
                         onDurationReady={handleDurationReady}
                         onLoadFail={() => {
-                          const attempts = videoLoadAttempts[selectedVideo.id] || 0;
+                          const attempts =
+                            videoLoadAttempts[selectedVideo.id] || 0;
                           const newAttempts = attempts + 1;
 
                           console.log(
