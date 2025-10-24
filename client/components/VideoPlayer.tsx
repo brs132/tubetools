@@ -81,12 +81,8 @@ export default function VideoPlayer({
         playerReadyRef.current = false;
         loadSuccessRef.current = false;
 
-        // Clear container
-        if (playerContainerRef.current) {
-          playerContainerRef.current.innerHTML = "";
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        // Give container time to be ready
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         if (!playerContainerRef.current) return;
 
