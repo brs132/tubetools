@@ -17,10 +17,10 @@ import {
 
 export async function handler(event: any, context: any) {
   // Extract path from various possible sources
-  let path = event.path || event.rawPath || "";
+  let path = event.path || event.rawPath || event.requestContext?.http?.path || "";
 
   console.log(
-    `[API Handler] BEFORE processing - path: ${path}, rawPath: ${event.rawPath}, requestContext.path: ${event.requestContext?.path}`,
+    `[API Handler] BEFORE processing - path: "${path}", rawPath: "${event.rawPath}", http.path: "${event.requestContext?.http?.path}"`,
   );
 
   // Remove .netlify/functions/api prefix if present
@@ -35,6 +35,11 @@ export async function handler(event: any, context: any) {
   // Ensure path starts with /
   if (!path.startsWith("/")) {
     path = "/" + path;
+  }
+
+  // Remove any query strings
+  if (path.includes("?")) {
+    path = path.split("?")[0];
   }
 
   const method = event.httpMethod || "GET";
