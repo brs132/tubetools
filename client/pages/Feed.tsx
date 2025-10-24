@@ -60,6 +60,7 @@ export default function Feed() {
   );
   const [videoDuration, setVideoDuration] = useState(0);
   const playerRef = useRef<any>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
 
   // Shuffle array
   const shuffleArray = (array: any[]) => {
