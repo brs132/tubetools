@@ -183,12 +183,18 @@ export default function Feed() {
     }
   }, [selectedVideo]);
 
-  // Use YouTube player hook to sync with actual video playback
-  const playerContainerRef = useYouTubePlayer(
-    selectedVideo?.id || "",
-    setWatchedSeconds,
-    setVideoDuration,
-  );
+  // Timer para rastrear tempo assistido
+  useEffect(() => {
+    if (!selectedVideo || votedVideos.has(selectedVideo.id)) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setWatchedSeconds((prev) => prev + 0.1);
+    }, 100);
+
+    return () => clearInterval(timer);
+  }, [selectedVideo, votedVideos]);
 
   const handleVote = async (
     videoId: string,
