@@ -41,7 +41,8 @@ export async function handler(event: any, context: any) {
   let body = {};
   if (event.body) {
     try {
-      body = typeof event.body === "string" ? JSON.parse(event.body) : event.body;
+      body =
+        typeof event.body === "string" ? JSON.parse(event.body) : event.body;
     } catch (e) {
       console.error("Failed to parse body:", event.body);
       body = {};
