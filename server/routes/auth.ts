@@ -5,31 +5,41 @@ import { SYSTEM_STARTING_BALANCE } from "../constants";
 
 export const handleSignup: RequestHandler = (req, res) => {
   try {
-    console.log("Signup request received:", req.body);
+    console.log("Signup request received with body:", JSON.stringify(req.body));
 
     const { name, email } = req.body as SignupRequest;
 
-    if (!name || !email) {
-      console.warn("Missing name or email in signup");
-      res.status(400).json({ error: "Name and email are required" });
+    // Validate input
+    if (!name || typeof name !== "string" || !name.trim()) {
+      console.warn("Invalid name in signup:", { name });
+      res.status(400).json({ error: "Valid name is required" });
       return;
     }
 
+    if (!email || typeof email !== "string" || !email.trim()) {
+      console.warn("Invalid email in signup:", { email });
+      res.status(400).json({ error: "Valid email is required" });
+      return;
+    }
+
+    const trimmedEmail = email.trim().toLowerCase();
+
     // Check if email already exists
-    const existingUser = getUserByEmail(email);
+    const existingUser = getUserByEmail(trimmedEmail);
     if (existingUser) {
-      console.warn(`Email already registered: ${email}`);
-      res.status(400).json({ error: "Email already registered" });
+      console.warn(`Email already registered: ${trimmedEmail}`);
+      res.status(400).json({ error: "Email already registered. Please use login instead." });
       return;
     }
 
     // Create new user
     const userId = generateId();
-    const userData = createUser(userId, name, email, SYSTEM_STARTING_BALANCE);
+    console.log(`Creating user: ${userId} with email: ${trimmedEmail}`);
+    const userData = createUser(userId, name.trim(), trimmedEmail, SYSTEM_STARTING_BALANCE);
 
-    console.log(`User created: ${userId} (${email})`);
+    console.log(`User created successfully: ${userId} (${trimmedEmail})`);
 
-    const token = Buffer.from(`${email}`).toString("base64");
+    const token = Buffer.from(`${trimmedEmail}`).toString("base64");
 
     const response: AuthResponse = {
       user: userData.profile,
@@ -41,7 +51,7 @@ export const handleSignup: RequestHandler = (req, res) => {
   } catch (error) {
     console.error("Signup error details:", error);
     console.error("Error stack:", (error as Error).stack);
-    res.status(500).json({ error: "Signup failed" });
+    res.status(500).json({ error: "Signup failed - please try again" });
   }
 };
 
