@@ -1,23 +1,26 @@
 import { RequestHandler } from "express";
 import {
   getDB,
-  generateId,
-  getDailyVoteCount,
-  incrementDailyVoteCount,
-  saveDBToFile,
 } from "../db";
 import { getRandomReward, roundToTwoDecimals } from "../constants";
 import { VoteResponse } from "@shared/api";
+import {
+  getUserByEmail,
+  updateUserProfile,
+  addVote,
+  addTransaction,
+  getDailyVoteCount,
+  generateId,
+} from "../user-db";
 
-function getUserIdFromToken(token: string | undefined): string | null {
+function getEmailFromToken(token: string | undefined): string | null {
   if (!token) return null;
   try {
     const decoded = Buffer.from(
       token.replace("Bearer ", ""),
       "base64",
     ).toString();
-    const [userId] = decoded.split(":");
-    return userId;
+    return decoded;
   } catch {
     return null;
   }
