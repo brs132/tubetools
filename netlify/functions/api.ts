@@ -144,7 +144,14 @@ export async function handler(event: any, context: any) {
       req.params = { id: videoVoteMatch[1] };
     }
 
-    if (path === "/demo" && method === "GET") {
+    // Routes must be checked in correct order - specific before general
+    if (path === "/ping" && method === "GET") {
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: process.env.PING_MESSAGE || "ping" }),
+      };
+    } else if (path === "/demo" && method === "GET") {
       await handleDemo(req, res);
     } else if (path === "/auth/signup" && method === "POST") {
       console.log("Handling signup with body:", req.body);
@@ -152,29 +159,36 @@ export async function handler(event: any, context: any) {
     } else if (path === "/auth/login" && method === "POST") {
       console.log("Handling login with body:", req.body);
       await handleLogin(req, res);
-    } else if (path === "/videos" && method === "GET") {
-      await handleGetVideos(req, res);
-    } else if (videoIdMatch && method === "GET") {
-      await handleGetVideo(req, res);
-    } else if (videoVoteMatch && method === "POST") {
-      console.log(`[API Handler] Handling vote for video: ${req.params.id}`);
-      await handleVote(req, res);
     } else if (path === "/daily-votes" && method === "GET") {
+      console.log("Handling daily votes");
       await handleGetDailyVotes(req, res);
     } else if (path === "/balance" && method === "GET") {
+      console.log("Handling get balance");
       await handleGetBalance(req, res);
     } else if (path === "/transactions" && method === "GET") {
+      console.log("Handling get transactions");
       await handleGetTransactions(req, res);
     } else if (path === "/withdrawals" && method === "POST") {
+      console.log("Handling create withdrawal");
       await handleCreateWithdrawal(req, res);
     } else if (path === "/withdrawals" && method === "GET") {
+      console.log("Handling get withdrawals");
       await handleGetWithdrawals(req, res);
+    } else if (path === "/videos" && method === "GET") {
+      console.log("Handling get videos");
+      await handleGetVideos(req, res);
+    } else if (videoVoteMatch && method === "POST") {
+      console.log(`[API Handler] Handling vote for video: ${req.params.id} - Regex: ${videoVoteMatch[0]}`);
+      await handleVote(req, res);
+    } else if (videoIdMatch && method === "GET") {
+      console.log(`[API Handler] Handling get video: ${req.params.id}`);
+      await handleGetVideo(req, res);
     } else {
       console.log(
         `[API Handler] Route not found: ${method} ${path}`,
       );
       console.log(
-        `[API Handler] videoIdMatch: ${videoIdMatch ? "yes" : "no"}, videoVoteMatch: ${videoVoteMatch ? "yes" : "no"}`,
+        `[API Handler] videoIdMatch: ${videoIdMatch ? "yes (" + videoIdMatch[0] + ")" : "no"}, videoVoteMatch: ${videoVoteMatch ? "yes (" + videoVoteMatch[0] + ")" : "no"}`,
       );
       console.log(
         `[API Handler] Available routes: /ping, /auth/signup, /auth/login, /videos, /videos/{id}, /videos/{id}/vote, /daily-votes, /balance, /transactions, /withdrawals`,
