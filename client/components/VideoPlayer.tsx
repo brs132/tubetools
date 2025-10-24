@@ -88,17 +88,27 @@ export default function VideoPlayer({
 
   // Load different video without recreating player
   useEffect(() => {
-    if (playerRef.current && playerRef.current.loadVideoById) {
+    if (!playerRef.current?.loadVideoById) return;
+
+    try {
       playerRef.current.loadVideoById(videoId);
       // Get duration after loading
-      setTimeout(() => {
-        if (playerRef.current) {
-          const duration = playerRef.current.getDuration();
-          if (duration > 0) {
-            onDurationReady(duration);
+      const timeoutId = setTimeout(() => {
+        try {
+          if (playerRef.current?.getDuration) {
+            const duration = playerRef.current.getDuration();
+            if (duration > 0) {
+              onDurationReady(duration);
+            }
           }
+        } catch (err) {
+          // Ignore duration fetch errors
         }
       }, 500);
+
+      return () => clearTimeout(timeoutId);
+    } catch (err) {
+      // Ignore load errors
     }
   }, [videoId, onDurationReady]);
 
