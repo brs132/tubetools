@@ -12,14 +12,34 @@ import {
 } from "../user-db";
 
 function getEmailFromToken(token: string | undefined): string | null {
-  if (!token) return null;
+  if (!token) {
+    console.warn("[Videos] No authorization token provided");
+    return null;
+  }
+
   try {
-    const decoded = Buffer.from(
-      token.replace("Bearer ", ""),
-      "base64",
-    ).toString();
-    return decoded;
-  } catch {
+    console.log("[Videos] Raw token:", token.substring(0, 50) + "...");
+
+    // Remove "Bearer " prefix if present
+    let tokenValue = token;
+    if (token.startsWith("Bearer ")) {
+      tokenValue = token.slice(7);
+    }
+
+    console.log("[Videos] Token value:", tokenValue.substring(0, 30) + "...");
+
+    // Decode from base64
+    const email = Buffer.from(tokenValue, "base64").toString("utf-8").trim();
+
+    if (!email || email.length === 0) {
+      console.warn("[Videos] Email is empty after decoding");
+      return null;
+    }
+
+    console.log("[Videos] Extracted email:", email);
+    return email;
+  } catch (err) {
+    console.error("[Videos] Error decoding token:", err);
     return null;
   }
 }
