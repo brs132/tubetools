@@ -242,12 +242,17 @@ export default function Feed() {
 
       // Create YouTube player when iframe loads
       const checkPlayerReady = setInterval(() => {
-        if (window.YT && window.YT.Player && videoContainerRef.current && !playerRef.current) {
+        if (
+          window.YT &&
+          window.YT.Player &&
+          videoContainerRef.current &&
+          !playerRef.current
+        ) {
           try {
             // Extract video ID from YouTube URL
             const videoUrl = selectedVideo.url || selectedVideo.id;
             const videoIdMatch = videoUrl.match(
-              /(?:youtube\.com\/embed\/|youtu\.be\/|youtube\.com\/watch\?v=)([^&?\s]+)/
+              /(?:youtube\.com\/embed\/|youtu\.be\/|youtube\.com\/watch\?v=)([^&?\s]+)/,
             );
             const videoId = videoIdMatch ? videoIdMatch[1] : selectedVideo.id;
 
@@ -255,22 +260,25 @@ export default function Feed() {
             videoContainerRef.current.innerHTML = "";
 
             // Initialize player
-            playerRef.current = new window.YT.Player(videoContainerRef.current, {
-              videoId: videoId,
-              width: "100%",
-              height: "100%",
-              playerVars: {
-                autoplay: 1,
-                controls: 1,
-              },
-              events: {
-                onReady: (e: any) => {
-                  // Video is ready, get duration
-                  const duration = e.target.getDuration();
-                  setVideoDuration(Math.ceil(duration) || 180);
+            playerRef.current = new window.YT.Player(
+              videoContainerRef.current,
+              {
+                videoId: videoId,
+                width: "100%",
+                height: "100%",
+                playerVars: {
+                  autoplay: 1,
+                  controls: 1,
+                },
+                events: {
+                  onReady: (e: any) => {
+                    // Video is ready, get duration
+                    const duration = e.target.getDuration();
+                    setVideoDuration(Math.ceil(duration) || 180);
+                  },
                 },
               },
-            });
+            );
 
             clearInterval(checkPlayerReady);
           } catch (error) {
@@ -298,9 +306,7 @@ export default function Feed() {
 
     if (watchedSeconds < videoDuration) {
       const remaining = Math.ceil(secondsRemaining);
-      setError(
-        `Por favor, assista o vídeo completo. ${remaining}s restantes.`,
-      );
+      setError(`Por favor, assista o vídeo completo. ${remaining}s restantes.`);
       return;
     }
 
@@ -381,8 +387,7 @@ export default function Feed() {
 
   if (!isAuthenticated()) return null;
 
-  const canVote =
-    watchedSeconds >= videoDuration && dailyVotesRemaining > 0;
+  const canVote = watchedSeconds >= videoDuration && dailyVotesRemaining > 0;
   const watchProgressPercent = Math.min(
     videoDuration > 0 ? (watchedSeconds / videoDuration) * 100 : 0,
     100,

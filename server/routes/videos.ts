@@ -1,7 +1,5 @@
 import { RequestHandler } from "express";
-import {
-  getDB,
-} from "../db";
+import { getDB } from "../db";
 import { getRandomReward, roundToTwoDecimals } from "../constants";
 import { VoteResponse } from "@shared/api";
 import {

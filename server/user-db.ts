@@ -183,7 +183,10 @@ export function addTransaction(
   if (transaction.type === "credit") {
     userData.profile.balance += transaction.amount;
   } else if (transaction.type === "debit") {
-    userData.profile.balance = Math.max(0, userData.profile.balance - transaction.amount);
+    userData.profile.balance = Math.max(
+      0,
+      userData.profile.balance - transaction.amount,
+    );
   }
 
   saveUserData(email, userData);
