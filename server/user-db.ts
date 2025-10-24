@@ -178,7 +178,10 @@ export async function createUser(
       votes: [],
       transactions: [],
       withdrawals: [],
-      dailyVoteCount: { count: 0, date: new Date().toISOString().split("T")[0] },
+      dailyVoteCount: {
+        count: 0,
+        date: new Date().toISOString().split("T")[0],
+      },
     };
   } catch (err) {
     console.error("Could not create user:", err);
@@ -324,9 +327,7 @@ export async function getPendingWithdrawal(
     return null;
   }
 
-  return (
-    userData.withdrawals.find((w) => w.status === "pending") || null
-  );
+  return userData.withdrawals.find((w) => w.status === "pending") || null;
 }
 
 export async function getVotedVideoIds(email: string): Promise<string[]> {

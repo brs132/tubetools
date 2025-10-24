@@ -6,7 +6,12 @@ export function getPool(): Pool {
   if (!pool) {
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
-      console.error("[getPool] DATABASE_URL is not set! Available env vars:", Object.keys(process.env).filter(k => !k.includes('SECRET')).sort());
+      console.error(
+        "[getPool] DATABASE_URL is not set! Available env vars:",
+        Object.keys(process.env)
+          .filter((k) => !k.includes("SECRET"))
+          .sort(),
+      );
       throw new Error("DATABASE_URL environment variable is not set");
     }
     console.log("[getPool] Creating new pool with DATABASE_URL");
@@ -19,7 +24,12 @@ export async function executeQuery(sql: string, params: any[] = []) {
   try {
     const client = await getPool().connect();
     try {
-      console.log("[executeQuery] Executing SQL:", sql.substring(0, 50), "params:", params);
+      console.log(
+        "[executeQuery] Executing SQL:",
+        sql.substring(0, 50),
+        "params:",
+        params,
+      );
       const result = await client.query(sql, params);
       console.log("[executeQuery] Query successful, rows:", result.rows.length);
       return result;
@@ -27,7 +37,10 @@ export async function executeQuery(sql: string, params: any[] = []) {
       client.release();
     }
   } catch (err) {
-    console.error("[executeQuery] Database error:", err instanceof Error ? err.message : err);
+    console.error(
+      "[executeQuery] Database error:",
+      err instanceof Error ? err.message : err,
+    );
     throw err;
   }
 }
@@ -39,7 +52,10 @@ export async function executeSingleQuery(sql: string, params: any[] = []) {
     console.log("[executeSingleQuery] Result:", row ? "found" : "not found");
     return row;
   } catch (err) {
-    console.error("[executeSingleQuery] Error:", err instanceof Error ? err.message : err);
+    console.error(
+      "[executeSingleQuery] Error:",
+      err instanceof Error ? err.message : err,
+    );
     throw err;
   }
 }

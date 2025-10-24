@@ -26,7 +26,10 @@ function getEmailFromToken(token: string | undefined): string | null {
       tokenValue = token.slice(7);
     }
 
-    console.log("[Videos] Token value after Bearer removal:", tokenValue.substring(0, 30) + "...");
+    console.log(
+      "[Videos] Token value after Bearer removal:",
+      tokenValue.substring(0, 30) + "...",
+    );
 
     // Decode from base64
     const email = Buffer.from(tokenValue, "base64").toString("utf-8").trim();
@@ -36,7 +39,12 @@ function getEmailFromToken(token: string | undefined): string | null {
       return null;
     }
 
-    console.log("[Videos] Extracted email from token:", email, "Length:", email.length);
+    console.log(
+      "[Videos] Extracted email from token:",
+      email,
+      "Length:",
+      email.length,
+    );
     return email;
   } catch (err) {
     console.error("[Videos] Error decoding token:", err);
@@ -164,13 +172,23 @@ export const handleVote: RequestHandler = async (req, res) => {
 
     // User should exist at this point (already logged in)
     if (!userData) {
-      console.error("[handleVote] User not found in database for email:", email);
-      console.error("[handleVote] This likely means: 1) Database connection failed, 2) User was not created, or 3) Email format mismatch");
+      console.error(
+        "[handleVote] User not found in database for email:",
+        email,
+      );
+      console.error(
+        "[handleVote] This likely means: 1) Database connection failed, 2) User was not created, or 3) Email format mismatch",
+      );
       res.status(404).json({ error: "User not found" });
       return;
     }
 
-    console.log("[handleVote] User found:", userData.profile.email, "Balance:", userData.profile.balance);
+    console.log(
+      "[handleVote] User found:",
+      userData.profile.email,
+      "Balance:",
+      userData.profile.balance,
+    );
 
     const user = userData.profile;
     const now = new Date();

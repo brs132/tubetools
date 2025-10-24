@@ -17,7 +17,8 @@ import {
 
 export async function handler(event: any, context: any) {
   // Extract path from various possible sources
-  let path = event.path || event.rawPath || event.requestContext?.http?.path || "";
+  let path =
+    event.path || event.rawPath || event.requestContext?.http?.path || "";
 
   console.log(
     `[API Handler] BEFORE processing - path: "${path}", rawPath: "${event.rawPath}", http.path: "${event.requestContext?.http?.path}"`,
@@ -178,15 +179,15 @@ export async function handler(event: any, context: any) {
       console.log("Handling get videos");
       await handleGetVideos(req, res);
     } else if (videoVoteMatch && method === "POST") {
-      console.log(`[API Handler] Handling vote for video: ${req.params.id} - Regex: ${videoVoteMatch[0]}`);
+      console.log(
+        `[API Handler] Handling vote for video: ${req.params.id} - Regex: ${videoVoteMatch[0]}`,
+      );
       await handleVote(req, res);
     } else if (videoIdMatch && method === "GET") {
       console.log(`[API Handler] Handling get video: ${req.params.id}`);
       await handleGetVideo(req, res);
     } else {
-      console.log(
-        `[API Handler] Route not found: ${method} ${path}`,
-      );
+      console.log(`[API Handler] Route not found: ${method} ${path}`);
       console.log(
         `[API Handler] videoIdMatch: ${videoIdMatch ? "yes (" + videoIdMatch[0] + ")" : "no"}, videoVoteMatch: ${videoVoteMatch ? "yes (" + videoVoteMatch[0] + ")" : "no"}`,
       );
