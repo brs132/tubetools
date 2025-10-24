@@ -146,6 +146,7 @@ export async function handler(event: any, context: any) {
     } else if (videoIdMatch && method === "GET") {
       await handleGetVideo(req, res);
     } else if (videoVoteMatch && method === "POST") {
+      console.log(`[API Handler] Handling vote for video: ${req.params.id}`);
       await handleVote(req, res);
     } else if (path === "/daily-votes" && method === "GET") {
       await handleGetDailyVotes(req, res);
