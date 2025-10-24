@@ -123,7 +123,13 @@ export async function handler(event: any, context: any) {
 
     return {
       statusCode: res.statusCode,
-      headers: res.headers,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        ...res.headers,
+      },
       body: res.body,
     };
   } catch (error) {
