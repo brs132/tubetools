@@ -47,7 +47,7 @@ export interface UserData {
   dailyVoteCount: { count: number; date: string }; // Rastreia votos do dia
 }
 
-const USERS_DIR = path.join(process.cwd(), "users");
+const USERS_DIR = path.join(process.cwd(), ".data", "users");
 
 function ensureUsersDir() {
   if (!fs.existsSync(USERS_DIR)) {
