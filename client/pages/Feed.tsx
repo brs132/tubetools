@@ -227,8 +227,11 @@ export default function Feed() {
       return;
     }
 
-    if (watchedSeconds < VIDEO_MIN_WATCH_SECONDS) {
-      // Silently ignore - don't show error for watch time
+    if (watchedSeconds < videoDuration) {
+      const remaining = Math.ceil(secondsRemaining);
+      setError(
+        `Por favor, assista o vídeo completo. ${remaining}s restantes.`,
+      );
       return;
     }
 
