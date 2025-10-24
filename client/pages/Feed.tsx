@@ -382,11 +382,92 @@ export default function Feed() {
                 <>
                   {/* Video Container */}
                   <div className="card-base p-0 overflow-hidden bg-black">
-                    <div className="aspect-video relative">
+                    <div className="aspect-video relative flex items-center justify-center">
+                      {videoLoading && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-10">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4" />
+                          <p className="text-white text-sm">
+                            Carregando vídeo...
+                          </p>
+                        </div>
+                      )}
+                      {videoLoadError && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-10">
+                          <p className="text-red-500 text-sm mb-4">
+                            Erro ao carregar vídeo
+                          </p>
+                          <button
+                            onClick={() => {
+                              const attempts = videoLoadAttempts[selectedVideo.id] || 0;
+                              if (attempts < 2) {
+                                setVideoLoadAttempts((prev) => ({
+                                  ...prev,
+                                  [selectedVideo.id]: attempts + 1,
+                                }));
+                                setVideoLoadError(false);
+                              }
+                            }}
+                            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-xs"
+                          >
+                            Tentar Novamente
+                          </button>
+                        </div>
+                      )}
                       <VideoPlayer
                         videoId={selectedVideo.id}
                         onTimeUpdate={handleTimeUpdate}
                         onDurationReady={handleDurationReady}
+                        onLoadFail={() => {
+                          const attempts = videoLoadAttempts[selectedVideo.id] || 0;
+                          const newAttempts = attempts + 1;
+
+                          console.log(
+                            `[Feed] Video ${selectedVideo.id} load failed, attempt ${newAttempts}/2`,
+                          );
+
+                          if (newAttempts >= 2) {
+                            // Skip to next video after 2 failed attempts
+                            console.log(
+                              `[Feed] Max attempts reached, skipping to next video`,
+                            );
+                            setError(
+                              "Vídeo não carregou. Pulando para o próximo...",
+                            );
+
+                            setTimeout(() => {
+                              const currentIndex =
+                                displayedVideos.findIndex(
+                                  (v) => v.id === selectedVideo.id,
+                                ) || 0;
+                              if (currentIndex < displayedVideos.length - 1) {
+                                setSelectedVideo(
+                                  displayedVideos[currentIndex + 1],
+                                );
+                              } else {
+                                // Generate new batch if at end
+                                generateNewBatch(allVideos);
+                              }
+                              setVideoLoadAttempts({});
+                              setVideoLoadError(false);
+                            }, 2000);
+                          } else {
+                            // Show error and allow retry
+                            setVideoLoadAttempts((prev) => ({
+                              ...prev,
+                              [selectedVideo.id]: newAttempts,
+                            }));
+                            setVideoLoadError(true);
+                          }
+                        }}
+                        onLoadSuccess={() => {
+                          console.log(
+                            `[Feed] Video ${selectedVideo.id} loaded successfully`,
+                          );
+                          setVideoLoading(false);
+                          setVideoLoadError(false);
+                          // Reset attempts on success
+                          setVideoLoadAttempts({});
+                        }}
                       />
                     </div>
                   </div>
