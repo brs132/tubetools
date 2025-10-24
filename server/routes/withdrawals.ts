@@ -1,16 +1,21 @@
 import { RequestHandler } from "express";
-import { getDB, generateId, saveDBToFile } from "../db";
 import { WITHDRAWAL_COOLDOWN_DAYS, roundToTwoDecimals } from "../constants";
+import {
+  getUserByEmail,
+  updateUserProfile,
+  addWithdrawal,
+  addTransaction,
+  generateId,
+} from "../user-db";
 
-function getUserIdFromToken(token: string | undefined): string | null {
+function getEmailFromToken(token: string | undefined): string | null {
   if (!token) return null;
   try {
     const decoded = Buffer.from(
       token.replace("Bearer ", ""),
       "base64",
     ).toString();
-    const [userId] = decoded.split(":");
-    return userId;
+    return decoded;
   } catch {
     return null;
   }
@@ -19,9 +24,9 @@ function getUserIdFromToken(token: string | undefined): string | null {
 export const handleCreateWithdrawal: RequestHandler = (req, res) => {
   try {
     const token = req.headers.authorization;
-    const userId = getUserIdFromToken(token);
+    const email = getEmailFromToken(token);
 
-    if (!userId) {
+    if (!email) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
@@ -33,30 +38,14 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
       return;
     }
 
-    const db = getDB();
-    let user = db.users.get(userId);
+    const userData = getUserByEmail(email);
 
-    // If user not found, create demo user
-    if (!user) {
-      const now = new Date();
-      const twoWeeksAgo = new Date(
-        Date.now() - 14 * 24 * 60 * 60 * 1000,
-      ).toISOString();
-
-      user = {
-        id: userId,
-        name: "Demo User",
-        email: "demo@example.com",
-        balance: 250.0,
-        createdAt: now.toISOString(),
-        firstEarnAt: twoWeeksAgo,
-        votingStreak: 5,
-        lastVotedAt: now.toISOString(),
-        lastVoteDateReset: now.toISOString(),
-        votingDaysCount: 15,
-      };
-      db.users.set(userId, user);
+    if (!userData) {
+      res.status(404).json({ error: "User not found" });
+      return;
     }
+
+    const user = userData.profile;
 
     // Check withdrawal eligibility
     if (!user.firstEarnAt) {
@@ -78,8 +67,8 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
     }
 
     // Check if user has a pending withdrawal
-    const pendingWithdrawal = Array.from(db.withdrawals.values()).find(
-      (w) => w.userId === userId && w.status === "pending",
+    const pendingWithdrawal = userData.withdrawals.find(
+      (w) => w.status === "pending",
     );
 
     if (pendingWithdrawal) {
@@ -105,32 +94,25 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
 
     const withdrawal = {
       id: withdrawalId,
-      userId,
       amount: withdrawAmount,
-      method,
       status: "pending" as const,
       requestedAt: now,
-      processedAt: null,
     };
 
-    db.withdrawals.set(withdrawalId, withdrawal);
+    addWithdrawal(email, withdrawal);
 
     // Create transaction record
     const transactionId = generateId();
     const transaction = {
       id: transactionId,
-      userId,
-      type: "withdrawal" as const,
+      type: "debit" as const,
       amount: withdrawAmount,
       description: `Withdrawal request via ${method}`,
       status: "pending" as const,
       createdAt: now,
     };
 
-    db.transactions.set(transactionId, transaction);
-
-    // Save database after modifications
-    saveDBToFile();
+    addTransaction(email, transaction);
 
     res.json(withdrawal);
   } catch (error) {
@@ -142,20 +124,24 @@ export const handleCreateWithdrawal: RequestHandler = (req, res) => {
 export const handleGetWithdrawals: RequestHandler = (req, res) => {
   try {
     const token = req.headers.authorization;
-    const userId = getUserIdFromToken(token);
+    const email = getEmailFromToken(token);
 
-    if (!userId) {
+    if (!email) {
       res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
-    const db = getDB();
-    const withdrawals = Array.from(db.withdrawals.values())
-      .filter((w) => w.userId === userId)
-      .sort(
-        (a, b) =>
-          new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime(),
-      );
+    const userData = getUserByEmail(email);
+
+    if (!userData) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const withdrawals = userData.withdrawals.sort(
+      (a, b) =>
+        new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime(),
+    );
 
     res.json(withdrawals);
   } catch (error) {
