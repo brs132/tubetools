@@ -203,7 +203,7 @@ export default function Feed() {
       return;
     }
 
-    if (watchedSeconds < videoDuration) {
+    if (watchedSeconds < effectiveDuration) {
       const remaining = Math.ceil(secondsRemaining);
       setError(`Por favor, assista o vídeo completo. ${remaining}s restantes.`);
       return;
