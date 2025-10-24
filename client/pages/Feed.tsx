@@ -193,6 +193,23 @@ export default function Feed() {
     setVideoDuration(duration);
   };
 
+  // Fallback timer - roda mesmo se API não estiver pronto
+  useEffect(() => {
+    if (!selectedVideo) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setWatchedSeconds((prev) => {
+        if (videoDuration === 0) return prev; // Não conta se duração não carregou
+        const newVal = prev + 0.1;
+        return newVal >= videoDuration ? videoDuration : newVal;
+      });
+    }, 100);
+
+    return () => clearInterval(timer);
+  }, [selectedVideo, videoDuration]);
+
   const handleVote = async (
     videoId: string,
     voteType: "like" | "dislike",
