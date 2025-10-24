@@ -284,12 +284,14 @@ export default function Feed() {
 
   if (!isAuthenticated()) return null;
 
-  const canVote = watchedSeconds >= videoDuration && dailyVotesRemaining > 0;
+  // Reduce duration by 1 second for voting threshold
+  const effectiveDuration = Math.max(1, videoDuration - 1);
+  const canVote = watchedSeconds >= effectiveDuration && dailyVotesRemaining > 0;
   const watchProgressPercent = Math.min(
-    videoDuration > 0 ? (watchedSeconds / videoDuration) * 100 : 0,
+    effectiveDuration > 0 ? (watchedSeconds / effectiveDuration) * 100 : 0,
     100,
   );
-  const secondsRemaining = Math.max(0, videoDuration - watchedSeconds);
+  const secondsRemaining = Math.max(0, effectiveDuration - watchedSeconds);
 
   return (
     <Layout>
