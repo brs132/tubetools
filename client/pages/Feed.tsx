@@ -150,22 +150,23 @@ export default function Feed() {
 
   useEffect(() => {
     // Track video watch time automatically when video is selected
-    if (selectedVideo && !votedVideos.has(selectedVideo.id)) {
-      const timer = setInterval(() => {
-        setWatchedSeconds((prev) => prev + 0.1);
-      }, 100);
-      setWatchTimer(timer);
-
-      return () => {
-        clearInterval(timer);
-      };
-    } else {
+    if (!selectedVideo) {
       if (watchTimer) {
         clearInterval(watchTimer);
         setWatchTimer(null);
       }
+      return;
     }
-  }, [selectedVideo, votedVideos]);
+
+    const timer = setInterval(() => {
+      setWatchedSeconds((prev) => prev + 0.1);
+    }, 100);
+    setWatchTimer(timer);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [selectedVideo]);
 
   const loadVideos = async () => {
     try {
