@@ -1,7 +1,6 @@
 import "dotenv/config";
-import express, { Express } from "express";
+import express from "express";
 import cors from "cors";
-import { VercelRequest, VercelResponse } from "@vercel/node";
 import { handleDemo } from "../server/routes/demo";
 import { handleSignup, handleLogin } from "../server/routes/auth";
 import {
@@ -16,49 +15,41 @@ import {
   handleGetWithdrawals,
 } from "../server/routes/withdrawals";
 
-function createApp(): Express {
-  const app = express();
+const app = express();
 
-  // Middleware
-  app.use(cors());
-  app.use(express.json({ limit: "10mb" }));
-  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+// Middleware
+app.use(cors());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-  // Config
-  app.disable("x-powered-by");
-  app.set("trust proxy", 1);
+// Config
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
 
-  // Routes
-  app.get(["/ping", "/api/ping"], (_req, res) => {
-    const ping = process.env.PING_MESSAGE ?? "ping";
-    res.json({ message: ping });
-  });
+// Routes
+app.get(["/ping", "/api/ping"], (_req, res) => {
+  const ping = process.env.PING_MESSAGE ?? "ping";
+  res.json({ message: ping });
+});
 
-  app.get(["/demo", "/api/demo"], handleDemo);
+app.get(["/demo", "/api/demo"], handleDemo);
 
-  // Auth routes
-  app.post(["/auth/signup", "/api/auth/signup"], handleSignup);
-  app.post(["/auth/login", "/api/auth/login"], handleLogin);
+// Auth routes
+app.post(["/auth/signup", "/api/auth/signup"], handleSignup);
+app.post(["/auth/login", "/api/auth/login"], handleLogin);
 
-  // Video routes
-  app.get(["/videos", "/api/videos"], handleGetVideos);
-  app.get(["/videos/:id", "/api/videos/:id"], handleGetVideo);
-  app.post(["/videos/:id/vote", "/api/videos/:id/vote"], handleVote);
-  app.get(["/daily-votes", "/api/daily-votes"], handleGetDailyVotes);
+// Video routes
+app.get(["/videos", "/api/videos"], handleGetVideos);
+app.get(["/videos/:id", "/api/videos/:id"], handleGetVideo);
+app.post(["/videos/:id/vote", "/api/videos/:id/vote"], handleVote);
+app.get(["/daily-votes", "/api/daily-votes"], handleGetDailyVotes);
 
-  // Balance routes
-  app.get(["/balance", "/api/balance"], handleGetBalance);
-  app.get(["/transactions", "/api/transactions"], handleGetTransactions);
+// Balance routes
+app.get(["/balance", "/api/balance"], handleGetBalance);
+app.get(["/transactions", "/api/transactions"], handleGetTransactions);
 
-  // Withdrawal routes
-  app.post(["/withdrawals", "/api/withdrawals"], handleCreateWithdrawal);
-  app.get(["/withdrawals", "/api/withdrawals"], handleGetWithdrawals);
+// Withdrawal routes
+app.post(["/withdrawals", "/api/withdrawals"], handleCreateWithdrawal);
+app.get(["/withdrawals", "/api/withdrawals"], handleGetWithdrawals);
 
-  return app;
-}
-
-const app = createApp();
-
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  return app(req, res);
-}
+export default app;
