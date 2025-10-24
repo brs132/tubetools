@@ -16,14 +16,26 @@ import {
 } from "../../server/routes/withdrawals";
 
 export async function handler(event: any, context: any) {
-  // Extract path, removing /api prefix if present
+  // Extract path from various possible sources
   let path = event.path || event.rawPath || "";
-  if (path.startsWith("/api")) {
-    path = path.slice(4); // Remove /api prefix
+
+  // Remove .netlify/functions/api prefix if present
+  if (path.includes("/.netlify/functions/api")) {
+    path = path.split("/.netlify/functions/api")[1] || "";
   }
+  // Remove /api prefix if present
+  else if (path.startsWith("/api")) {
+    path = path.slice(4);
+  }
+
+  // Ensure path starts with /
+  if (!path.startsWith("/")) {
+    path = "/" + path;
+  }
+
   const method = event.httpMethod || "GET";
 
-  console.log(`[API] ${method} ${path}`);
+  console.log(`[API Handler] ${method} ${path} (raw: ${event.path})`);
 
   // Mock Express-like request and response objects
   let body = {};
