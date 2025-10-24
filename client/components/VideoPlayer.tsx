@@ -43,7 +43,7 @@ export default function VideoPlayer({
 
     const iframe = document.createElement("iframe");
     iframe.style.cssText =
-      "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;";
+      "position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; border: none; display: block;";
     iframe.allow =
       "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
     iframe.allowFullscreen = true;
