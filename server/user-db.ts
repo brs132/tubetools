@@ -83,9 +83,12 @@ export async function loadUserData(email: string): Promise<UserData | null> {
     );
 
     const today = new Date().toISOString().split("T")[0];
-    const votesToday = votes.rows.filter(
-      (v: any) => v.createdAt.split("T")[0] === today,
-    ).length;
+    const votesToday = votes.rows.filter((v: any) => {
+      const createdAtStr = typeof v.createdAt === "string"
+        ? v.createdAt
+        : new Date(v.createdAt).toISOString();
+      return createdAtStr.split("T")[0] === today;
+    }).length;
 
     const profile: UserProfile = {
       id: user.id,
