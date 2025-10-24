@@ -361,15 +361,11 @@ export default function Feed() {
                   {/* Video Container */}
                   <div className="card-base p-0 overflow-hidden bg-black">
                     <div className="aspect-video relative">
-                      <iframe
+                      <VideoPlayer
                         key={selectedVideo.id}
-                        width="100%"
-                        height="100%"
-                        src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1&controls=1&modestbranding=1`}
-                        title={selectedVideo.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full"
+                        videoId={selectedVideo.id}
+                        onTimeUpdate={handleTimeUpdate}
+                        onDurationReady={handleDurationReady}
                       />
                     </div>
                   </div>
