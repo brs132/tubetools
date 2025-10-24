@@ -16,8 +16,14 @@ import {
 } from "../../server/routes/withdrawals";
 
 export async function handler(event: any, context: any) {
-  const path = event.path || "";
+  // Extract path, removing /api prefix if present
+  let path = event.path || event.rawPath || "";
+  if (path.startsWith("/api")) {
+    path = path.slice(4); // Remove /api prefix
+  }
   const method = event.httpMethod || "GET";
+
+  console.log(`[API] ${method} ${path}`);
 
   // Mock Express-like request and response objects
   const req: any = {
