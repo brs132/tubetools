@@ -1,0 +1,21 @@
+{
+  "profile": {
+    "id": "b3npvlvyp5emh50h5oi",
+    "name": "felipe",
+    "email": "felipe@teste.com",
+    "balance": 0,
+    "createdAt": "2025-10-24T15:34:01.218Z",
+    "firstEarnAt": null,
+    "votingStreak": 0,
+    "lastVotedAt": null,
+    "lastVoteDateReset": null,
+    "votingDaysCount": 0
+  },
+  "votes": [],
+  "transactions": [],
+  "withdrawals": [],
+  "dailyVoteCount": {
+    "count": 0,
+    "date": "2025-10-24"
+  }
+}
