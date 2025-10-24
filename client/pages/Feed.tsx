@@ -190,7 +190,6 @@ export default function Feed() {
     if (enhanced.length > 0) {
       setSelectedVideo(enhanced[0]);
       setWatchedSeconds(0);
-      setVideoDuration(0);
     }
   };
 
