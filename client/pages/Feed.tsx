@@ -47,8 +47,6 @@ export default function Feed() {
   const [votedVideos, setVotedVideos] = useState<Set<string>>(new Set());
   const [error, setError] = useState("");
   const [watchedSeconds, setWatchedSeconds] = useState(0);
-  const [watchTimer, setWatchTimer] = useState<NodeJS.Timeout | null>(null);
-  const [isVideoFocused, setIsVideoFocused] = useState(false);
   const [dailyVotesRemaining, setDailyVotesRemaining] = useState(7);
   const [moneyAnimations, setMoneyAnimations] = useState<MoneyAnimationData[]>(
     [],
