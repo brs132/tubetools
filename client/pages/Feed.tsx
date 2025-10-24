@@ -184,14 +184,14 @@ export default function Feed() {
     }
   }, [selectedVideo]);
 
-  // Callbacks para VideoPlayer
-  const handleTimeUpdate = (time: number) => {
+  // Memoized callbacks para evitar recriação do player
+  const handleTimeUpdate = useCallback((time: number) => {
     setWatchedSeconds(time);
-  };
+  }, []);
 
-  const handleDurationReady = (duration: number) => {
+  const handleDurationReady = useCallback((duration: number) => {
     setVideoDuration(duration);
-  };
+  }, []);
 
   const handleVote = async (
     videoId: string,
