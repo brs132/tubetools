@@ -59,28 +59,34 @@ export const handleLogin: RequestHandler = (req, res) => {
   try {
     const { email } = req.body as LoginRequest;
 
-    if (!email) {
-      res.status(400).json({ error: "Email is required" });
+    if (!email || typeof email !== "string" || !email.trim()) {
+      console.warn("Invalid email in login");
+      res.status(400).json({ error: "Valid email is required" });
       return;
     }
 
-    const userData = getUserByEmail(email);
+    const trimmedEmail = email.trim().toLowerCase();
+    console.log("Login attempt with email:", trimmedEmail);
+
+    const userData = getUserByEmail(trimmedEmail);
 
     if (!userData) {
-      res.status(404).json({ error: "User not found" });
+      console.warn(`User not found: ${trimmedEmail}`);
+      res.status(404).json({ error: "User not found. Please sign up first." });
       return;
     }
 
-    const token = Buffer.from(`${email}`).toString("base64");
+    const token = Buffer.from(`${trimmedEmail}`).toString("base64");
 
     const response: AuthResponse = {
       user: userData.profile,
       token,
     };
 
+    console.log("Login successful for user:", trimmedEmail);
     res.json(response);
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ error: "Login failed" });
+    res.status(500).json({ error: "Login failed - please try again" });
   }
 };
