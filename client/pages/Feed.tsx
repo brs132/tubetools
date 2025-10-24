@@ -185,6 +185,22 @@ export default function Feed() {
     }
   }, [selectedVideo]);
 
+  // Memoize callbacks to prevent unnecessary re-renders in YouTubePlayer
+  const handleDurationChange = useCallback((duration: number) => {
+    setVideoDuration(duration);
+  }, []);
+
+  const handleTimeUpdate = useCallback((time: number) => {
+    setWatchedSeconds(time);
+  }, []);
+
+  const handleStateChange = useCallback(
+    (state: "playing" | "paused" | "ended") => {
+      setVideoState(state);
+    },
+    [],
+  );
+
   const handleVote = async (
     videoId: string,
     voteType: "like" | "dislike",
