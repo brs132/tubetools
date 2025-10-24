@@ -355,13 +355,10 @@ export default function Feed() {
                   {/* Video Container */}
                   <div className="card-base p-0 overflow-hidden bg-black">
                     <div className="aspect-video relative">
-                      <YouTubePlayer
+                      <div
                         key={selectedVideo.id}
-                        videoId={selectedVideo.id}
-                        onDurationChange={() => {}}
-                        onTimeUpdate={() => {}}
-                        onStateChange={() => {}}
-                        autoplay={true}
+                        ref={playerContainerRef}
+                        className="w-full h-full"
                       />
                     </div>
                   </div>
