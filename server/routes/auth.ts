@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { SignupRequest, LoginRequest, AuthResponse } from "@shared/api";
-import { getDB, generateId, saveDBToFile } from "../db";
+import { createUser, getUserByEmail, generateId } from "../user-db";
 import { SYSTEM_STARTING_BALANCE } from "../constants";
 
 export const handleSignup: RequestHandler = (req, res) => {
@@ -15,10 +15,9 @@ export const handleSignup: RequestHandler = (req, res) => {
       return;
     }
 
-    const db = getDB();
-
     // Check if email already exists
-    if (db.emailToUserId.has(email)) {
+    const existingUser = getUserByEmail(email);
+    if (existingUser) {
       console.warn(`Email already registered: ${email}`);
       res.status(400).json({ error: "Email already registered" });
       return;
@@ -26,36 +25,14 @@ export const handleSignup: RequestHandler = (req, res) => {
 
     // Create new user
     const userId = generateId();
-    const now = new Date().toISOString();
-    const user: any = {
-      id: userId,
-      name,
-      email,
-      balance: SYSTEM_STARTING_BALANCE,
-      createdAt: now,
-      firstEarnAt: null,
-      votingStreak: 0,
-      lastVotedAt: null,
-      lastVoteDateReset: null,
-      votingDaysCount: 0,
-    };
-
-    db.users.set(userId, user);
-    db.emailToUserId.set(email, userId);
-
-    try {
-      saveDBToFile();
-    } catch (saveErr) {
-      console.warn("Could not save DB to file (non-fatal):", saveErr);
-    }
+    const userData = createUser(userId, name, email, SYSTEM_STARTING_BALANCE);
 
     console.log(`User created: ${userId} (${email})`);
-    console.log(`Total users in DB: ${db.users.size}`);
 
-    const token = Buffer.from(`${userId}:${email}`).toString("base64");
+    const token = Buffer.from(`${email}`).toString("base64");
 
     const response: AuthResponse = {
-      user,
+      user: userData.profile,
       token,
     };
 
@@ -77,24 +54,17 @@ export const handleLogin: RequestHandler = (req, res) => {
       return;
     }
 
-    const db = getDB();
-    const userId = db.emailToUserId.get(email);
+    const userData = getUserByEmail(email);
 
-    if (!userId) {
+    if (!userData) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
-    const user = db.users.get(userId);
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
-    }
-
-    const token = Buffer.from(`${userId}:${email}`).toString("base64");
+    const token = Buffer.from(`${email}`).toString("base64");
 
     const response: AuthResponse = {
-      user,
+      user: userData.profile,
       token,
     };
 
