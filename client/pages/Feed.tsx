@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
 import { isAuthenticated, getUser } from "@/lib/auth";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { Video, VoteResponse } from "@shared/api";
