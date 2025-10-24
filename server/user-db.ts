@@ -1,5 +1,4 @@
-import * as fs from "fs";
-import * as path from "path";
+import { executeQuery, executeSingleQuery } from "./db-neon";
 
 export interface UserProfile {
   id: string;
@@ -44,60 +43,95 @@ export interface UserData {
   votes: Vote[];
   transactions: Transaction[];
   withdrawals: Withdrawal[];
-  dailyVoteCount: { count: number; date: string }; // Rastreia votos do dia
+  dailyVoteCount: { count: number; date: string };
 }
 
-const USERS_DIR = path.join(process.cwd(), ".data", "users");
-
-function ensureUsersDir() {
-  if (!fs.existsSync(USERS_DIR)) {
-    try {
-      fs.mkdirSync(USERS_DIR, { recursive: true });
-    } catch (err) {
-      console.error("Could not create users directory:", err);
-    }
-  }
-}
-
-function getFilePath(email: string): string {
-  // Normalize email and sanitize for use as filename
-  const normalized = email.toLowerCase().trim();
-  const sanitized = normalized.replace(/[^a-z0-9._-]/g, "_");
-  return path.join(USERS_DIR, `${sanitized}.json`);
-}
-
-function createEmptyUserData(profile: UserProfile): UserData {
-  return {
-    profile,
-    votes: [],
-    transactions: [],
-    withdrawals: [],
-    dailyVoteCount: { count: 0, date: new Date().toISOString().split("T")[0] },
-  };
-}
-
-export function loadUserData(email: string): UserData | null {
+export async function loadUserData(email: string): Promise<UserData | null> {
   try {
-    ensureUsersDir();
-    const filePath = getFilePath(email);
+    const normalizedEmail = email.toLowerCase().trim();
 
-    if (!fs.existsSync(filePath)) {
+    const user = await executeSingleQuery(
+      "SELECT * FROM users WHERE email = $1",
+      [normalizedEmail],
+    );
+
+    if (!user) {
       return null;
     }
 
-    const data = fs.readFileSync(filePath, "utf-8");
-    return JSON.parse(data) as UserData;
+    const votes = await executeQuery(
+      `SELECT id, video_id as "videoId", vote_type as "voteType", reward_amount as "rewardAmount", created_at as "createdAt"
+       FROM votes WHERE user_id = $1 ORDER BY created_at DESC`,
+      [user.id],
+    );
+
+    const transactions = await executeQuery(
+      `SELECT id, type, amount, description, status, created_at as "createdAt"
+       FROM transactions WHERE user_id = $1 ORDER BY created_at DESC`,
+      [user.id],
+    );
+
+    const withdrawals = await executeQuery(
+      `SELECT id, amount, status, requested_at as "requestedAt", processed_at as "completedAt"
+       FROM withdrawals WHERE user_id = $1 ORDER BY requested_at DESC`,
+      [user.id],
+    );
+
+    const today = new Date().toISOString().split("T")[0];
+    const votesToday = votes.rows.filter(
+      (v: any) => v.createdAt.split("T")[0] === today,
+    ).length;
+
+    const profile: UserProfile = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      balance: parseFloat(user.balance),
+      createdAt: user.created_at,
+      firstEarnAt: user.first_earn_at,
+      votingStreak: user.voting_streak || 0,
+      lastVotedAt: user.last_voted_at,
+      lastVoteDateReset: user.last_vote_date_reset,
+      votingDaysCount: user.voting_days_count || 0,
+    };
+
+    return {
+      profile,
+      votes: votes.rows,
+      transactions: transactions.rows,
+      withdrawals: withdrawals.rows,
+      dailyVoteCount: { count: votesToday, date: today },
+    };
   } catch (err) {
     console.error(`Could not load user data for ${email}:`, err);
     return null;
   }
 }
 
-export function saveUserData(email: string, userData: UserData): boolean {
+export async function saveUserData(
+  email: string,
+  userData: UserData,
+): Promise<boolean> {
   try {
-    ensureUsersDir();
-    const filePath = getFilePath(email);
-    fs.writeFileSync(filePath, JSON.stringify(userData, null, 2), "utf-8");
+    const normalizedEmail = email.toLowerCase().trim();
+
+    await executeQuery(
+      `UPDATE users 
+       SET name = $1, balance = $2, voting_streak = $3, voting_days_count = $4, 
+           last_voted_at = $5, last_vote_date_reset = $6, first_earn_at = $7, updated_at = NOW()
+       WHERE email = $8`,
+      [
+        userData.profile.name,
+        userData.profile.balance,
+        userData.profile.votingStreak,
+        userData.profile.votingDaysCount,
+        userData.profile.lastVotedAt,
+        userData.profile.lastVoteDateReset,
+        userData.profile.firstEarnAt,
+        normalizedEmail,
+      ],
+    );
+
     return true;
   } catch (err) {
     console.error(`Could not save user data for ${email}:`, err);
@@ -105,135 +139,193 @@ export function saveUserData(email: string, userData: UserData): boolean {
   }
 }
 
-export function createUser(
+export async function createUser(
   id: string,
   name: string,
   email: string,
   initialBalance: number = 213.19,
-): UserData {
+): Promise<UserData> {
   const normalizedEmail = email.toLowerCase().trim();
   const now = new Date().toISOString();
-  const profile: UserProfile = {
-    id,
-    name: name.trim(),
-    email: normalizedEmail,
-    balance: initialBalance,
-    createdAt: now,
-    firstEarnAt: null,
-    votingStreak: 0,
-    lastVotedAt: null,
-    lastVoteDateReset: null,
-    votingDaysCount: 0,
-  };
 
-  const userData = createEmptyUserData(profile);
-  saveUserData(normalizedEmail, userData);
-  return userData;
+  try {
+    await executeQuery(
+      `INSERT INTO users (id, email, name, balance, created_at, voting_streak, voting_days_count)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [id, normalizedEmail, name.trim(), initialBalance, now, 0, 0],
+    );
+
+    const profile: UserProfile = {
+      id,
+      name: name.trim(),
+      email: normalizedEmail,
+      balance: initialBalance,
+      createdAt: now,
+      firstEarnAt: null,
+      votingStreak: 0,
+      lastVotedAt: null,
+      lastVoteDateReset: null,
+      votingDaysCount: 0,
+    };
+
+    return {
+      profile,
+      votes: [],
+      transactions: [],
+      withdrawals: [],
+      dailyVoteCount: { count: 0, date: new Date().toISOString().split("T")[0] },
+    };
+  } catch (err) {
+    console.error("Could not create user:", err);
+    throw err;
+  }
 }
 
-export function getUserByEmail(email: string): UserData | null {
+export async function getUserByEmail(email: string): Promise<UserData | null> {
   return loadUserData(email);
 }
 
-export function updateUserProfile(
+export async function updateUserProfile(
   email: string,
   profile: UserProfile,
-): UserData | null {
-  const userData = loadUserData(email);
+): Promise<UserData | null> {
+  const userData = await loadUserData(email);
   if (!userData) {
     return null;
   }
 
   userData.profile = profile;
-  saveUserData(email, userData);
-  return userData;
+  const saved = await saveUserData(email, userData);
+  return saved ? userData : null;
 }
 
-export function addVote(email: string, vote: Vote): UserData | null {
-  const userData = loadUserData(email);
-  if (!userData) {
+export async function addVote(
+  email: string,
+  vote: Vote,
+): Promise<UserData | null> {
+  try {
+    const userData = await loadUserData(email);
+    if (!userData) {
+      return null;
+    }
+
+    await executeQuery(
+      `INSERT INTO votes (id, user_id, video_id, vote_type, reward_amount, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        vote.id,
+        userData.profile.id,
+        vote.videoId,
+        vote.voteType,
+        vote.rewardAmount,
+        vote.createdAt,
+      ],
+    );
+
+    userData.profile.lastVotedAt = vote.createdAt;
+    await saveUserData(email, userData);
+
+    return await loadUserData(email);
+  } catch (err) {
+    console.error("Could not add vote:", err);
     return null;
   }
-
-  userData.votes.push(vote);
-  userData.profile.lastVotedAt = vote.createdAt;
-
-  // Update daily vote count
-  const today = new Date().toISOString().split("T")[0];
-  if (userData.dailyVoteCount.date === today) {
-    userData.dailyVoteCount.count += 1;
-  } else {
-    userData.dailyVoteCount = { count: 1, date: today };
-  }
-
-  saveUserData(email, userData);
-  return userData;
 }
 
-export function addTransaction(
+export async function addTransaction(
   email: string,
   transaction: Transaction,
-): UserData | null {
-  const userData = loadUserData(email);
-  if (!userData) {
+): Promise<UserData | null> {
+  try {
+    const userData = await loadUserData(email);
+    if (!userData) {
+      return null;
+    }
+
+    await executeQuery(
+      `INSERT INTO transactions (id, user_id, type, amount, description, status, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        transaction.id,
+        userData.profile.id,
+        transaction.type,
+        transaction.amount,
+        transaction.description,
+        transaction.status,
+        transaction.createdAt,
+      ],
+    );
+
+    if (transaction.type === "credit") {
+      userData.profile.balance += transaction.amount;
+    } else if (transaction.type === "debit") {
+      userData.profile.balance = Math.max(
+        0,
+        userData.profile.balance - transaction.amount,
+      );
+    }
+
+    await saveUserData(email, userData);
+    return await loadUserData(email);
+  } catch (err) {
+    console.error("Could not add transaction:", err);
     return null;
   }
-
-  userData.transactions.push(transaction);
-
-  // Update balance if it's a credit
-  if (transaction.type === "credit") {
-    userData.profile.balance += transaction.amount;
-  } else if (transaction.type === "debit") {
-    userData.profile.balance = Math.max(
-      0,
-      userData.profile.balance - transaction.amount,
-    );
-  }
-
-  saveUserData(email, userData);
-  return userData;
 }
 
-export function addWithdrawal(
+export async function addWithdrawal(
   email: string,
   withdrawal: Withdrawal,
-): UserData | null {
-  const userData = loadUserData(email);
-  if (!userData) {
+): Promise<UserData | null> {
+  try {
+    const userData = await loadUserData(email);
+    if (!userData) {
+      return null;
+    }
+
+    await executeQuery(
+      `INSERT INTO withdrawals (id, user_id, amount, requested_at, status)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        withdrawal.id,
+        userData.profile.id,
+        withdrawal.amount,
+        withdrawal.requestedAt,
+        withdrawal.status,
+      ],
+    );
+
+    return await loadUserData(email);
+  } catch (err) {
+    console.error("Could not add withdrawal:", err);
     return null;
   }
-
-  userData.withdrawals.push(withdrawal);
-  saveUserData(email, userData);
-  return userData;
 }
 
-export function getDailyVoteCount(email: string): number {
-  const userData = loadUserData(email);
+export async function getDailyVoteCount(email: string): Promise<number> {
+  const userData = await loadUserData(email);
   if (!userData) {
     return 0;
   }
 
-  const today = new Date().toISOString().split("T")[0];
-  if (userData.dailyVoteCount.date === today) {
-    return userData.dailyVoteCount.count;
-  }
-
-  return 0;
+  return userData.dailyVoteCount.count;
 }
 
-export function getPendingWithdrawal(email: string): Withdrawal | null {
-  const userData = loadUserData(email);
+export async function getPendingWithdrawal(
+  email: string,
+): Promise<Withdrawal | null> {
+  const userData = await loadUserData(email);
   if (!userData) {
     return null;
   }
 
-  return userData.withdrawals.find((w) => w.status === "pending") || null;
+  return (
+    userData.withdrawals.find((w) => w.status === "pending") || null
+  );
 }
 
-export function getVotedVideoIds(email: string): string[] {
-  const userData = loadUserData(email);
+export async function getVotedVideoIds(email: string): Promise<string[]> {
+  const userData = await loadUserData(email);
   if (!userData) {
     return [];
   }
