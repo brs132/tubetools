@@ -26,6 +26,16 @@ export async function handler(event: any, context: any) {
   console.log(`[API] ${method} ${path}`);
 
   // Mock Express-like request and response objects
+  let body = {};
+  if (event.body) {
+    try {
+      body = typeof event.body === "string" ? JSON.parse(event.body) : event.body;
+    } catch (e) {
+      console.error("Failed to parse body:", event.body);
+      body = {};
+    }
+  }
+
   const req: any = {
     method,
     path,
@@ -33,7 +43,7 @@ export async function handler(event: any, context: any) {
     headers: event.headers || {},
     query: event.queryStringParameters || {},
     params: event.pathParameters || {},
-    body: event.body ? JSON.parse(event.body) : {},
+    body,
   };
 
   const res: any = {
