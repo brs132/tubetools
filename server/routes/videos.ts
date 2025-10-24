@@ -136,7 +136,14 @@ export const handleVote: RequestHandler = (req, res) => {
     const { id } = req.params;
     const { voteType } = req.body;
 
-    console.log("[handleVote] Video ID:", id, "Vote type:", voteType, "Email:", email);
+    console.log(
+      "[handleVote] Video ID:",
+      id,
+      "Vote type:",
+      voteType,
+      "Email:",
+      email,
+    );
 
     if (!voteType || !["like", "dislike"].includes(voteType)) {
       res.status(400).json({ error: "Invalid vote type" });
